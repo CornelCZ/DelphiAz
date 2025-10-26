@@ -1,0 +1,6 @@
+Initialise		TEXT	SiteVariation_Initialise.sql
+CreateTempTables	TEXT	SiteVariation_CreateTempTables.sql
+LoadData		TEXT	SiteVariation_LoadData.sql
+CreateImportExportTable	TEXT	SiteVariation_CreateImportExportTable.sql
+ImportErrors		TEXT	SiteVariation_ImportErrors.sql
+Save		TEXT	SiteVariation_Save.sql

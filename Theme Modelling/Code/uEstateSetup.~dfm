@@ -1,0 +1,1734 @@
+object EstateSetup: TEstateSetup
+  Left = 612
+  Top = 137
+  Width = 845
+  Height = 648
+  BorderWidth = 8
+  Caption = 'Estate Setup'
+  Color = clBtnFace
+  Constraints.MinHeight = 648
+  Constraints.MinWidth = 845
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Font.Style = []
+  OldCreateOrder = False
+  Position = poOwnerFormCenter
+  OnClose = FormClose
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  DesignSize = (
+    817
+    597)
+  PixelsPerInch = 96
+  TextHeight = 13
+  object pcBaseData: TPageControl
+    Left = 0
+    Top = 0
+    Width = 821
+    Height = 573
+    ActivePage = tsDiscounts
+    Anchors = [akLeft, akTop, akRight, akBottom]
+    TabIndex = 2
+    TabOrder = 0
+    OnChange = pcBaseDataChange
+    OnChanging = pcBaseDataChanging
+    object TabConfigSets: TTabSheet
+      Caption = 'Config Sets'
+      ImageIndex = 3
+      OnHide = TabConfigSetsHide
+      OnShow = TabConfigSetsShow
+      DesignSize = (
+        813
+        545)
+      object Label8: TLabel
+        Left = 8
+        Top = 8
+        Width = 129
+        Height = 13
+        Caption = 'Terminal configuration sets:'
+      end
+      object gConfigSchemes: TwwDBGrid
+        Left = 8
+        Top = 24
+        Width = 789
+        Height = 169
+        ControlType.Strings = (
+          'AutoClose;CheckBox;True;False'
+          'AutoDeclare;CheckBox;True;False'
+          'UseLogOnPassword;CheckBox;True;False'
+          'PrintSplitBillOnSave;CheckBox;True;False'
+          'TableUseCoverCount;CheckBox;True;False'
+          'TableUseCustomerName;CheckBox;True;False'
+          'BarUseCoverCount;CheckBox;True;False'
+          'BarUseCustomerName;CheckBox;True;False'
+          'PrintReceiptByDefault;CheckBox;True;False'
+          'AutomaticReceiptPrintRequiresConfirmation;CheckBox;True;False'
+          'ValidateBarAccounts;CheckBox;True;False'
+          'ValidateNonPerSeatTableAccounts;CheckBox;True;False'
+          'PrintTipLineOnEFTReceipt;CheckBox;True;False'
+          'UseDrawerAssignment;CheckBox;True;False'
+          'ShowChangeAndTip;CheckBox;True;False'
+          'ShowProductNameIfSerial;CheckBox;True;False'
+          'CashbackAllowedOnBarAccounts;CheckBox;True;False'
+          'CashbackAllowedOnNonPerSeatTableAccounts;CheckBox;True;False'
+          'CashbackAllowedOnPerSeatTableAccounts;CheckBox;True;False'
+          'ValidateCustomerAge;CheckBox;True;False'
+          'KitchenScreenType;CustomEdit;wwdbLookupKDSType;T'
+          'KitchenScreenTypeName;CustomEdit;wwdbLookupKDSType;F'
+          'ForcedSelection;CheckBox;True;False'
+          'GraphicIDDisplay;CustomEdit;wwDBLookupTerminalGraphic;F'
+          'SendAllBarcodedProducts;CheckBox;True;False'
+          'CashBackAllowedOnDriveThruAccounts;CheckBox;True;False'
+          'PrintValidationSlip;CheckBox;True;False'
+          'ValidatePerSeatTableAccounts;CheckBox;True;False'
+          'PerSeatTableUseCustomerName;CheckBox;True;False'
+          'PerSeatTableUseCoverCount;CheckBox;True;False'
+          'NonPerSeatTableUseCustomerName;CheckBox;True;False'
+          'NonPerSeatTableUseCoverCount;CheckBox;True;False'
+          'NonPerSeatTableUseCoverCount;CheckBox;True;False'
+          'UseLargeChangePrompt;CheckBox;True;False'
+          'HighlightAccountNumber;CheckBox;True;False'
+          'UseFastEFT;CheckBox;True;False'
+          'UseAccountNumber;CheckBox;True;False'
+          'NonPerSeatTableUseCoverCount;CheckBox;True;False'
+          'UseLargeChangePrompt;CheckBox;True;False'
+          'HighlightAccountNumber;CheckBox;True;False'
+          'KitchenScreenRedirectToBillReceiptPrinter;CheckBox;True;False'
+          'ConversationalRecipesAutoAdvance;CheckBox;True;False'
+          'ConversationalRecipesEnabled;CheckBox;True;False'
+          'RemoveChoiceAnd;CheckBox;True;False'
+          'RemoveChoiceMessage;CheckBox;True;False'
+          'OnlyDisplayDrawerChange;CheckBox;True;False'
+          'AllowReopeningOfYesterdaysAccounts;CheckBox;True;False'
+          'RecordBarcodeUsage;CheckBox;True;False'
+          
+            'KitchenScreenMessageSentWhenOrderSavedName;CustomEdit;wwDBLookup' +
+            'KDSMessageSentWhenOrderSaved;F'
+          'PerSeatTableAutoServiceCharge;CheckBox;True;False'
+          'NonPerSeatTableAutoServiceCharge;CheckBox;True;False'
+          'BarAutoServiceCharge;CheckBox;True;False'
+          'EnableAdMarginOni700;CheckBox;True;False'
+          'EnableAdMargin;CheckBox;True;False'
+          'ReceiptBreakdownByHotelDivision;CheckBox;True;False'
+          'OpenDrawerOnFinalPayOnly;CheckBox;True;False'
+          'EnableFlightCapture;CheckBox;True;False'
+          'DisableAllButtonsWhenDrawerOpen;CheckBox;True;False'
+          'i700CheckDrawerStatusBeforeOpening;CheckBox;True;False'
+          
+            'CustomerInformationPromptText;CustomEdit;wwDBLookupCustomerInfoP' +
+            'rompts;F'
+          'UsesPosPrinting;CheckBox;True;False'
+          'PrintPriceEmbeddedBarcode;CheckBox;True;False'
+          'EnableKeyboardSupport;CheckBox;True;False'
+          'AutoThemeSendToBlankTerminals;CheckBox;True;False'
+          'AllowCharityDonations;CheckBox;True;False'
+          'ShowExchangeRateOnReceipt;CheckBox;True;False'
+          'PromptForReasonOnAccountMerge;CheckBox;True;False'
+          'PromptForReasonOnAccountMove;CheckBox;True;False'
+          'PromptForReasonOnTableMerge;CheckBox;True;False'
+          'PromptForReasonOnTableMove;CheckBox;True;False'
+          'ShowExchangeRateOnBill;CheckBox;True;False'
+          'EnableTillCameraScanning;CheckBox;True;False'
+          'PrintAllOrderLinesOnBillAndReceipt;CheckBox;True;False'
+          'PromptToRedeemBookingOnStartTable;CheckBox;True;False')
+        Selected.Strings = (
+          'Name'#9'15'#9'Name'#9'F'
+          'AutoClose'#9'8'#9'Auto~end of day'#9'F'
+          'AutoCloseTime'#9'7'#9'Auto~EOD time'#9'F'
+          'AutoDeclare'#9'5'#9'Auto~declare'#9'F'
+          'UseLogOnPassword'#9'12'#9'Allow password~log on'#9'F'
+          'PrintSplitBillOnSave'#9'6'#9'Print~split bill~on save'#9'F'
+          
+            'PerSeatTableUseCustomerName'#9'16'#9'Use Customer Name~ (Table Mode, ~' +
+            'Per Seat)'#9'F'
+          
+            'PerSeatTableUseCoverCount'#9'13'#9'Use Cover Count~(Table Mode,~ Per S' +
+            'eat)'#9'F'
+          
+            'PerSeatTableAutoServiceCharge'#9'16'#9'Auto Service Charge~(Table Mode' +
+            ',~ Per Seat)'#9'F'
+          
+            'NonPerSeatTableUseCustomerName'#9'16'#9'Use Customer Name~ (Table Mode' +
+            ', ~Not Per Seat)'#9'F'
+          
+            'NonPerSeatTableUseCoverCount'#9'13'#9'Use Cover Count~(Table Mode,~Not' +
+            ' Per Seat)'#9'F'
+          
+            'NonPerSeatTableAutoServiceCharge'#9'16'#9'Auto Service Charge~(Table M' +
+            'ode,~Not Per Seat)'#9'F'
+          'BarUseCustomerName'#9'16'#9'Use Customer Name~(Bar Mode)'#9'F'
+          'BarUseCoverCount'#9'13'#9'Use Cover Count~(Bar Mode)'#9'F'
+          'BarAutoServiceCharge'#9'16'#9'Auto Service Charge~(Bar Mode)'#9'F'
+          'PrintReceiptByDefault'#9'9'#9'Print receipt~by default'#9'F'
+          
+            'AutomaticReceiptPrintRequiresConfirmation'#9'9'#9'Prompt to cancel~aut' +
+            'o-print'#9'F'
+          'PrintValidationSlip'#9'11'#9'Print~Validation Slip'#9'F'
+          'ValidateBarAccounts'#9'10'#9'Validate EFT~(bar mode)'#9'F'
+          
+            'ValidateNonPerSeatTableAccounts'#9'10'#9'Validate EFT~(table mode,~not' +
+            ' per-seat)'#9'F'
+          
+            'ValidatePerSeatTableAccounts'#9'10'#9'Validate EFT~(table mode,~per-se' +
+            'at)'#9'F'
+          'PrintTipLineOnEFTReceipt'#9'9'#9'Print tip line~on EFT bill'#9'F'
+          'UseDrawerAssignment'#9'9'#9'Use drawer~assignment'#9'F'
+          'ShowChangeAndTip'#9'11'#9'Show Change~and Tip'#9'F'
+          'ShowProductNameIfSerial'#9'16'#9'Show Product Name ~if Serial'#9'F'
+          
+            'CashbackAllowedOnBarAccounts'#9'16'#9'Prompt for cashback ~(bar mode)'#9 +
+            'F'
+          
+            'CashbackAllowedOnNonPerSeatTableAccounts'#9'16'#9'Prompt for cashback~' +
+            '(table mode,~not per-seat)'#9'F'
+          
+            'CashbackAllowedOnPerSeatTableAccounts'#9'16'#9'Prompt for cashback~(ta' +
+            'ble mode,~per-seat)'#9'F'
+          'ValidateCustomerAge'#9'11'#9'Validate~Customer Age'#9'F'
+          'KitchenScreenTypeName'#9'10'#9'KDS~Service Type'#9'F'
+          
+            'KitchenScreenRedirectToBillReceiptPrinter'#9'10'#9'KDS~Receipt Print~F' +
+            'allback'#9'F'
+          'ForcedSelection'#9'7'#9'Forced~Selection'#9'F'
+          'GraphicIDDisplay'#9'7'#9'Customer~Display~Graphic'#9'F'
+          'SendAllBarcodedProducts'#9'15'#9'Send all~Barcoded Products'#9'F'
+          
+            'CashBackAllowedOnDriveThruAccounts'#9'16'#9'Allow cash back~on~Drive T' +
+            'hru Accounts '#9'F'
+          'UseFastEFT'#9'3'#9'Use~Fast~EFT'#9'F'
+          'UseLargeChangePrompt'#9'12'#9'Use Large~Change Prompt'#9'F'
+          'UseAccountNumber'#9'6'#9'Use~Order~Number'#9'F'
+          'HighlightAccountNumber'#9'12'#9'Highlight~Account / Order~Number'#9'F'
+          'ConversationalRecipesEnabled'#9'11'#9'Conversational~Ordering'#9'F'
+          
+            'ConversationalRecipesAutoAdvance'#9'11'#9'Conv. Ordering~Auto Advance'#9 +
+            'F'
+          'RemoveChoiceAnd'#9'15'#9'Remove~AND button~from Choice Panels'#9'F'
+          
+            'RemoveChoiceMessage'#9'15'#9'Remove~MESSAGE button~from Choice Panels'#9 +
+            'F'
+          'OnlyDisplayDrawerChange'#9'11'#9'Only~Display Drawer~Change'#9'F'
+          
+            'AllowReopeningOfYesterdaysAccounts'#9'13'#9'Allow Reopening~of Yesterd' +
+            'ay'#39's~Accounts'#9'F'
+          'RecordBarcodeUsage'#9'6'#9'Record~Barcode~Usage'#9'F'
+          'EnableAdMargin'#9'7'#9'Enable~AdMargin'#9'F'
+          
+            'ReceiptBreakdownByHotelDivision'#9'15'#9'Receipt Breakdown~by Hotel Di' +
+            'vision'#9'F'
+          'OpenDrawerOnFinalPayOnly'#9'13'#9'Open Drawer on~Final Payment~only'#9'F'
+          
+            'DisableAllButtonsWhenDrawerOpen'#9'22'#9'Prevent Use With~Open Drawer~' +
+            '(only on supported hardware)'#9'F'
+          
+            'i700CheckDrawerStatusBeforeOpening'#9'22'#9'Check Cash~Drawer Status~(' +
+            'only on supported hardware)'#9'F'
+          
+            'CustomerInformationPromptText'#9'40'#9'Customer Information~Prompt Tex' +
+            't'#9'F'
+          'UsesPosPrinting'#9'13'#9'Use Pos Printing~for Standard~Roaming EFT'#9'F'
+          'PrintPriceEmbeddedBarcode'#9'8'#9'Print Price~Embedded~Barcode'#9'F'
+          'EnableKeyboardSupport'#9'7'#9'Enable~Keyboard~Support'#9'F'
+          
+            'AutoThemeSendToBlankTerminals'#9'11'#9'Auto Theme~Send To Blank~Termin' +
+            'als'#9'F'
+          'AllowCharityDonations'#9'8'#9'Allow~Charity~Donations'#9'F'
+          'ShowExchangeRateOnReceipt'#9'12'#9'Show~Exchange Rate~On Receipt'#9'F'
+          'ShowExchangeRateOnBill'#9'9'#9'Show~Exchange Rate~On Bill'#9'F'
+          
+            'PromptForReasonOnAccountMerge'#9'12'#9'Prompt For~Reason On~Account Me' +
+            'rge'#9'F'
+          
+            'PromptForReasonOnAccountMove'#9'11'#9'Prompt For~Reason On~Account Mov' +
+            'e'#9'F'
+          
+            'PromptForReasonOnTableMerge'#9'10'#9'Prompt For~Reason On~Table Merge'#9 +
+            'F'
+          'PromptForReasonOnTableMove'#9'9'#9'Prompt For~Reason On~Table Move'#9'F'
+          'EnableTillCameraScanning'#9'8'#9'Enable Till~Camera~Scanning'#9'F'
+          
+            'PrintAllOrderLinesOnBillAndReceipt'#9'8'#9'Print All~Order Lines On~Bi' +
+            'll and Receipt'#9'F'
+          
+            'PromptToRedeemBookingOnStartTable'#9'12'#9'Prompt To Redeem~Booking Wh' +
+            'en~Starting Table'#9'F')
+        IniAttributes.Delimiter = ';;'
+        TitleColor = clBtnFace
+        FixedCols = 1
+        ShowHorzScrollBar = True
+        EditControlOptions = [ecoCheckboxSingleClick, ecoSearchOwnerForm]
+        Anchors = [akLeft, akTop, akRight]
+        DataSource = dmThemeData.dsConfigSets
+        KeyOptions = []
+        Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit, dgWordWrap, dgShowCellHint, dgFixedResizable, dgFixedEditable]
+        TabOrder = 0
+        TitleAlignment = taCenter
+        TitleFont.Charset = DEFAULT_CHARSET
+        TitleFont.Color = clWindowText
+        TitleFont.Height = -11
+        TitleFont.Name = 'MS Sans Serif'
+        TitleFont.Style = []
+        TitleLines = 3
+        TitleButtons = False
+        UseTFields = False
+        OnCalcCellColors = gConfigSchemesCalcCellColors
+        OnMouseMove = gConfigSchemesMouseMove
+      end
+      object btAddConfigScheme: TButton
+        Left = 8
+        Top = 200
+        Width = 75
+        Height = 25
+        Caption = 'Add'
+        TabOrder = 1
+        OnClick = btAddConfigSchemeClick
+      end
+      object btDeleteConfigScheme: TButton
+        Left = 88
+        Top = 200
+        Width = 75
+        Height = 25
+        Caption = 'Delete'
+        TabOrder = 2
+        OnClick = btDeleteConfigSchemeClick
+      end
+      object wwdbLookupKDSType: TwwDBLookupCombo
+        Left = 168
+        Top = 168
+        Width = 97
+        Height = 21
+        DropDownAlignment = taLeftJustify
+        Selected.Strings = (
+          'Name'#9'50'#9'Name'#9'F'#9)
+        DataField = 'KitchenScreenType'
+        DataSource = dmThemeData.dsConfigSets
+        LookupTable = dmThemeData.qKitchenScreenType
+        LookupField = 'id'
+        Style = csDropDownList
+        DropDownWidth = 100
+        TabOrder = 3
+        AutoDropDown = True
+        ShowButton = True
+        AllowClearKey = False
+        ShowMatchText = True
+      end
+      object wwDBLookupTerminalGraphic: TwwDBLookupCombo
+        Left = 280
+        Top = 168
+        Width = 97
+        Height = 21
+        DropDownAlignment = taLeftJustify
+        Selected.Strings = (
+          'FileName'#9'50'#9'FileName'#9'F'#9)
+        DataField = 'GraphicID'
+        DataSource = dmThemeData.dsConfigSets
+        LookupTable = dmThemeData.qTerminalGraphicsWithDefault
+        LookupField = 'id'
+        Style = csDropDownList
+        DropDownWidth = 100
+        TabOrder = 4
+        AutoDropDown = True
+        ShowButton = True
+        AllowClearKey = False
+        ShowMatchText = True
+      end
+      object GroupBoxOrderDestinations: TGroupBox
+        Left = 476
+        Top = 236
+        Width = 321
+        Height = 150
+        Caption = ' Order Destination Settings (for selected configuration set): '
+        TabOrder = 5
+        DesignSize = (
+          321
+          150)
+        object CheckBoxShowOrderDestinations: TwwCheckBox
+          Left = 7
+          Top = 129
+          Width = 170
+          Height = 17
+          AlwaysTransparent = False
+          ValueChecked = 'True'
+          ValueUnchecked = 'False'
+          DisplayValueChecked = 'True'
+          DisplayValueUnchecked = 'False'
+          NullAndBlankState = cbUnchecked
+          Anchors = [akBottom]
+          Caption = 'Show order destination prompt'
+          Checked = True
+          DataField = 'DisplayDestinations'
+          DataSource = dmThemeData.dsConfigSets
+          State = cbChecked
+          TabOrder = 0
+        end
+        object gConfigSetDestinationSettings: TwwDBGrid
+          Left = 8
+          Top = 16
+          Width = 304
+          Height = 109
+          ControlType.Strings = (
+            'UseDestination;CheckBox;True;False'
+            'IsDefault;CheckBox;True;False')
+          Selected.Strings = (
+            'DestinationName'#9'19'#9'Destination'#9#9
+            'UseDestination'#9'12'#9'Use Destination'#9#9
+            'IsDefault'#9'11'#9'Default'#9#9)
+          IniAttributes.Delimiter = ';;'
+          TitleColor = clBtnFace
+          FixedCols = 1
+          ShowHorzScrollBar = True
+          EditControlOptions = [ecoCheckboxSingleClick, ecoSearchOwnerForm]
+          Anchors = [akLeft, akTop, akRight, akBottom]
+          DataSource = dmThemeData.dsConfigSetDestinations
+          KeyOptions = []
+          TabOrder = 1
+          TitleAlignment = taLeftJustify
+          TitleFont.Charset = DEFAULT_CHARSET
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -11
+          TitleFont.Name = 'MS Sans Serif'
+          TitleFont.Style = []
+          TitleLines = 1
+          TitleButtons = False
+          OnFieldChanged = gConfigSetDestinationSettingsFieldChanged
+        end
+      end
+      object GroupBox3: TGroupBox
+        Left = 8
+        Top = 236
+        Width = 460
+        Height = 150
+        Caption = ' Divisional settings (for selected configuration set): '
+        TabOrder = 7
+        DesignSize = (
+          460
+          150)
+        object gConfigSetDivisionalSettings: TwwDBGrid
+          Left = 8
+          Top = 16
+          Width = 444
+          Height = 127
+          ControlType.Strings = (
+            'CanPayOnBarAccount;CheckBox;True;False'
+            'CanSaveOnBarAccount;CheckBox;True;False'
+            'AutoPrintReceipt;CheckBox;True;False')
+          Selected.Strings = (
+            'DivisionName'#9'15'#9'Division Name'#9'T'
+            'CanPayOnBarAccount'#9'5'#9'Can pay on bar account'#9'F'
+            'CanSaveOnBarAccount'#9'5'#9'Can save on bar account'#9'F'
+            'AutoPrintReceipt'#9'5'#9'Auto print receipt'#9'F')
+          IniAttributes.Delimiter = ';;'
+          TitleColor = clBtnFace
+          FixedCols = 1
+          ShowHorzScrollBar = True
+          EditControlOptions = [ecoCheckboxSingleClick, ecoSearchOwnerForm]
+          Anchors = [akLeft, akTop, akRight, akBottom]
+          DataSource = dmThemeData.dsConfigSetDivisions
+          KeyOptions = []
+          TabOrder = 0
+          TitleAlignment = taLeftJustify
+          TitleFont.Charset = DEFAULT_CHARSET
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -11
+          TitleFont.Name = 'MS Sans Serif'
+          TitleFont.Style = []
+          TitleLines = 1
+          TitleButtons = False
+          UseTFields = False
+        end
+      end
+      object GroupBox4: TGroupBox
+        Left = 8
+        Top = 390
+        Width = 461
+        Height = 150
+        Anchors = [akLeft, akTop, akBottom]
+        Caption = ' Sub-Category settings (for selected configuration set): '
+        TabOrder = 6
+        DesignSize = (
+          461
+          150)
+        object gSubCategorySettings: TwwDBGrid
+          Left = 8
+          Top = 16
+          Width = 444
+          Height = 125
+          ControlType.Strings = (
+            'HotelDivisionName;CustomEdit;wwDBLookupCombo1;F'
+            'HotelDivision;CustomEdit;wwDBLookupCombo1;F')
+          Selected.Strings = (
+            'SubCategoryName'#9'14'#9'Sub-Cat.'
+            'HotelDivisionName'#9'25'#9'Hotel Division Name'#9'F')
+          IniAttributes.Delimiter = ';;'
+          TitleColor = clBtnFace
+          FixedCols = 1
+          ShowHorzScrollBar = True
+          Anchors = [akLeft, akTop, akRight, akBottom]
+          DataSource = dmThemeData.dsConfigSetSubcat
+          KeyOptions = []
+          TabOrder = 0
+          TitleAlignment = taLeftJustify
+          TitleFont.Charset = DEFAULT_CHARSET
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -11
+          TitleFont.Name = 'MS Sans Serif'
+          TitleFont.Style = []
+          TitleLines = 1
+          TitleButtons = False
+        end
+        object wwDBLookupCombo1: TwwDBLookupCombo
+          Left = 64
+          Top = 40
+          Width = 89
+          Height = 21
+          DropDownAlignment = taLeftJustify
+          Selected.Strings = (
+            'name'#9'25'#9'name'#9#9)
+          DataField = 'SubcategoryID'
+          DataSource = dmThemeData.dsConfigSetSubcat
+          LookupTable = dmThemeData.qHotelDivsCombo
+          LookupField = 'HotelDivisionID'
+          DropDownWidth = 20
+          TabOrder = 1
+          AutoDropDown = False
+          ShowButton = True
+          AllowClearKey = False
+          ShowMatchText = True
+        end
+      end
+      object wwDBLookupCustomerInfoPrompts: TwwDBLookupCombo
+        Left = 392
+        Top = 168
+        Width = 105
+        Height = 21
+        DropDownAlignment = taLeftJustify
+        Selected.Strings = (
+          'PromptText'#9'40'#9'PromptText'#9'F')
+        DataField = 'CustomerInformationPrompt'
+        DataSource = dmThemeData.dsConfigSets
+        LookupTable = dmThemeData.qCustomerInformationPromptLookup
+        LookupField = 'id'
+        TabOrder = 8
+        AutoDropDown = True
+        ShowButton = True
+        AllowClearKey = False
+        ShowMatchText = True
+      end
+    end
+    object GlobalConfigs: TTabSheet
+      Caption = 'Global Configs'
+      ImageIndex = 4
+      OnHide = GlobalConfigsHide
+      OnShow = GlobalConfigsShow
+      object HotelAnalysisCodesGroup: TGroupBox
+        Left = 8
+        Top = 316
+        Width = 278
+        Height = 222
+        Caption = 'Hotel Analysis Codes'
+        TabOrder = 2
+        DesignSize = (
+          278
+          222)
+        object grdHotelAnalysisCodes: TwwDBGrid
+          Left = 12
+          Top = 16
+          Width = 252
+          Height = 169
+          Selected.Strings = (
+            'ID'#9'10'#9'ID'
+            'Code'#9'27'#9'Code'#9'F')
+          IniAttributes.Delimiter = ';;'
+          TitleColor = clBtnFace
+          FixedCols = 0
+          ShowHorzScrollBar = True
+          Anchors = [akLeft, akTop, akRight, akBottom]
+          DataSource = dmThemeData.dsHotelAnalysisCodes
+          Options = [dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgWordWrap]
+          TabOrder = 0
+          TitleAlignment = taLeftJustify
+          TitleFont.Charset = DEFAULT_CHARSET
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -11
+          TitleFont.Name = 'MS Sans Serif'
+          TitleFont.Style = []
+          TitleLines = 1
+          TitleButtons = False
+          PadColumnStyle = pcsPlain
+        end
+        object btAddAnalysisCode: TButton
+          Left = 12
+          Top = 190
+          Width = 75
+          Height = 25
+          Anchors = [akLeft, akBottom]
+          Caption = 'Add'
+          TabOrder = 1
+          OnClick = btAddAnalysisCodeClick
+        end
+        object btEditAnalysisCode: TButton
+          Left = 92
+          Top = 190
+          Width = 75
+          Height = 25
+          Anchors = [akLeft, akBottom]
+          Caption = 'Edit'
+          TabOrder = 2
+          OnClick = btEditAnalysisCodeClick
+        end
+        object btDeleteAnalysisCode: TButton
+          Left = 172
+          Top = 190
+          Width = 75
+          Height = 25
+          Anchors = [akLeft, akBottom]
+          Caption = 'Delete'
+          TabOrder = 3
+          OnClick = btDeleteAnalysisCodeClick
+        end
+      end
+      object ScaleContainerGroupBox: TGroupBox
+        Left = 296
+        Top = 304
+        Width = 509
+        Height = 234
+        Caption = 'Scale Containers'
+        TabOrder = 5
+        DesignSize = (
+          509
+          234)
+        object dbgScaleContainers: TwwDBGrid
+          Left = 12
+          Top = 20
+          Width = 482
+          Height = 177
+          PictureMasks.Strings = (
+            'TareWeight'#9'*#[.[#[#[#]]]]'#9'T'#9'T')
+          Selected.Strings = (
+            'Name'#9'20'#9'Name'#9#9
+            'Description'#9'40'#9'Description'#9#9
+            'TareWeight'#9'12'#9'Tare Weight'#9#9)
+          IniAttributes.Delimiter = ';;'
+          TitleColor = clBtnFace
+          FixedCols = 0
+          ShowHorzScrollBar = True
+          Anchors = [akLeft, akTop, akRight, akBottom]
+          DataSource = dmThemeData.dsScaleContainer
+          Options = [dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgWordWrap, dgTrailingEllipsis, dgShowCellHint]
+          TabOrder = 0
+          TitleAlignment = taLeftJustify
+          TitleFont.Charset = DEFAULT_CHARSET
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -11
+          TitleFont.Name = 'MS Sans Serif'
+          TitleFont.Style = []
+          TitleLines = 1
+          TitleButtons = False
+          OnDblClick = dbgScaleContainersDblClick
+          PadColumnStyle = pcsPlain
+        end
+        object btnAddScaleContainer: TButton
+          Left = 12
+          Top = 202
+          Width = 75
+          Height = 25
+          Anchors = [akLeft, akBottom]
+          Caption = 'Add'
+          TabOrder = 1
+          OnClick = btnAddScaleContainerClick
+        end
+        object btnEditScaleContainer: TButton
+          Left = 95
+          Top = 202
+          Width = 75
+          Height = 25
+          Anchors = [akLeft, akBottom]
+          Caption = 'Edit'
+          TabOrder = 2
+          OnClick = btnEditScaleContainerClick
+        end
+        object btnDeleteScaleContainer: TButton
+          Left = 177
+          Top = 202
+          Width = 75
+          Height = 25
+          Anchors = [akLeft, akBottom]
+          Caption = 'Delete'
+          TabOrder = 3
+          OnClick = btnDeleteScaleContainerClick
+        end
+      end
+      object grbxUnattended: TGroupBox
+        Left = 296
+        Top = 234
+        Width = 509
+        Height = 63
+        Caption = 'iServe/iOrder/Kiosk Settings '
+        TabOrder = 4
+        object lblKioskPayment: TLabel
+          Left = 12
+          Top = 16
+          Width = 79
+          Height = 13
+          Caption = 'Payment method'
+        end
+        object lblCorrectionMethodRegular: TLabel
+          Left = 172
+          Top = 16
+          Width = 92
+          Height = 13
+          Caption = 'Correction  - regular'
+        end
+        object lblCorrectionmethodClearAll: TLabel
+          Left = 332
+          Top = 16
+          Width = 93
+          Height = 13
+          Caption = 'Correction - clear all'
+        end
+        object cmbbxKioskPaymentMethod: TComboBox
+          Left = 12
+          Top = 32
+          Width = 150
+          Height = 21
+          Style = csDropDownList
+          ItemHeight = 0
+          TabOrder = 0
+          OnSelect = cmbbxKioskPaymentMethodSelect
+        end
+        object cmbbxKioskCorrectionMethodRegular: TComboBox
+          Left = 172
+          Top = 32
+          Width = 150
+          Height = 21
+          Style = csDropDownList
+          ItemHeight = 0
+          TabOrder = 1
+        end
+        object cmbbxKioskCorrectionMethodClearAll: TComboBox
+          Left = 332
+          Top = 32
+          Width = 150
+          Height = 21
+          Style = csDropDownList
+          ItemHeight = 0
+          TabOrder = 2
+        end
+      end
+      object gpbxHotelDivisions: TGroupBox
+        Left = 296
+        Top = 8
+        Width = 509
+        Height = 221
+        Caption = 'Hotel Divisions'
+        TabOrder = 3
+        DesignSize = (
+          509
+          221)
+        object gHotelDivisions: TwwDBGrid
+          Left = 12
+          Top = 20
+          Width = 483
+          Height = 163
+          Selected.Strings = (
+            'HotelDivisionID'#9'5'#9'ID'
+            'Name'#9'33'#9'Name'#9'F'
+            'Description'#9'34'#9'Description')
+          IniAttributes.Delimiter = ';;'
+          TitleColor = clBtnFace
+          FixedCols = 0
+          ShowHorzScrollBar = True
+          Anchors = [akLeft, akTop, akRight]
+          DataSource = dmThemeData.dsHotelDivisions
+          Options = [dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgWordWrap]
+          TabOrder = 0
+          TitleAlignment = taLeftJustify
+          TitleFont.Charset = DEFAULT_CHARSET
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -11
+          TitleFont.Name = 'MS Sans Serif'
+          TitleFont.Style = []
+          TitleLines = 1
+          TitleButtons = False
+          PadColumnStyle = pcsPlain
+        end
+        object btAddHotelDivision: TButton
+          Left = 12
+          Top = 188
+          Width = 75
+          Height = 25
+          Caption = 'Add'
+          TabOrder = 1
+          OnClick = btAddHotelDivisionClick
+        end
+        object btEditHotelDivision: TButton
+          Left = 92
+          Top = 188
+          Width = 75
+          Height = 25
+          Caption = 'Edit'
+          TabOrder = 2
+          OnClick = btEditHotelDivisionClick
+        end
+        object btDeleteHotelDivision: TButton
+          Left = 172
+          Top = 188
+          Width = 75
+          Height = 25
+          Caption = 'Delete'
+          TabOrder = 3
+          OnClick = btDeleteHotelDivisionClick
+        end
+      end
+      object gpbxMisc: TGroupBox
+        Left = 8
+        Top = 8
+        Width = 278
+        Height = 204
+        Caption = 'Miscellaneous'
+        TabOrder = 0
+        object Bevel1: TBevel
+          Left = 12
+          Top = 158
+          Width = 254
+          Height = 39
+          Shape = bsFrame
+          Style = bsRaised
+        end
+        object Label25: TLabel
+          Left = 12
+          Top = 100
+          Width = 76
+          Height = 13
+          Caption = 'Rounding factor'
+        end
+        object Label21: TLabel
+          Left = 12
+          Top = 17
+          Width = 53
+          Height = 13
+          Caption = 'VAT mode:'
+        end
+        object lblRetentionPeriod: TLabel
+          Left = 41
+          Top = 175
+          Width = 113
+          Height = 13
+          Hint = 'Keep Deleted Promotions details (90 - 1096 days) '
+          Caption = 'Retention Period (days):'
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object btnTerminalGraphics: TButton
+          Left = 12
+          Top = 123
+          Width = 254
+          Height = 25
+          Caption = 'Terminal Graphics'
+          TabOrder = 6
+          OnClick = btnTerminalGraphicsClick
+        end
+        object udCurrencyRoundingFactor: TUpDown
+          Left = 153
+          Top = 97
+          Width = 16
+          Height = 21
+          Associate = edCurrencyRoundingFactor
+          Min = 1
+          Max = 1000
+          Position = 1
+          TabOrder = 5
+          Wrap = False
+        end
+        object edCurrencyRoundingFactor: TEdit
+          Left = 96
+          Top = 97
+          Width = 57
+          Height = 21
+          TabOrder = 4
+          Text = '1'
+        end
+        object cbxOmitMerchantEFTReceipt: TCheckBox
+          Left = 12
+          Top = 78
+          Width = 210
+          Height = 18
+          Alignment = taLeftJustify
+          Caption = 'Omit merchant EFT receipt if possible'
+          TabOrder = 3
+        end
+        object cbxPrintCustomerICCReceiptFirst: TCheckBox
+          Left = 12
+          Top = 59
+          Width = 210
+          Height = 18
+          Alignment = taLeftJustify
+          Caption = 'Print customer EFT receipt first'
+          TabOrder = 2
+        end
+        object cbxShowInclusiveTaxOnBill: TCheckBox
+          Left = 12
+          Top = 41
+          Width = 210
+          Height = 17
+          Alignment = taLeftJustify
+          Caption = 'Show Inclusive Tax Breakdown On Bill'
+          TabOrder = 1
+        end
+        object cbVATMode: TComboBox
+          Left = 68
+          Top = 14
+          Width = 198
+          Height = 21
+          Style = csDropDownList
+          ItemHeight = 0
+          TabOrder = 0
+          OnChange = cbVATModeChange
+        end
+        object cbPromoDetailsMaint: TCheckBox
+          Left = 18
+          Top = 152
+          Width = 169
+          Height = 18
+          Hint = 
+            'Archive deleted promotion records which can then be restored wit' +
+            'hin a configured retention period. '#13#10'Deleted promotion records o' +
+            'ut with the retention period set will be permanently deleted.'
+          Alignment = taLeftJustify
+          Caption = 'Promotion Details Maintenance'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 7
+          OnClick = cbPromoDetailsMaintClick
+        end
+        object udRetentionPeriod: TUpDown
+          Left = 213
+          Top = 171
+          Width = 17
+          Height = 21
+          Hint = 'min 90, max 1096'
+          Associate = edRetentionPeriod
+          Min = 90
+          Max = 1096
+          ParentShowHint = False
+          Position = 90
+          ShowHint = True
+          TabOrder = 8
+          Thousands = False
+          Wrap = False
+        end
+        object edRetentionPeriod: TEdit
+          Left = 156
+          Top = 171
+          Width = 57
+          Height = 21
+          Hint = 'Keep Deleted Promotions details (90 - 1096 days) '
+          MaxLength = 5
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 9
+          Text = '90'
+        end
+      end
+      object gpbxMainsAway: TGroupBox
+        Left = 8
+        Top = 217
+        Width = 278
+        Height = 94
+        Caption = #39'Mains Away'#39
+        TabOrder = 1
+        object lblMainsAwayInstruction: TLabel
+          Left = 12
+          Top = 54
+          Width = 115
+          Height = 13
+          Caption = #39'Mains Away'#39' instruction:'
+        end
+        object lblMainsCourse: TLabel
+          Left = 12
+          Top = 14
+          Width = 70
+          Height = 13
+          Caption = #39'Mains'#39' course:'
+        end
+        object cmbbxInstruction: TComboBox
+          Left = 12
+          Top = 68
+          Width = 254
+          Height = 21
+          Style = csDropDownList
+          ItemHeight = 0
+          TabOrder = 1
+          OnCloseUp = cmbbxInstructionCloseUp
+        end
+        object cmbbxCourse: TComboBox
+          Left = 12
+          Top = 28
+          Width = 253
+          Height = 21
+          Style = csDropDownList
+          ItemHeight = 0
+          TabOrder = 0
+          OnCloseUp = cmbbxCourseCloseUp
+        end
+      end
+    end
+    object tsDiscounts: TTabSheet
+      Caption = 'Discounts'
+      ImageIndex = 6
+      OnHide = tsDiscountsHide
+      OnShow = tsDiscountsShow
+      object Label3: TLabel
+        Left = 8
+        Top = 8
+        Width = 89
+        Height = 13
+        Caption = 'Discount Methods:'
+      end
+      object gDiscounts: TwwDBGrid
+        Left = 8
+        Top = 24
+        Width = 800
+        Height = 193
+        ControlType.Strings = (
+          'AutoPrintReceipt;CheckBox;True;False'
+          'DisablesPromotions;CheckBox;True;False'
+          'CardSecurityDefined;CheckBox;Yes;No'
+          'ReasonRequired;CheckBox;True;False'
+          'ReferenceRequired;CheckBox;True;False'
+          'AppliesToOrderLineFamily;CheckBox;True;False'
+          'DoNotDiscountNonServiceChargeExclusiveTaxes;CheckBox;True;False'
+          'ConfirmForfeit;CheckBox;True;False')
+        Selected.Strings = (
+          'DiscountID'#9'5'#9'ID'
+          'Name'#9'25'#9'Name'
+          'DiscountTypeName'#9'12'#9'Type'
+          'CardSecurityDefined'#9'6'#9'Card~Security'
+          'AutoPrintReceipt'#9'7'#9'Auto Print~Receipt'
+          'MaximumDiscount'#9'7'#9'Maximum~Discount'
+          'MaximumRate'#9'7'#9'Maximum~% Rate'
+          'DisablesPromotions'#9'8'#9'Disables~Promotions'
+          'ReasonRequired'#9'7'#9'Reason~Required'
+          'ReferenceRequired'#9'8'#9'Reference~Required'
+          'AppliesToOrderLineFamily'#9'5'#9'Single Item~Discount'
+          'DoNotDiscountNonServiceChargeExclusiveTaxes'#9'5'#9'Ignore~Excl. Tax'
+          'ConfirmForfeit'#9'5'#9'Warning~Threshold'
+          'ConfirmForfeitThresholdAmount'#9'10'#9'Threshold~Amount'#9'F')
+        IniAttributes.Delimiter = ';;'
+        TitleColor = clBtnFace
+        FixedCols = 0
+        ShowHorzScrollBar = True
+        DataSource = dmADO.dsDiscounts
+        Options = [dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgWordWrap, dgTrailingEllipsis, dgShowCellHint]
+        TabOrder = 0
+        TitleAlignment = taLeftJustify
+        TitleFont.Charset = DEFAULT_CHARSET
+        TitleFont.Color = clWindowText
+        TitleFont.Height = -11
+        TitleFont.Name = 'MS Sans Serif'
+        TitleFont.Style = []
+        TitleLines = 2
+        TitleButtons = False
+        OnDblClick = gDiscountsDblClick
+        OnKeyPress = gDiscountsKeyPress
+        PadColumnStyle = pcsPlain
+      end
+      object btAddDiscount: TButton
+        Left = 8
+        Top = 221
+        Width = 75
+        Height = 25
+        Caption = 'Add'
+        TabOrder = 1
+        OnClick = btAddDiscountClick
+      end
+      object btEditDiscount: TButton
+        Left = 88
+        Top = 221
+        Width = 75
+        Height = 25
+        Caption = 'Edit'
+        TabOrder = 2
+        OnClick = btEditDiscountClick
+      end
+      object btDeleteDiscount: TButton
+        Left = 168
+        Top = 221
+        Width = 75
+        Height = 25
+        Caption = 'Delete'
+        TabOrder = 3
+        OnClick = btDeleteDiscountClick
+      end
+      object btnSecurityRanges: TButton
+        Left = 248
+        Top = 221
+        Width = 121
+        Height = 25
+        Caption = 'Security Card Ranges'
+        TabOrder = 4
+        OnClick = btnSecurityRangesClick
+      end
+    end
+    object pgcReasonsConfiguration: TTabSheet
+      Caption = 'Reasons'
+      ImageIndex = 5
+      OnHide = pgcReasonsConfigurationHide
+      OnShow = pgcReasonsConfigurationShow
+      DesignSize = (
+        813
+        545)
+      object lblReasons: TLabel
+        Left = 8
+        Top = 8
+        Width = 42
+        Height = 13
+        Caption = 'Reasons'
+      end
+      object btnAddReason: TButton
+        Left = 8
+        Top = 510
+        Width = 75
+        Height = 25
+        Anchors = [akLeft, akBottom]
+        Caption = 'Add'
+        TabOrder = 3
+        OnClick = btnAddReasonClick
+      end
+      object btnSaveConfiguration: TButton
+        Left = 88
+        Top = 510
+        Width = 75
+        Height = 25
+        Anchors = [akLeft, akBottom]
+        Caption = 'Save'
+        Enabled = False
+        TabOrder = 2
+        OnClick = btnSaveConfigurationClick
+      end
+      object gbTerminalOptions: TGroupBox
+        Left = 280
+        Top = 8
+        Width = 161
+        Height = 153
+        Caption = ' Terminal Options '
+        TabOrder = 1
+        object lblReasonButton: TLabel
+          Left = 24
+          Top = 32
+          Width = 57
+          Height = 13
+          Caption = 'Button Text'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Shell Dlg 2'
+          Font.Style = []
+          ParentFont = False
+        end
+        object mmReasonEposName: TMemo
+          Left = 24
+          Top = 48
+          Width = 73
+          Height = 50
+          Alignment = taCenter
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          WordWrap = False
+          OnChange = mmReasonEposNameChange
+        end
+        object cbOpenReasonType: TCheckBox
+          Left = 24
+          Top = 109
+          Width = 114
+          Height = 17
+          Caption = 'Open Reason Type'
+          TabOrder = 1
+          OnClick = cbOpenReasonTypeClick
+        end
+      end
+      object lbReasons: TListBox
+        Left = 8
+        Top = 24
+        Width = 257
+        Height = 476
+        Anchors = [akLeft, akTop, akBottom]
+        ItemHeight = 13
+        Sorted = True
+        TabOrder = 0
+        OnClick = lbReasonsClick
+      end
+      object btnEditTableMoveReasons: TButton
+        Left = 280
+        Top = 197
+        Width = 161
+        Height = 25
+        Caption = 'Table Move/Merge Reasons'
+        TabOrder = 4
+        OnClick = btnEditTableMoveReasonsClick
+      end
+    end
+    object tsCorrections: TTabSheet
+      Caption = 'Correction Setup'
+      ImageIndex = 9
+      OnHide = tsCorrectionsHide
+      OnShow = tsCorrectionsShow
+      DesignSize = (
+        813
+        545)
+      object lblCorrectionMethod: TLabel
+        Left = 8
+        Top = 8
+        Width = 87
+        Height = 13
+        Caption = 'Correction Method'
+      end
+      object cbCorrectionMethod: TComboBox
+        Left = 8
+        Top = 24
+        Width = 145
+        Height = 21
+        Style = csDropDownList
+        ItemHeight = 0
+        TabOrder = 0
+        OnChange = cbCorrectionMethodChange
+        OnEnter = cbCorrectionMethodEnter
+      end
+      inline CorrectionReasonsFrame: TSelectReasonsFrame
+        Left = -4
+        Top = 48
+        Width = 577
+        Height = 495
+        HorzScrollBar.Visible = False
+        VertScrollBar.Visible = False
+        Anchors = [akLeft, akTop, akBottom]
+        Ctl3D = True
+        ParentCtl3D = False
+        TabOrder = 1
+        inherited pnlClient: TPanel
+          Width = 577
+          Height = 453
+          BevelInner = bvNone
+          BevelOuter = bvNone
+          inherited pnlLeft: TPanel
+            Left = 0
+            Top = 0
+            Height = 453
+            DesignSize = (
+              315
+              453)
+            inherited lbAvailableReasons: TListBox
+              Height = 411
+            end
+            inherited pnlButtons: TPanel
+              Height = 453
+              DesignSize = (
+                55
+                453)
+              inherited btnSelect: TButton
+                Top = 185
+              end
+              inherited btnDeselect: TButton
+                Top = 221
+              end
+            end
+          end
+          inherited pnlRight: TPanel
+            Left = 315
+            Top = 0
+            Width = 262
+            Height = 453
+            DesignSize = (
+              262
+              453)
+            inherited lbSelectedReasons: TListBox
+              Left = 8
+              Width = 242
+              Height = 411
+            end
+          end
+        end
+        inherited pnlBottom: TPanel
+          Top = 453
+          Width = 577
+          DesignSize = (
+            577
+            42)
+          inherited btnSave: TButton
+            Left = 11
+          end
+          inherited btnCancel: TButton
+            Left = 94
+          end
+        end
+      end
+    end
+    object tsCustomerInfoPrompts: TTabSheet
+      Caption = 'Customer Prompts'
+      ImageIndex = 8
+      OnHide = tsCustomerInfoPromptsHide
+      DesignSize = (
+        813
+        545)
+      object btnAddInformationPrompt: TButton
+        Left = 8
+        Top = 173
+        Width = 75
+        Height = 25
+        Anchors = [akLeft, akBottom]
+        Caption = 'Add'
+        TabOrder = 0
+        OnClick = btnAddInformationPromptClick
+      end
+      object gCustomerInformationPrompts: TwwDBGrid
+        Left = 8
+        Top = 16
+        Width = 772
+        Height = 150
+        Selected.Strings = (
+          'PromptText'#9'80'#9'Prompt Text'
+          'MaximumEntryLength'#9'16'#9'Maximum Entry Length')
+        IniAttributes.Delimiter = ';;'
+        TitleColor = clBtnFace
+        FixedCols = 0
+        ShowHorzScrollBar = True
+        Anchors = [akLeft, akTop, akRight, akBottom]
+        DataSource = dmThemeData.dsCustomerInformationPrompts
+        KeyOptions = []
+        TabOrder = 1
+        TitleAlignment = taLeftJustify
+        TitleFont.Charset = DEFAULT_CHARSET
+        TitleFont.Color = clWindowText
+        TitleFont.Height = -11
+        TitleFont.Name = 'MS Sans Serif'
+        TitleFont.Style = []
+        TitleLines = 1
+        TitleButtons = False
+      end
+      object btnDeleteInformationPrompt: TButton
+        Left = 88
+        Top = 173
+        Width = 75
+        Height = 25
+        Anchors = [akLeft, akBottom]
+        Caption = 'Delete'
+        TabOrder = 2
+        OnClick = btnDeleteInformationPromptClick
+      end
+    end
+    object tsMultiSiteOverride: TTabSheet
+      Caption = 'Message Display'
+      ImageIndex = 4
+      OnHide = tsMultiSiteOverrideHide
+      OnShow = tsMultiSiteOverrideShow
+      DesignSize = (
+        813
+        545)
+      object Label1: TLabel
+        Left = 8
+        Top = 5
+        Width = 134
+        Height = 13
+        Caption = 'Scrolling message overrides:'
+      end
+      object Label2: TLabel
+        Left = 8
+        Top = 167
+        Width = 116
+        Height = 13
+        Caption = 'Receipt footer overrides:'
+      end
+      object lblBFOverride: TLabel
+        Left = 9
+        Top = 330
+        Width = 92
+        Height = 13
+        Caption = 'Bill footer overrides:'
+      end
+      object QrCodeTextLabel: TLabel
+        Left = 9
+        Top = 497
+        Width = 71
+        Height = 13
+        Caption = 'QR Code Text:'
+      end
+      object BarCodeTextLabel: TLabel
+        Left = 210
+        Top = 497
+        Width = 67
+        Height = 13
+        Caption = 'Barcode Text:'
+      end
+      object btAddSMOverride: TButton
+        Left = 8
+        Top = 139
+        Width = 75
+        Height = 25
+        Caption = 'Add'
+        TabOrder = 0
+        OnClick = btAddSMOverrideClick
+      end
+      object btEditSMOverride: TButton
+        Left = 88
+        Top = 139
+        Width = 75
+        Height = 25
+        Caption = 'Edit'
+        TabOrder = 1
+        OnClick = btEditSMOverrideClick
+      end
+      object btDeleteSMOverride: TButton
+        Left = 168
+        Top = 139
+        Width = 75
+        Height = 25
+        Caption = 'Delete'
+        TabOrder = 2
+        OnClick = btDeleteSMOverrideClick
+      end
+      object btAddPFOverride: TButton
+        Left = 8
+        Top = 301
+        Width = 75
+        Height = 25
+        Caption = 'Add'
+        TabOrder = 3
+        OnClick = btAddPFOverrideClick
+      end
+      object btEditPFOverride: TButton
+        Left = 88
+        Top = 301
+        Width = 75
+        Height = 25
+        Caption = 'Edit'
+        TabOrder = 4
+        OnClick = btEditPFOverrideClick
+      end
+      object btDeletePFOverride: TButton
+        Left = 168
+        Top = 301
+        Width = 75
+        Height = 25
+        Caption = 'Delete'
+        TabOrder = 5
+        OnClick = btDeletePFOverrideClick
+      end
+      object dbgSMOverride: TwwDBGrid
+        Left = 8
+        Top = 21
+        Width = 792
+        Height = 115
+        Selected.Strings = (
+          'Name'#9'25'#9'Name'#9'F'
+          'ScrollingMessage'#9'255'#9'Scrolling Message'#9'F')
+        IniAttributes.Delimiter = ';;'
+        TitleColor = clBtnFace
+        FixedCols = 0
+        ShowHorzScrollBar = True
+        Anchors = [akLeft, akTop, akRight]
+        DataSource = dmADO.dsSMOverride
+        KeyOptions = []
+        Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgWordWrap]
+        TabOrder = 6
+        TitleAlignment = taLeftJustify
+        TitleFont.Charset = DEFAULT_CHARSET
+        TitleFont.Color = clWindowText
+        TitleFont.Height = -11
+        TitleFont.Name = 'MS Sans Serif'
+        TitleFont.Style = []
+        TitleLines = 1
+        TitleButtons = False
+        UseTFields = False
+        OnDblClick = dbgSMOverrideDblClick
+      end
+      object dbgPFOverride: TwwDBGrid
+        Left = 8
+        Top = 183
+        Width = 792
+        Height = 115
+        Selected.Strings = (
+          'Name'#9'25'#9'Name'#9'F'
+          'PrintFooter1'#9'25'#9'Line 1'#9'F'
+          'PrintFooter2'#9'25'#9'Line 2'#9'F'
+          'PrintFooter3'#9'25'#9'Line 3'#9'F'
+          'PrintFooter4'#9'25'#9'Line 4'#9'F'
+          'PrintFooter5'#9'25'#9'Line 5'#9'F'
+          'PrintFooter6'#9'25'#9'Line 6'#9'F')
+        IniAttributes.Delimiter = ';;'
+        TitleColor = clBtnFace
+        FixedCols = 0
+        ShowHorzScrollBar = True
+        Anchors = [akLeft, akTop, akRight]
+        DataSource = dmADO.dsPFOverride
+        KeyOptions = []
+        Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgWordWrap]
+        TabOrder = 7
+        TitleAlignment = taLeftJustify
+        TitleFont.Charset = DEFAULT_CHARSET
+        TitleFont.Color = clWindowText
+        TitleFont.Height = -11
+        TitleFont.Name = 'MS Sans Serif'
+        TitleFont.Style = []
+        TitleLines = 1
+        TitleButtons = False
+        UseTFields = False
+        OnDblClick = dbgPFOverrideDblClick
+      end
+      object dbgBFOverride: TwwDBGrid
+        Left = 8
+        Top = 346
+        Width = 792
+        Height = 115
+        Selected.Strings = (
+          'Name'#9'25'#9'Name'#9'F'
+          'Description'#9'102'#9'Description'#9'F')
+        IniAttributes.Delimiter = ';;'
+        TitleColor = clBtnFace
+        FixedCols = 0
+        ShowHorzScrollBar = True
+        Anchors = [akLeft, akTop, akRight]
+        DataSource = dmADO.dsBFOverride
+        KeyOptions = []
+        Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgWordWrap]
+        TabOrder = 8
+        TitleAlignment = taLeftJustify
+        TitleFont.Charset = DEFAULT_CHARSET
+        TitleFont.Color = clWindowText
+        TitleFont.Height = -11
+        TitleFont.Name = 'MS Sans Serif'
+        TitleFont.Style = []
+        TitleLines = 1
+        TitleButtons = False
+        UseTFields = False
+        OnDblClick = dbgBFOverrideDblClick
+      end
+      object btAddBFOverride: TButton
+        Left = 8
+        Top = 464
+        Width = 75
+        Height = 25
+        Caption = 'Add'
+        ModalResult = 1
+        TabOrder = 9
+        OnClick = btAddBFOverrideClick
+      end
+      object btEditBFOverride: TButton
+        Left = 88
+        Top = 464
+        Width = 75
+        Height = 25
+        Caption = 'Edit'
+        TabOrder = 10
+        OnClick = btEditBFOverrideClick
+      end
+      object btDeleteBFOverride: TButton
+        Left = 168
+        Top = 464
+        Width = 75
+        Height = 25
+        Caption = 'Delete'
+        TabOrder = 11
+        OnClick = btDeleteBFOverrideClick
+      end
+      object EditQrCodeTextBtn: TButton
+        Left = 9
+        Top = 515
+        Width = 195
+        Height = 25
+        Caption = 'Edit QR code text for Bill Payment'
+        TabOrder = 12
+        OnClick = EditQrCodeTextBtnClick
+      end
+      object EditBarCodeTextBtn: TButton
+        Left = 210
+        Top = 515
+        Width = 215
+        Height = 25
+        Caption = 'Edit Barcode text for Bills and Receipts'
+        TabOrder = 13
+        OnClick = EditBarCodeTextBtnClick
+      end
+    end
+    object tsReportOverrides: TTabSheet
+      Caption = 'Report Overrides'
+      ImageIndex = 5
+      OnHide = tsReportOverridesHide
+      OnShow = tsReportOverridesShow
+      DesignSize = (
+        813
+        545)
+      object lblClockoutTicketFooterOverrides: TLabel
+        Left = 8
+        Top = 8
+        Width = 150
+        Height = 13
+        Caption = 'Clockout ticket footer overrides:'
+      end
+      object dbgrdClockouttocketFooterOverrides: TwwDBGrid
+        Left = 8
+        Top = 24
+        Width = 792
+        Height = 123
+        Selected.Strings = (
+          'Name'#9'40'#9'Name'#9'F'
+          'Description'#9'87'#9'Description'#9'F')
+        IniAttributes.Delimiter = ';;'
+        TitleColor = clBtnFace
+        FixedCols = 0
+        ShowHorzScrollBar = True
+        Anchors = [akLeft, akTop, akRight]
+        DataSource = dmADO.dsClockoutTicketFooterOverride
+        KeyOptions = []
+        Options = [dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgWordWrap]
+        TabOrder = 0
+        TitleAlignment = taLeftJustify
+        TitleFont.Charset = DEFAULT_CHARSET
+        TitleFont.Color = clWindowText
+        TitleFont.Height = -11
+        TitleFont.Name = 'MS Sans Serif'
+        TitleFont.Style = []
+        TitleLines = 1
+        TitleButtons = False
+        UseTFields = False
+        OnDblClick = dbgrdClockouttocketFooterOverridesDblClick
+      end
+      object btnAddClockoutTicketFooterOverride: TButton
+        Left = 8
+        Top = 152
+        Width = 75
+        Height = 25
+        Caption = 'Add'
+        TabOrder = 1
+        OnClick = btnAddClockoutTicketFooterOverrideClick
+      end
+      object btnEditClockoutTicketFooterOverride: TButton
+        Left = 88
+        Top = 152
+        Width = 75
+        Height = 25
+        Caption = 'Edit'
+        TabOrder = 2
+        OnClick = btnEditClockoutTicketFooterOverrideClick
+      end
+      object btnDeleteClockoutTicketFooterOverride: TButton
+        Left = 168
+        Top = 152
+        Width = 75
+        Height = 25
+        Caption = 'Delete'
+        TabOrder = 3
+        OnClick = btnDeleteClockoutTicketFooterOverrideClick
+      end
+    end
+    object tsZcpsConfigs: TTabSheet
+      Caption = 'ZCPS Configs'
+      ImageIndex = 6
+      OnHide = ZcpsConfigsDeInitExecute
+      OnShow = ZcpsConfigsInitExecute
+      DesignSize = (
+        813
+        545)
+      object lbZcpsConfigsTitle: TLabel
+        Left = 8
+        Top = 8
+        Width = 443
+        Height = 13
+        Caption = 
+          'The following configs can be set but may require specific ZCPS v' +
+          'ersions on site to take effect:'
+      end
+      object dbgVariationGrid: TwwDBGrid
+        Left = 8
+        Top = 24
+        Width = 792
+        Height = 477
+        Selected.Strings = (
+          'SiteName'#9'20'#9'SiteName'
+          'SiteRef'#9'10'#9'SiteRef'
+          'AreaName'#9'20'#9'AreaName')
+        IniAttributes.Delimiter = ';;'
+        TitleColor = clBtnFace
+        FixedCols = 3
+        ShowHorzScrollBar = True
+        Anchors = [akLeft, akTop, akRight, akBottom]
+        DataSource = dmThemeData.dsEditZcpsConfigs
+        KeyOptions = []
+        Options = [dgEditing, dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgWordWrap]
+        TabOrder = 0
+        TitleAlignment = taLeftJustify
+        TitleFont.Charset = DEFAULT_CHARSET
+        TitleFont.Color = clWindowText
+        TitleFont.Height = -11
+        TitleFont.Name = 'MS Sans Serif'
+        TitleFont.Style = []
+        TitleLines = 1
+        TitleButtons = False
+        UseTFields = False
+        OnCalcCellColors = dbgVariationGridCalcCellColors
+      end
+      object Button1: TButton
+        Left = 8
+        Top = 510
+        Width = 75
+        Height = 25
+        Action = ZcpsConfigsLoad
+        Anchors = [akLeft, akBottom]
+        TabOrder = 1
+      end
+      object Button2: TButton
+        Left = 88
+        Top = 510
+        Width = 75
+        Height = 25
+        Action = ZcpsConfigsSave
+        Anchors = [akLeft, akBottom]
+        Caption = 'Save'
+        TabOrder = 2
+      end
+    end
+  end
+  object btnClose: TButton
+    Left = 746
+    Top = 577
+    Width = 75
+    Height = 25
+    Anchors = [akRight, akBottom]
+    Cancel = True
+    Caption = 'Close'
+    ModalResult = 1
+    TabOrder = 1
+    OnClick = btnCloseClick
+  end
+  object ZcpsConfigActions: TActionList
+    OnExecute = ZcpsConfigActionsExecute
+    Left = 712
+    Top = 32
+    object ZcpsConfigsInit: TAction
+      Caption = 'ZcpsConfigsInit'
+      OnExecute = ZcpsConfigsInitExecute
+    end
+    object ZcpsConfigsDeInit: TAction
+      Caption = 'ZcpsConfigsDeInit'
+      OnExecute = ZcpsConfigsDeInitExecute
+    end
+    object ZcpsConfigsLoad: TAction
+      Caption = 'Revert'
+      OnExecute = ZcpsConfigsLoadExecute
+      OnUpdate = ZcpsConfigsLoadUpdate
+    end
+    object ZcpsConfigsSave: TAction
+      Caption = 'ZcpsConfigsSave'
+      OnExecute = ZcpsConfigsSaveExecute
+      OnUpdate = ZcpsConfigsLoadUpdate
+    end
+  end
+end

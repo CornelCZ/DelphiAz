@@ -1,0 +1,203 @@
+
+STRINGTABLE
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+{
+10101, 	"Fatal Error in ZipDLL.DLL: abort exception"
+10102, 	"Error - no zip file specified!"
+10103, 	"Requested memory not available"
+10104, 	"Error - passwords do NOT match\nPassword ignored"
+10105, 	"Copying: "
+}
+
+
+STRINGTABLE
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+{
+10140, 	"Error while copying the SFX header"
+10141, 	"Rename is not implemented for a spanned zip file"
+10142, 	"Processing: "
+10143, 	" renamed to: "
+}
+
+
+STRINGTABLE
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+{
+10150, 	"Error - no add password given"
+10151, 	"Error - no extract password given"
+10152, 	"&Ok"
+10153, 	"&Cancel"
+10154, 	"Password"
+10155, 	"Enter Password "
+10156, 	"Confirm Password "
+}
+
+
+STRINGTABLE
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+{
+10180, 	"Source archive is the same as the destination archive!"
+10181, 	"Overwrite file '%s' in '%s' ?"
+10182, 	"Copying a file from '%s' to '%s' failed"
+10183, 	"File '%s' is not present in '%s'!"
+10184, 	"Error while copying the SFX data"
+10185, 	"Destination zip archive could not be opened!"
+}
+
+
+STRINGTABLE
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+{
+10201, 	"Seek error reading Zip archive!"
+10202, 	"Unknown error in List() function\n"
+10203, 	"Warning - Error in zip structure!"
+10204, 	"Warning - Garbage at the end of the zipfile!"
+}
+
+
+STRINGTABLE
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+{
+10301, 	"Error - no files to zip!"
+10302, 	"Unattended action not possible without a password"
+10303, 	"AddFreshen or AddUpdate not possible on a spanned archive"
+}
+
+
+STRINGTABLE
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+{
+10304, 	"Error %.1d occurred during Auto SFX creation."
+}
+
+
+STRINGTABLE
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+{
+10401, 	"Error - no files selected for deletion"
+}
+
+
+STRINGTABLE
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+{
+10501, 	"Fatal Error in UnzDLL.DLL: abort exception"
+10502, 	"Warning - Unattended Extract: possible not all files extracted"
+10503, 	"Error - your UnzDLL.dll can not use streams, please update to version >= 1.60"
+}
+
+
+STRINGTABLE
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+{
+10601, 	"ZIP DLL Loaded"
+10602, 	"ZipDllExec function not found in ZIPDLL.DLL!"
+10603, 	"GetZipDllVersion function not found in ZIPDLL.DLL!"
+10604, 	"ZIPDLL.DLL not found!"
+}
+
+
+STRINGTABLE
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+{
+10701, 	"UNZDLL Loaded!"
+10702, 	"UnzDllExec function not found in UNZDLL.DLL!"
+10703, 	"GetUnzDllVersion function not found in UNZDLL.DLL!"
+}
+
+
+STRINGTABLE
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+{
+10704, 	"UNZDLL.DLL not found!"
+}
+
+
+STRINGTABLE
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+{
+10801, 	"Error - On or more of the 4 property strings mentioned below exceeds 255 characters!"
+10802, 	"Error - ZIPSFX.BIN not found!"
+10803, 	"Error: input file is not a zip file"
+}
+
+
+STRINGTABLE
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+{
+10901, 	"Error - no .EXE file specified"
+10902, 	"Error: input file is not an .EXE file"
+10903, 	"Error determining the type of SFX archive"
+}
+
+
+STRINGTABLE
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+{
+11001, 	"Input file does not exist"
+11002, 	"Zip file could not be opened"
+11003, 	"Not a valid drive: %s"
+11004, 	"Drive %s is NOT defined"
+11005, 	"Volume label could not be set"
+11006, 	"Not enough memory to display MsgBox"
+11007, 	"User canceled operation"
+}
+
+
+STRINGTABLE
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+{
+11008, 	"Seek error in input file"
+11009, 	"Creation of output file failed"
+11010, 	"Write error in output file"
+11011, 	"Error while reading the End Of Central Directory"
+11012, 	"Error while reading a local header"
+11013, 	"Error while reading a central header"
+11014, 	"A local header signature is wrong"
+11015, 	"A central header signature is wrong"
+11016, 	"Error while reading a local file name"
+11017, 	"Error while reading a central file name"
+11018, 	"Error while reading a local extra field"
+11019, 	"Error while reading a central extra field"
+11020, 	"Error while reading/writing a data descriptor area"
+11021, 	"Error while reading zipped data"
+11022, 	"Error while reading a file comment"
+11023, 	"Error while reading the archive comment"
+}
+
+
+STRINGTABLE
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+{
+11024, 	"UnKnown error in function ReadSpan(), WriteSpan(), Rename() or CopyZippedFiles()\n"
+11025, 	"Unattended disk spanning not implemented"
+11026, 	"A local header not found in internal structure"
+11027, 	"Temporary file could not be created"
+11028, 	"Error while writing a local header"
+11029, 	"Error while writing a central header"
+11030, 	"Error while writing the End Of Central Directory"
+11031, 	"Error while reading a Extended Local signature"
+11032, 	"This disk has not enough free space available"
+11033, 	"Please insert last disk"
+11034, 	"Please insert disk volume %.1d of %.1d"
+11035, 	"\nin drive: %s"
+11036, 	"This archive is not a valid Zip archive"
+11037, 	"This is the first disk in a backup set,\nplease insert the last disk of this set"
+11038, 	"This is the %dth disk in a backup set,\nplease insert the last disk of this set"
+11039, 	"There is already a file %s\nDo you want to overwrite this file"
+}
+
+
+STRINGTABLE
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+{
+11040, 	"ATTENTION: This is previous disk no %d!!!\nAre you sure you want to overwrite the contents"
+11041, 	"Error - Self extracting archives(.exe) can not be spanned"
+11042, 	"Error while copying a filename of a CEH structure"
+11043, 	"Seek error while skipping a EOC structure"
+11044, 	"Error while copying the zip archive comment"
+11045, 	"This is the first file in a backup set,\nplease choose the last file of this set"
+11046, 	"Please insert disk volume %.1d"
+11047, 	"Central directory"
+}
+

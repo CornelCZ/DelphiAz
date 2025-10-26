@@ -1,0 +1,16 @@
+TariffPricesPreload		TEXT	TariffPricesPreload.sql
+ProductsTreeviewPreload		TEXT	ProductsTreeviewPreload.sql
+ConfigTreeviewPreload		TEXT	ConfigTreeviewPreload.sql
+LoadPromotionData		TEXT	LoadPromotionData.sql
+SavePromotionData		TEXT	SavePromotionData.sql
+DropPromotionData		TEXT	DropPromotionData.sql
+GetUniqueID			TEXT	GetUniqueID.sql
+SetUpCopyPromotion		TEXT	SetUpCopyPromotion.sql
+LoadPromotionPrices		TEXT	LoadPromotionPrices.sql
+SetUpTemplateTables		TEXT	SetUpPriorityTemplateTables.sql
+LoadTemplateData		TEXT	LoadPromotionPriorityTemplateData.sql
+LoadDefaultTemplateData	TEXT	LoadDefaultPromotionPriorityTemplateData.sql
+SaveTemplateData		TEXT	SavePriorityTemplateData.sql
+DeletePriorityTemplate	TEXT	DeletePriorityTemplate.sql       
+UpdateExceptionData	TEXT	UpdateExceptionData.sql
+AddExceptionData        TEXT 	AddExceptionData.sql  

@@ -1,0 +1,3265 @@
+unit uLineEdit;
+
+(*
+ * Unit contains the TLineEditForm class - the main line edit dialog.
+ *
+ * This unit contains the main logic for this dialog.  Note that the code for the
+ * individual tabs used for editing specific entity types is not in this module:
+ * The code for the individual tabs on the form has been seperated out into TFrame
+ * classes in order to keep the size of this unit manageable.
+ *
+ * Author: Hamish Martin, IceCube/Edesix
+ *)
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, Dialogs, Grids,
+  DBGrids, DB, DBTables, StdCtrls, DBCtrls, ExtCtrls, Mask, DBActns, ActnList, ComCtrls,
+  StrUtils, Math, dbcgrids, uDatabaseADO, uSupplierFrame,
+  Buttons, uEntityChange, uEntityLookup,
+  uAztecDBComboBox, uCourseAndTaxFrame, uSupplierInfoFrame, uMultiPurchaseFrame, DBClient,
+  uAztecPreparedItemFrame, uLocalisedText, uNewPortionIngredientsFrame, Wwdbigrd, Wwdbgrid,
+  wwrcdpnl, wwDataInspector, wwcheckbox, wwdbedit, Wwdbspin, TypInfo,
+  Wwdotdot, Wwdbcomb, ADODB, uProductTagsFrame, uTagListFrame;
+
+const
+  RetailDescriptionLength = 512;
+
+type
+  ProductModelings = (pmExtendedRTLName, pmEntityType, pmRetailDescription, pmEntityCode);
+  
+type
+  TEventHolder = class
+    private
+      FEventName: String;
+      FEvent: TMethod;
+  end;
+
+type
+  TPseudoDisabledComponent = class
+    private
+      FComponent: TComponent;
+      FEventList: TStringList;
+  end;
+
+type
+  TProtectionHackDBCheckBox = class(TDBCheckBox)
+    public
+      property ClicksDisabled;
+  end;
+
+  TLineEditForm = class(TForm)
+    Panel1: TPanel;
+    Panel4: TPanel;
+    DeleteItemButton: TButton;
+    InsertItemButton: TButton;
+    ActionList1: TActionList;
+    AddItemAction: TAction;
+    DeleteItemAction: TAction;
+    btnSettings: TButton;
+    Bevel1: TBevel;
+    btnClose: TButton;
+    Label1: TLabel;
+    EntityLookupFrame: TEntityLookupFrame;
+
+    Bevel2: TBevel;
+    PageControlPanel: TPanel;
+    NoProductsLabel: TLabel;
+    ReloadButton: TButton;
+    PageControl: TPageControl;
+    SupplierTabSheet: TTabSheet;
+    SupplierInfoFrame: TSupplierInfoFrame;
+    AztecStandardTabSheet: TTabSheet;
+    TTCoursesAndTaxRulesFrame1: TTCoursesAndTaxRulesFrame;
+    AztecMultiPurchaseTabSheet: TTabSheet;
+    MultiPurchaseFrame: TTMultiPurchaseFrame;
+    TagsTabSheet: TTabSheet;
+    AutoScrollEposButtonTimer: TTimer;
+    EntityListDataSet: TClientDataSet;
+    EntityListDataSource: TDataSource;
+    EntityListDataSetEntityCode: TFloatField;
+    EntityListDataSetRetailName: TStringField;
+    EntityListDataSetRetailDescription: TStringField;
+    EntityListDataSetEntityType: TStringField;
+    EntityListDataSetDeleted: TStringField;
+    EntityListDataSetSubCategoryName: TStringField;
+    AztecBarcodesTabSheet: TTabSheet;
+    tbsAztecPreparedItem: TTabSheet;
+    AztecPreparedItemFrame: TAztecPreparedItemFrame;
+    gbGiftCards: TGroupBox;
+    NewPortionsTabSheet: TTabSheet;
+    NewPortionIngredientsFrame: TNewPortionIngredientsFrame;
+    EntityListDataSetDiscontinue: TBooleanField;
+    btn_LinkedProds: TButton;
+    SharedDataPanel: TPanel;
+    DescriptionLabel: TLabel;
+    Label14: TLabel;
+    Label23: TLabel;
+    Label5: TLabel;
+    PrintStreamLabel: TLabel;
+    RetailNameLabel: TLabel;
+    SpecialLabel: TLabel;
+    SubcategoryLabel: TLabel;
+    TouchScreenLabel: TLabel;
+    EntityCodeLabel: TLabel;
+    lblKDSItemID: TLabel;
+    DBEdit17: TDBEdit;
+    DescriptionEditBox: TDBEdit;
+    ExtendedNameEditBox: TDBEdit;
+    ImportExportRefEditBox: TDBEdit;
+    LineTypeComboBox: TDBLookupComboBox;
+    pnl3by8: TPanel;
+    AztecEposButton1: TDBMemo;
+    AztecEposButton2: TDBMemo;
+    AztecEposButton3: TDBMemo;
+    PrintStreamComboBox: TAztecDBComboBox;
+    SubcategoryComboBox: TAztecDBComboBox;
+    EntityCodeEditBox: TDBEdit;
+    edtKDSItemID: TEdit;
+    DBCheckBoxSoldByWeight: TDBCheckBox;
+    pnlSingleEntryBarcodes: TPanel;
+    Label2: TLabel;
+    grdProductBarcode: TwwDBGrid;
+    btnAddBarcode: TButton;
+    btnDeleteBarcode: TButton;
+    pnlBarcodeRanges: TPanel;
+    Label3: TLabel;
+    btnEditBarcodeRanges: TButton;
+    grdProductBarcodeRange: TwwDBGrid;
+    wdiBarcodeRanges: TwwDataInspector;
+    cbxExceptionsExist: TCheckBox;
+    DBcbDiscontinue: TDBCheckBox;
+    lblROAlert: TLabel;
+    EntityListDataSetRMControlled: TFloatField;
+    wwdbcomboGiftCardType: TwwDBComboBox;
+    cbxIsGiftCard: TCheckBox;
+    actIsGiftCard: TAction;
+    btnEQATECExceptionTest: TButton;
+    ProductTagsFrame: TProductTagsFrame;
+    CloneItemButton: TButton;
+    CloneItemAction: TAction;
+    EntityListDataSetPurchaseName: TStringField;
+    EntityListDataSetCourseId: TIntegerField;
+    EntityListDataSetImportExportReference: TStringField;
+    EntityListDataSetB2BName: TStringField;
+    OtherFlagsTabSheet: TTabSheet;
+    AdmissionGroupBox: TGroupBox;
+    cbIsAdmission: TCheckBox;
+    cbValidateMembership: TCheckBox;
+    cbIsFootfall: TCheckBox;
+    DonationGroupBox: TGroupBox;
+    cbIsDonation: TCheckBox;
+    cbPromptForGiftAid: TCheckBox;
+    lCountryOfOrigin: TLabel;
+    CountryOfOriginTextBox: TMemo;
+    procedure AztecEposButtonKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure AztecEposButtonKeyPress(Sender: TObject; var Key: Char);
+    procedure AutoTouchScreenButtonClick(Sender: TObject);
+    procedure AddItemActionExecute(Sender: TObject);
+    procedure DeleteItemActionExecute(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure btnCloseClick(Sender: TObject);
+    procedure FormShortCut(var Msg: TWMKey; var Handled: Boolean);
+    procedure FormShow(Sender: TObject);
+    procedure btnSettingsClick(Sender: TObject);
+    procedure RetailNameEditBoxChange(Sender: TObject);
+    procedure ComboBoxExit(Sender: TObject);
+    procedure DeleteItemActionUpdate(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure SubcategoryComboBoxCreateNew(Sender: TObject);
+    procedure LineTypeComboBoxKeyPress(Sender: TObject; var Key: Char);
+    procedure PrintStreamComboBoxCreateNew(Sender: TObject);
+    procedure ReloadButtonClick(Sender: TObject);
+    procedure AztecEposButton1Enter(Sender: TObject);
+    procedure AztecEposButton1Exit(Sender: TObject);
+    procedure AztecEposButton1Change(Sender: TObject);
+    procedure AutoScrollEposButtonTimerTimer(Sender: TObject);
+    procedure LineTypeComboBoxKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure EntityListDataSetBeforeScroll(DataSet: TDataSet);
+    procedure EntityListDataSetAfterScroll(DataSet: TDataSet);
+    procedure EntityListDataSourceDataChange(Sender: TObject;
+      Field: TField);
+    procedure EntityListDataSetEntityTypeGetText(Sender: TField;
+      var Text: String; DisplayText: Boolean);
+    procedure EntityListDataSetFieldGetText(Sender: TField;
+      var Text: String; DisplayText: Boolean);
+    procedure DescriptionEditBoxChange(Sender: TObject);
+    procedure AztecBarcodesTabSheetShow(Sender: TObject);
+    procedure btnAddBarcodeClick(Sender: TObject);
+    procedure btnDeleteBarcodeClick(Sender: TObject);
+    procedure ChangeProductPricing(
+      Sender: TObject);
+    procedure SubcategoryComboBoxCloseUp(Sender: TObject);
+    procedure NewPortionsTabSheetShow(Sender: TObject);
+    procedure DBcbDiscontinueMouseDown(Sender: TObject;
+      Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure DBcbDiscontinueKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure btn_LinkedProdsClick(Sender: TObject);
+    procedure SupplierTabSheetShow(Sender: TObject);
+    procedure DBCheckBoxSoldByWeightClick(Sender: TObject);
+    procedure NewPortionIngredientsFrameCookTimesButtonClick(
+      Sender: TObject);
+    procedure btnEditBarcodeRangesClick(Sender: TObject);
+    procedure NewPortionIngredientsFrameContainersButtonClick(
+      Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure EntityLookupFrameEntityGridDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure cbxIsGiftCardClick(Sender: TObject);
+    procedure wwdbcomboGiftCardTypeChange(Sender: TObject);
+    procedure actIsGiftCardExecute(Sender: TObject);
+    procedure actIsGiftCardUpdate(Sender: TObject);
+    procedure btnEQATECExceptionTestClick(Sender: TObject);
+    procedure TagsTabSheetShow(Sender: TObject);
+    procedure CloneItemActionExecute(Sender: TObject);
+    procedure CloneItemActionUpdate(Sender: TObject);
+    procedure FormResize(Sender: TObject);
+    procedure cbIsAdmissionClick(Sender: TObject);
+    procedure cbValidateMembershipClick(Sender: TObject);
+    procedure cbIsFootfallClick(Sender: TObject);
+    procedure cbIsDonationClick(Sender: TObject);
+    procedure cbPromptForGiftAidClick(Sender: TObject);
+    procedure CountryOfOriginTextBoxExit(Sender: TObject);
+    procedure ImportExportRefEditBoxExit(Sender: TObject);
+  private
+    currEntType: EntType; // The type of the current entity
+    currEntCode: Double; // The entity code of the current entity
+    currEntName: string; //The name of the current entity
+
+    FaboutToSaveChanges : boolean; // Are we in the process of commiting changes to an entity
+    FprocessingEntityListScroll : Integer;
+    FHandlingDataChange: boolean;
+
+    RecalculateCostPricesOnPortionsTab: boolean;
+    FGUIEnabled: Boolean;
+    FPseudoDisabledComponents: TList;
+    FSettingIsGiftCardCheckBox: Boolean;
+
+    PortionsGridWndProc, PortionsGridSaveWndProc: Pointer;
+    PricesGridWndProc, PricesGridSaveWndProc: Pointer;
+
+    // Fills in the touch screen text based on the string 's' provided.
+    procedure UpdateTouchScreenText(s: String); overload;
+    procedure UpdateTouchScreenText(s: String; field_length: integer; var display: array of string); overload;
+    procedure updateAztecEposButtons(display: array of string);
+    // Centre the Aztec Epos Button vertically
+    procedure doAztecEposButtonVcentre;
+    // Given one of the three edit boxes used for the touch screen name, this function
+    // returns the adjacent edit box.  If there is no edit box adjacent, this returns
+    // nil.  This function is used as part of the code to allow keyboard navigation of
+    // the touch screen edit boxes.
+    //   edit - the current edit box used for the touch screen.
+    //   next - if true, the edit box below 'edit' is returned, otherwise the edit box
+    //          above 'edit' is returned.
+    function AdjacentAztecEposButton(edit: TDBMemo; next: boolean): TDBMemo;
+    // Update the form for the given entity type.  This displays/hides/enabled/disables
+    // controls as appropriate for the specified entity type.
+    procedure SelectFormType(et: EntType);
+    // This is the event handler which is invoked when the user confirms the entity
+    // code in the left hand pane of the dialog.  This sets focus to the retail name
+    // edit box.
+    procedure SetFocusAtRetailName( Sender: TObject );
+
+    //
+    // Database validation - these routines perform validation before allowing
+    // database posts/scrolls.
+    //
+
+    // Perform validation before allowing post of an entity
+    procedure ClientEntityTableBeforePost(DataSet: TDataSet);
+
+    procedure ProductTaxTableBeforePost(DataSet: TDataSet);
+
+    //
+    // Database updates - these routines update the form and associated controls
+    // in response to changes in the database / scrolling.
+    //
+
+    // User has scrolled to a new entity
+    procedure ClientEntityTableAfterScroll(DataSet: TDataSet);
+    // A field has changed in the entity table
+    procedure EntityDataSourceDataChange(Sender: TObject; Field: TField);
+    // The entity table has changed state, e.g. gone from dsBrowse to dsInsert.
+    procedure EntityDataSourceStateChange(Sender: TObject);
+
+    // Validate fields which are controlled by a combo box;  display
+    // MessageBox and raise EAbort if a problem is found.
+    procedure checkComboNamesValid(comboBox: TDBComboBox);
+    // Perform global recalculation
+    // Return TRUE if entity table is empty
+    function IsEntityTableEmpty : boolean;
+    { The CheckFactors procedure is not a requirement but it probably will be required
+      in the future
+    procedure CheckFactors;
+    }
+    procedure MultiPurchIngredientBeforePost(DataSet: TDataSet);
+    procedure MultiPurchIngredientDataSourceDataChange(Sender: TObject;
+      Field: TField);
+
+    // This function returns true if the given tab sheet should be shown for the
+    // given product type.
+    function TabSheetAppliesToProductType(et: EntType; sheet: TTabSheet): boolean;
+
+    // Set the visiblilty of the detail tabs based on the supplied entity type.
+    procedure SetupTabVisibility(et: EntType);
+
+    // Called to make the specified tab visible.
+    procedure makeTabVisible( tab: TWinControl );
+
+    // Reposition the AztecEposButtons to keep the caret in view.
+    procedure KeepAztecEposButtonCaretInView;
+    procedure showBaseDataAddOptions(show: boolean);
+    procedure moveClientEntityTableToEntityListRecord;
+    procedure moveEntityListToClientEntityTableRecord;
+    procedure ensureGuiListMatchesCurrentRecord;
+    function areEntityListsSynchronized: boolean;
+    procedure BeforeEntityListFilterOrSearch(Sender: TObject);
+    // Validate Discontinue checkbox to indicate state
+    procedure ValidateDiscontinue;
+    procedure HandleDefaultPurchaseUnitChange(Sender: TObject);
+    // check used for displaying Barcode Ranges
+    function ProductHasContainers: Boolean;
+    procedure SetGUIEditibility(WinControl: TWinControl; GUIEnabled: Boolean);
+    procedure HandleEvents(GuiEnabled: Boolean);
+    procedure BuildPseudoDisabledComponentList;
+    procedure DestroyPseudoDisabledComponentList;
+    procedure LogException(Sender: TObject; E: Exception);
+    procedure PortionsGridCustomWndProc( var Msg: TMessage );
+    procedure PricesGridCustomWndProc( var Msg: TMessage );
+    procedure HandleProductNameChange(oldName, newName: string);
+    procedure CreateFirstProduct;
+    procedure CloneCurrentProduct(fullClone: boolean);
+  public
+    skipValidateMembershipFlag: boolean;
+    skipPromptForGiftAidFlag: boolean;
+    procedure setupStaticPickLists;
+    procedure redisplayCurrentRecord;
+    procedure SetKDSLabel(SubCategoryName: string);
+    procedure checkOtherFlagsVisibility(ProductType: EntType; reinit: boolean);
+    procedure validateIsAdmissionFlag;
+    function validateMembershipFlag: boolean;
+    procedure validateIsFootfallFlag;
+    procedure validateIsDonationFlag;
+    function validatePromptForGiftAidFlag: boolean;
+  end;
+
+var
+  LineEditForm: TLineEditForm;
+
+implementation
+
+uses uGuiUtils, uEntityDelete, uMaintSubCateg, uLog, uMaintPrintStream, uGlobals, uBarCodeForm,
+  uSettingsForm, uBarcodeRanges, uPortionIngredients, FlexiDBgrid,
+  uEQATECMonitor, uADO, uTag, uSettingsFrame;
+
+
+{$R *.dfm}
+
+
+procedure TLineEditForm.UpdateTouchScreenText(s: String);
+var
+  display8: array[0..2] of string;
+begin
+  UpdateTouchScreenText( s, 8, display8 );
+  updateAztecEposButtons(display8);
+end;
+
+// update AztecEposButton text
+procedure TLineEditForm.updateAztecEposButtons(display: array of string);
+begin
+  display[0] := Trim( display[0] );
+  display[1] := Trim( display[1] );
+  display[2] := Trim( display[2] );
+  if (productsDB.ClientEntityTableAztecEposButton1.AsVariant <> display[0]) or
+     (productsDB.ClientEntityTableAztecEposButton2.AsVariant <> display[1]) or
+     (productsDB.ClientEntityTableAztecEposButton3.AsVariant <> display[2]) then begin
+
+    if not IsEntityTableEmpty then begin
+      productsDB.ClientEntityTable.Edit;
+      if (productsDB.ClientEntityTable.State = dsEdit) or
+         (productsDB.ClientEntityTable.State = dsInsert) then begin
+        productsDB.ClientEntityTableAztecEposButton1.Value := display[0];
+        productsDB.ClientEntityTableAztecEposButton2.Value := display[1];
+        productsDB.ClientEntityTableAztecEposButton3.Value := display[2];
+      end;
+    end;
+
+  end;
+end;
+
+procedure TLineEditForm.doAztecEposButtonVcentre;
+var
+  vindent : Integer;
+begin
+  if (Length( AztecEposButton3.Text ) > 0) or AztecEposButton3.Focused then
+    vindent := 0
+  else if (Length( AztecEposButton2.Text ) > 0) or AztecEposButton2.Focused then
+    vindent := 9
+  else
+    vindent := 17;
+
+  // Rejig the button to be vertically centred
+  AztecEposButton1.Top := vindent;
+  AztecEposButton2.Top := 17 + vindent;
+  AztecEposButton3.Top := 34 + vindent;
+end;
+
+
+// Fit the provided string onto the 21 character 7x3 touch screen or the 24 char 8x3 screen
+// depending on the value of field_length
+procedure TLineEditForm.UpdateTouchScreenText( s: string; field_length: integer; var display: array of string);
+var
+  i, r: Integer;
+  lfirst, llast, best: Integer;
+  c: char;
+
+  // Pad string s out to length size with spaces
+  function pad( s: String; size: Integer ): String;
+  begin
+    if Length(s) >= size then
+      pad := s
+    else
+      pad := s + StringOfChar( ' ', size - Length( s ) );
+  end;
+
+begin
+  s := Trim( s );
+
+  // Approach 1:  line break after first two groups of whitespace, put
+  // all remaining text onto the last line
+  display[0] := '';
+  display[1] := '';
+  display[2] := '';
+  r := 0;
+  for i := 1 to Length( s ) do begin
+    c := s[i];
+    if c = ' ' then begin
+      if (length( display[r] ) > 0) then begin
+        if (r < 2) then
+          Inc(r) // Move to next line
+        else
+          display[r] := display[r] + c
+      end
+    end else begin
+      if (length( display[r] ) >= field_length) and (r < 2) then
+        Inc( r );
+
+      display[r] := display[r] + c
+    end
+  end;
+
+  if ( Length( display[0] ) > field_length ) or ( Length( display[1] ) > field_length ) or
+     ( Length( display[2] ) > field_length ) then begin
+
+    // That last approach didn't work.  Try a different approach.
+    // Approach 2:  do optimal line breaking, i.e. try and fit as many
+    // complete words as possible onto each line before line breaking
+    llast := 0;
+
+    for r := 0 to 2 do begin
+
+      // Figure out the first character from s which is going onto
+      // line r.
+
+      // Skip past white space at start of line
+      lfirst := llast + 1;
+      while (lfirst <= length( s )) and (s[ lfirst ] = ' ') do
+        Inc( lfirst );
+
+      // pick a point to break the line
+      llast := lfirst + (field_length-1);
+
+      if llast < Length( s ) then begin
+        // See if we can find a better point to break the line - work backwards
+        // looking for a space at which to break the line
+        if s[ llast + 1 ] <> ' ' then begin
+          best := llast;
+          for i := lfirst to llast do
+            if s[ i ] = ' ' then best := i;
+          llast := best;
+        end
+      end else if llast > Length( s ) then begin
+        llast := Length( s )
+      end;
+
+      // We have chosen the portion of s to make the line - extract the
+      // text from s.
+      if lfirst <= llast then
+        display[ r ] := MidStr( s, lfirst, llast - lfirst + 1 )
+      else
+        display[ r ] := '';
+    end;
+
+    // Did we manage to fit all the text on the line
+    if ( llast < Length( s ) ) then begin
+      // Approach 2 didn't work.
+      // Approach 3:  chop after the correct number of characters;
+      display[0] := LeftStr( s, min( field_length, length( s ) ) );
+      display[1] := MidStr( s, field_length+1, min( field_length, length( s ) - field_length ) );
+      display[2] := MidStr( s, (2*field_length)+1, min( (2*field_length)+1, length( s ) - ((2*field_length)+1) ) );
+    end
+  end;
+
+  // We have now broken the string into display[0], display[1] and display[2]
+
+  // Now centre up the lines by inserting spaces at the start.
+  for r := 0 to 2 do
+    display[r] := StringOfChar( ' ', (field_length - length( display[r] )) div 2 ) +
+                  display[r];
+
+  // Pad lines out to 7 characters.
+  display[0] := pad( display[0], field_length );
+  display[1] := pad( display[1], field_length );
+  display[2] := pad( display[2], field_length );
+end;
+
+procedure TLineEditForm.HandleProductNameChange(oldName, newName: string);
+begin
+  if oldName = newName then
+    Exit;
+
+  productsDB.ClientEntityTableRetailName.Value := copy(newName,1,11);
+
+  //Update the Purchase Name only if it currently matches or is empty
+  if (productsDB.ClientEntityTablePurchaseName.Value = oldName) or (productsDB.ClientEntityTablePurchaseName.Value = '') then
+      productsDB.ClientEntityTablePurchaseName.Value := newName;
+
+  //Update B2B Name only if it currently matches or is empty (added for change request PM740)
+  if (productsDB.ClientEntityTableB2BName.Value = oldName) or (productsDB.ClientEntityTableB2BName.Value = '') then
+      productsDB.ClientEntityTableB2BName.Value := newName;
+
+  UpdateTouchScreenText( newName );
+
+  //Update the self ingredient for standard lines
+  if Assigned(NewPortionIngredientsFrame) and (EntTypeStringToEnum( productsDB.ClientEntityTableEntityType.Value ) = etStrdLine) then
+    NewPortionIngredientsFrame.UpdateSelfIngredientNameAndDesc(newName, DescriptionEditBox.EditText);
+end;
+
+procedure TLineEditForm.DescriptionEditBoxChange(Sender: TObject);
+var
+  et: EntType;
+begin
+  if FprocessingEntityListScroll > 0 then Exit;
+
+  et := EntTypeStringToEnum( productsDB.ClientEntityTableEntityType.Value );
+
+  if (DescriptionEditBox.Modified) and
+       ((productsDB.ClientEntityTable.State = dsEdit) or
+        (productsDB.ClientEntityTable.State = dsInsert)) then
+  begin
+    // Push change through to the record so that the description displayed in the
+    // list at the LHS can be updated via the cliententitytable datasourcechange
+    // handler.
+    productsDB.ClientEntityTableRetailDescription.Value := DescriptionEditBox.EditText;
+    //Update the self ingredient for standard lines
+    if Assigned(NewPortionIngredientsFrame) and (et = etStrdLine) then
+      NewPortionIngredientsFrame.UpdateSelfIngredientNameAndDesc(ExtendedNameEditbox.EditText,DescriptionEditBox.EditText);
+  end;
+end;
+
+procedure TLineEditForm.RetailNameEditBoxChange(Sender: TObject);
+begin
+end;
+
+
+// Get the touch screen edit box adjacent to the control 'edit'
+function TLineEditForm.AdjacentAztecEposButton( edit: TDBMemo; next: boolean ): TDBMemo;
+begin
+  if edit = AztecEposButton1 then
+    if next then
+      AdjacentAztecEposButton := AztecEposButton2
+    else
+      AdjacentAztecEposButton := nil
+  else if edit = AztecEposButton2 then
+    if next then
+      AdjacentAztecEposButton := AztecEposButton3
+    else
+      AdjacentAztecEposButton := AztecEposButton1
+  else
+    if next then
+      AdjacentAztecEposButton := nil
+    else
+      AdjacentAztecEposButton := AztecEposButton2
+end;
+
+
+// User has pressed a key in the touch screen
+procedure TLineEditForm.AztecEposButtonKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+var
+  s: Integer;
+  edit, next: TDBMemo;
+begin
+  edit := TDBMemo( Sender );
+
+  if (Key = VK_DOWN) or (Key = VK_UP) then begin
+    // Allow keyboard navigation between the three lines of the touch screen.
+    s := edit.SelStart - (Length(edit.Text) div 2);
+    next := AdjacentAztecEposButton( edit, Key = VK_DOWN );
+    if next <> nil then begin
+      next.SetFocus;
+      s := s + (Length(next.Text) div 2);
+      if (s < 0) then s := 0;
+      if (s > Length(next.Text)) then s := Length(next.Text);
+      next.SelStart := s;
+      Key := 0;
+    end
+  end
+end;
+
+// User has pressed a key in one of the touch screen edit boxes
+// Customize behaviour of 8x3 touch screen to make it easier to enter text
+procedure TLineEditForm.AztecEposButtonKeyPress(Sender: TObject; var Key: Char);
+var
+  edit, next: TDBMemo;
+begin
+  edit := TDBMemo( Sender );
+
+  case Key of
+    Char(13):
+      begin
+        // user pressed return:  move to start of next line
+        next := AdjacentAztecEposButton( edit, true );
+        if next <> nil then begin
+          next.SetFocus;
+          next.SelStart := 0
+        end
+      end;
+  end
+end;
+
+procedure TLineEditForm.AutoTouchScreenButtonClick(Sender: TObject);
+begin
+end;
+
+// This routine is invoked when the user hits ENTER or double clicks in
+// the entity grid at the left of the line edit dialog.  This sets focus
+// to the RetailNameEditBox.
+procedure TLineEditForm.SetFocusAtRetailName( Sender: TObject );
+begin
+  if not ProductsDB.CurrentEntityControlledByRM then
+    PrizmSetFocus( ExtendedNameEditBox );
+end;
+
+// This function returns true if the given tab sheet should be shown for the given product type.
+function TLineEditForm.TabSheetAppliesToProductType(et: EntType; sheet: TTabSheet ): Boolean;
+begin
+  Result := FALSE;
+
+  if sheet = SupplierTabSheet then
+    Result := (et in [etStrdLine,etPurchLine])
+
+  else if sheet = AztecStandardTabSheet then
+    Result := (et in [etStrdLine,etRecipe,etPurchLine,etInstruct])
+
+  else if sheet = NewPortionsTabSheet then
+    Result := (et in [etStrdLine,etRecipe,etChoice])
+
+  else if sheet = AztecMultiPurchaseTabSheet then
+    Result := (et = etMultiPurch)
+
+  else if sheet = AztecBarcodesTabSheet then
+    Result := (et in [etStrdLine,etRecipe])
+
+  else if sheet = tbsAztecPreparedItem then
+    Result := (et = etPrepItem)
+
+  else if sheet = TagsTabSheet then
+    Result := true
+
+  else if sheet = OtherFlagsTabSheet then
+    Result := (et in [etStrdLine,etRecipe])
+
+  else if Assigned( sheet ) then
+    raise Exception.Create( 'Unknown tab sheet in line edit form' );
+end;
+
+// This is called by PrizmSetFocus to make a tab of the PageControl visible.
+procedure TLineEditForm.makeTabVisible( tab: TWinControl );
+begin
+  if productsDB.ClientEntityTable.Active then begin
+    PageControl.ActivePage := TTabSheet( tab );
+  end;
+end;
+
+procedure TLineEditForm.SetupTabVisibility( et: EntType );
+var
+  i : Integer;
+  displayedTabSheet : TTabSheet;
+begin
+  PageControlPanel.Visible := (et <> etNone);
+  if et = etNone then
+    Exit;
+
+  displayedTabSheet := nil;
+
+  // Pick the tab sheet to show
+  for i := 0 to PageControl.PageCount - 1 do
+    if TabSheetAppliesToProductType( et, PageControl.Pages[i] ) then begin
+      if not Assigned( displayedTabSheet ) or
+        (PageControl.Pages[i] = PageControl.ActivePage) then
+        displayedTabSheet := PageControl.Pages[i];
+    end;
+
+  PageControl.ActivePage := displayedTabSheet;
+
+  // Show/Hide appropriate tabs
+  for i := 0 to PageControl.PageCount - 1 do
+    PageControl.Pages[i].TabVisible := TabSheetAppliesToProductType(et, PageControl.Pages[i]);
+
+  PageControl.ActivePage := displayedTabSheet;
+end;
+
+// This is identical to TNewPortionIngredientsFrame.CheckRecipeDepth function ProductsHasAssociatedContainers
+// but worried that replacing both by new function in ProductsDB would have a bad effect on NewPortionIngredientsFrame
+// functionality
+function TLineEditForm.ProductHasContainers: Boolean;
+begin
+  with ProductsDB.ADOQuery do
+  try
+    Close;
+    SQL.Clear;
+    if not ProductsDB.PortionChangesExist then
+    begin
+      SQL.Text :=
+        'select count(*) as ContainerCount from portions ' +
+        'where EntityCode = ' + ProductsDB.ClientEntityTableEntityCode.AsString +
+        ' and ContainerID is not null ';
+    end
+    else
+      SQL.Text :=
+        'select count(*) as ContainerCount from #tmpPortions where ContainerId is not null ';
+    Open;
+    Result := (FieldByName('ContainerCount').AsInteger > 0);
+  finally
+    Close;
+  end;
+end;
+
+// Setup form to match the specified entity type
+procedure TLineEditForm.SelectFormType( et: EntType );
+begin
+  case et of
+    etInstruct:  setHelpContextID( self, AZPM_MAIN_FORM_INSTRUCT );
+    etChoice:    setHelpContextID( self, AZPM_MAIN_FORM_CHOICE );
+    etPrepItem:  setHelpContextID( self, AZPM_MAIN_FORM_PREPITEM );
+    etPurchLine: setHelpContextID( self, AZPM_MAIN_FORM_PURCHLINE );
+    etRecipe:    setHelpContextID( self, AZPM_MAIN_FORM_RECIPE );
+    etStrdLine:  setHelpContextID( self, AZPM_MAIN_FORM_STRDLINE );
+    etMultiPurch:setHelpContextID( self, AZPM_MAIN_FORM_MULTIPURCH );
+  else
+    setHelpContextID( self, AZPM_MAIN_FORM_NO_ITEMS_VISIBLE );
+  end;
+
+  SetupTabVisibility(et);
+
+  // Set tab titles.
+  case et of
+    etStrdLine:
+      begin
+        AztecStandardTabSheet.Caption := 'Standard';
+      end;
+    etRecipe:
+      begin
+        AztecStandardTabSheet.Caption := 'Recipe';
+      end;
+    etPurchLine:
+      begin
+        AztecStandardTabSheet.Caption := 'Purchase';
+      end;
+    etInstruct:
+      AztecStandardTabSheet.Caption := 'Instruction';
+  end;
+
+  // Adjust the controls at the top of the form
+  SharedDataPanel.Visible := et <> etNone;
+
+  SubcategoryLabel.Visible :=
+    et in [etChoice, etPrepItem, etPurchLine, etRecipe,etStrdLine, etMultiPurch, etInstruct];
+  SubcategoryComboBox.Visible := SubcategoryLabel.Visible;
+
+  PrintStreamLabel.Visible := et in [etStrdLine,etRecipe,etInstruct];
+  PrintStreamComboBox.Visible := PrintStreamLabel.Visible;
+
+  if (et in [etStrdLine, etRecipe]) then
+  begin
+    DBCheckBoxSoldByWeight.Visible := True;
+    if (ProductsDB.ScaleContainerTable.RecordCount <= 0) then
+    begin
+      DBCheckBoxSoldByWeight.Enabled := False;
+    end
+    else begin
+      DBCheckBoxSoldByWeight.Enabled := not ProductsDB.CurrentEntityControlledByRM; //Enable unless controlled by Recipe Modelling
+    end;
+  end
+  else begin
+    DBCheckBoxSoldByWeight.Visible := False;
+  end;
+
+  pnl3by8.Visible := et in [etStrdLine,etRecipe,etChoice,etInstruct];
+  pnlBarcodeRanges.Visible := (et in [etStrdLine,etRecipe])
+                               and not DBCheckBoxSoldByWeight.Checked
+                               and not ProductHasContainers;
+
+  TouchScreenLabel.Visible := pnl3by8.Visible;
+
+  if et = etPurchLine then
+    RetailNameLabel.Caption := 'Purchase Name:'
+  else
+    RetailNameLabel.Caption := 'Retail Name:';
+
+  //Only show 'Course' combo box if a standard or recipe product.
+  TTCoursesAndTaxRulesFrame1.ShowTaxRules := et in [etStrdLine,etRecipe,etPurchLine];
+  TTCoursesAndTaxRulesFrame1.ShowCoursesCombo := et in [etStrdLine,etRecipe,etInstruct];
+  TTCoursesAndTaxRulesFrame1.ShowRollupPrice := et in [etStrdLine,etRecipe];
+  TTCoursesAndTaxRulesFrame1.ShowChoicePrintMode := et in [etStrdLine,etRecipe,etInstruct];
+  TTCoursesAndTaxRulesFrame1.ShowAlcohol := et in [etStrdLine,etRecipe];
+  gbGiftCards.Visible := et in [etStrdLine,etRecipe];
+
+
+  NoProductsLabel.Visible := (et = etNone);
+  if NoProductsLabel.Visible then
+    if self.EntityLookupFrame.isFiltered then
+      NoProductsLabel.Caption :=
+        'There are no products matching the selected filter - click "Set Filter" to change the filter.'
+    else
+      NoProductsLabel.Caption := 'Click ''New'' to create a product';
+end;
+
+// Called whenever data changes in the ClientEntityTable, to allow LineEdit
+// dialog to respond to changes in the EntityTable
+procedure TLineEditForm.EntityDataSourceDataChange(Sender: TObject; Field: TField);
+var
+  newEntType: EntType;
+  newEntCode: Double;
+  emptyTable: boolean;
+begin
+  if FHandlingDataChange then
+    Exit;
+
+  FHandlingDataChange := True;
+  try
+    newEntType := EntTypeStringToEnum( productsDB.ClientEntityTableEntityType.Value );
+    newEntCode := productsDB.ClientEntityTableEntityCode.Value;
+
+    if field = nil then begin
+      // If the table is empty, we must disable the combo boxes, which for
+      // some stupid reason allow the user to select values even if there
+      // is no selected item in the table.
+      emptyTable := IsEntityTableEmpty;
+
+      productsDB.EntityDataSource.AutoEdit := not emptyTable;
+      LineTypeComboBox.Enabled := not (emptyTable or ProductsDB.CurrentEntityControlledByRM);
+      SubcategoryComboBox.Enabled := not (emptyTable or ProductsDB.CurrentEntityControlledByRM);
+
+      if emptyTable then begin
+        lblROAlert.Visible := false;
+        SpecialLabel.Visible := false;
+        SelectFormType( etNone );
+        currEntCode := 0.0;
+        Exit;
+      end;
+    end;
+
+    if (field = productsDB.ClientEntityTableExtendedRTLName) then
+    begin
+      HandleProductNameChange(currEntName, productsDB.ClientEntityTableExtendedRTLName.Value);
+    end;
+
+    if (field = productsDB.ClientEntityTableEntityType) and (currEntType <> newEntType) then
+    begin
+      // The user has modified the entity type - invoke special handling code,
+      // to decide if the change is allowed.
+      if EntityChange.entityTypeChange(currEntType, newEntType) then
+      begin
+        if newEntType = etPrepItem then
+          ProductsDB.RefreshPreparedItemIngredientDatasetsIfNecessary;
+
+        NewPortionIngredientsFrame.ForceReinitialise;
+      end
+      else
+      begin
+        // change not permitted - reset to "old" type.. continue bravely.
+        newEntType := currEntType;
+        productsDB.ClientEntityTableEntityType.Value := EntTypeEnumToString(currEntType);
+      end;
+    end;
+
+    if (field = nil) or
+       (field = productsDB.ClientEntityTableEntityType) or
+       (field = productsDB.ClientEntityTableExtendedRtlName) or
+       (field = productsDB.ClientEntityTableRetailDescription) then
+      ensureGuiListMatchesCurrentRecord;
+
+    // Show the '(SPECIAL)' label if this is a special recipe
+    if (field = nil) or (field = productsDB.ClientEntityTableSpecialRecipe) then
+      SpecialLabel.Visible := productsDB.ClientEntityTableSpecialRecipe.Value = 'Y';
+
+    // Decide on how to update the form for the change.  If the current entity
+    // has changed, or the entity type has changed, then a complete refresh
+    // of the entire dialog is required.  However, if this is not the case,
+    // then a change to the data only causes a few small changes to the form.
+
+    if (currEntType <> newEntType) or (currEntCode <> newEntCode) then
+    begin
+      // Setup form controls to reflect the current entity type.
+      SelectFormType( newEntType );
+
+      checkOtherFlagsVisibility(newEntType, true);
+
+      if newEntType in [etPurchLine, etStrdLine] then
+        SupplierInfoFrame.InitialiseForCurrentProduct;
+
+      if newEntType = etMultiPurch then
+        MultiPurchaseFrame.InitialiseForCurrentProduct;
+
+      if newEntType in [etStrdLine,etRecipe,etChoice,etPurchLine] then
+        TTCoursesAndTaxRulesFrame1.EnsureInitialisedForCurrentProduct;
+
+      //Following data only loaded if the tab displaying it is currently visible. This to help speed up moving from
+      //product to product.
+      if PageControl.ActivePage = NewPortionsTabSheet then
+        NewPortionIngredientsFrame.EnsureInitialisedForCurrentProduct
+      else if PageControl.ActivePage = TagsTabSheet then
+        ProductTagsFrame.EnsureInitialisedForProduct(Trunc(productsDB.ClientEntityTableEntityCode.Value));
+    end;
+
+    if field <> nil then begin
+      // Some field in the current row has changed - allow entity-specific
+      // tabs to respond
+      case newEntType of
+        etPurchLine, etStrdLine:
+          begin
+            SupplierInfoFrame.onEntityDataChange( newEntType, field );
+          end;
+      end;
+    end;
+
+    if ProductsDB.CurrentEntityControlledByRM and FGUIEnabled then
+    begin
+      SetGUIEditibility(Self,False);
+      FGUIEnabled := False;
+      HandleEvents(False);
+      lblROAlert.Visible := True;
+    end
+    else if not (ProductsDB.CurrentEntityControlledByRM or FGUIEnabled) then
+    begin
+      SetGUIEditibility(Self,True);
+      FGUIEnabled := True;
+      HandleEvents(True);
+      lblROAlert.Visible := False;
+    end;
+
+    currEntType := newEntType;
+    currEntCode := newEntCode;
+    currEntName := productsDB.ClientEntityTableExtendedRTLName.Value;
+  finally
+    FHandlingDataChange := False;
+  end;
+end;
+
+// Perform validation checks before posting the current entity to the
+// entity table.  If a problem is encountered the EAbort is raised.
+procedure TLineEditForm.ClientEntityTableBeforePost(DataSet: TDataSet);
+var
+  et: EntType;
+
+begin
+ { TODO (Code review GDM): This validation would be better done in the datamodule i.e. in ProductsDB.ClientEntityTableBeforePost.
+      Could make use of TField.FocusControl to allow the productsDB to place the cursor on the approp GUI widget. }
+ { Hamish's Note: You can't use FocusControl, since it won't switch to the correct tab on the tabbed
+      dialogs.  You have to call PrizmSetFocus.  However, you could probably write your own
+      routine which takes a TField, find the relevant control, then calls PrizmSetFocus on it.}
+  et := EntTypeStringToEnum( productsDB.ClientEntityTableEntityType.Value );
+
+  // Check all the relevant entity table fields have been filled in
+  if IsBlank( productsDB.ClientEntityTableExtendedRTLName ) then begin
+    PrizmSetFocus( ExtendedNameEditBox );
+    ShowMessage( 'Cannot have a blank ' + ifthen(et = etPurchLine, 'Purchase Name', 'Retail Name'));
+    Abort;
+  end;
+
+  if IsBlank( productsDB.ClientEntityTableSubCategoryName ) and
+    (et in [etChoice,etPrepItem,etPurchLine,etRecipe,etStrdLine,etMultiPurch]) then
+  begin
+    PrizmSetFocus( SubcategoryComboBox );
+    ShowMessage( 'Cannot have a blank Sub-Category Name' );
+    Abort;
+  end;
+
+  if IsBlank(productsDB.ClientEntityTableCourseID) and
+     (not productsDB.ClientEntityTableFollowCourseWhenChild.Value) and
+     (et in [etRecipe, etStrdLine, etInstruct]) then
+  begin
+    if et = etInstruct then begin
+      if MessageDlg( 'You have not specified a course name.  Do you want this '+
+                     'instruction to be in the same course as the product(s) that '+
+                     'include it?', mtWarning, [mbOK, mbCancel], 0 ) = mrOK then
+        productsDB.ClientEntityTableFollowCourseWhenChild.Value := true
+      else begin
+        PrizmSetFocus( TTCoursesAndTaxRulesFrame1.cmbbxCourses );
+        ShowMessage( 'Please specify a course name' );
+        Abort;
+      end;
+    end
+    else
+    begin
+      PrizmSetFocus( TTCoursesAndTaxRulesFrame1.cmbbxCourses );
+      ShowMessage( 'You must specify a course name, or '+
+                   'check the ''Follow Parent Course'' box.'#13#10#13#10+
+                   'If your product can be sold separately, '+
+                   'you should specify a course name.'#13#10+
+                   'If this product is never sold separately, '+
+                   'then you may wish to check the ''Follow Parent Course'' box.' );
+      Abort;
+    end;
+  end;
+
+  if IsBlank(productsDB.ClientEntityTableDefaultPrinterStream) and
+    (et in [etStrdLine,etRecipe,etInstruct]) then
+  begin
+    PrizmSetFocus( PrintStreamComboBox );
+    ShowMessage('Cannot have a blank ' + uLocalisedText.PrintStreamText);
+    Abort;
+  end;
+
+  // Check that the combo boxes contain valid values.
+  checkComboNamesValid (nil);
+
+  // Entity-type specific tests
+  if et = etPrepItem then
+    AztecPreparedItemFrame.ValidateData;
+  if et in [etPurchLine, etStrdLine] then
+    SupplierInfoFrame.beforeEntityPost( et );
+  if et = etMultiPurch then
+    MultiPurchaseFrame.beforeEntityPost;
+  if (et = etStrdLine) then   
+    NewPortionIngredientsFrame.CheckStandardPortion;
+
+  // Update touch screen if it is blank
+  if IsBlank( productsDB.ClientEntityTableAztecEposButton1 ) and
+     IsBlank( productsDB.ClientEntityTableAztecEposButton2 ) and
+     IsBlank( productsDB.ClientEntityTableAztecEposButton3 ) then
+    UpdateTouchScreenText( productsDB.ClientEntityTableExtendedRtlName.Value );
+
+  // We have passed all the validation checks.
+  // Perform database action on before post, e.g. updating 'Last Modified Time'.
+  productsDB.ClientEntityTableBeforePost( DataSet );
+end;
+
+procedure TLineEditForm.ClientEntityTableAfterScroll(DataSet: TDataSet);
+begin
+  RecalculateCostPricesOnPortionsTab := False;
+
+  //Ensure any cost prices changed by other users will be picked up on moving to a new product.
+  ProductsDb.RefreshCostPriceModeForChoicesFromDb;
+  productsdb.ClearBudgetedCostPriceCacheTables;
+end;
+
+// State of entity data source has changed, e.g. we have done a
+// ClientEntityTable.Insert or .Edit.  We respond to this event,
+// because some form controls behave differently if the dataset
+// if in 'Insert' mode.
+procedure TLineEditForm.EntityDataSourceStateChange(Sender: TObject);
+var
+  et: EntType;
+begin
+  et := EntTypeStringToEnum( productsDB.ClientEntityTableEntityType.Value );
+
+  // Entity-type specific responses to state change.
+  case et of
+    etPurchLine, etStrdLine:
+        SupplierInfoFrame.onEntityStateChange( et );
+  end;
+end;
+
+// Perform validations on MultiPurchIngredientTable entries before posting.
+procedure TLineEditForm.MultiPurchIngredientBeforePost(DataSet: TDataSet);
+begin
+  MultiPurchaseFrame.beforeMultiPurchIngredientPost;
+end;
+
+// Update form when data changes in the MultiPurchIngredientTable.
+procedure TLineEditForm.MultiPurchIngredientDataSourceDataChange(Sender: TObject;
+  Field: TField);
+begin
+  if (field = nil) then
+    // User has scrolled the table
+    MultiPurchaseFrame.afterMultiPurchIngredientScroll;
+end;
+
+
+// User has clicked 'New'
+procedure TLineEditForm.AddItemActionExecute(Sender: TObject);
+begin
+  ProductsDB.SaveAllTableChanges;
+
+  // It's not always possible to add a new item if a filter is in effect.
+  if IsEntityTableEmpty and EntityLookupFrame.isFiltered then
+  begin
+    if MessageDlg( 'You must select an existing product before adding a new item.'#13#10 +
+                   'The current filter is hiding all products.'#13#10 +
+                   'The current filter will be disabled before the new item is added.', mtWarning,
+                   [mbOK, mbCancel], 0 ) = mrOK then
+      EntityLookupFrame.turnFilterOff
+    else
+      Exit;
+  end;
+
+  if IsEntityTableEmpty then
+    CreateFirstProduct
+  else
+    CloneCurrentProduct(False);
+end;
+
+procedure TLineEditForm.CloneItemActionExecute(Sender: TObject);
+begin
+  Assert(not(ProductsDB.ClientEntityTableEntityCode.IsNull), 'TLineEditForm.CloneItemActionExecute found no product currently selected');
+  
+  ProductsDB.SaveAllTableChanges;
+
+  CloneCurrentProduct(True);
+end;
+
+procedure TLineEditForm.CreateFirstProduct;
+begin
+  ProductsDB.ClientEntityTable.DisableControls;
+  ProductsDB.ProductTaxTable.DisableControls;
+  ProductsDB.PortionsQuery1.DisableControls;
+  ProductsDB.IngredientsQuery1.DisableControls;
+
+  try try
+    productsDB.ClientEntityTable.Insert;
+    productsDB.ClientEntityTableEntityCode.Value := productsDB.GetNextEntCode;
+    productsDB.ClientEntityTableEntityType.Value := EntTypeEnumToString( etStrdLine );
+
+    // This is the first entry in the table - use default values for row.
+    productsDB.ClientEntityTableDefaultFill( EntTypeStringToEnum( productsDB.ClientEntityTableEntityType.Value ) );
+
+    // Must post the record due to the bug whereby records in a detail ADO table are not
+    // visible in visual controls until the master record is posted. Note that the record
+    // will not yet be sent to the database.
+    ProductsDB.ClientEntityTableInvisiblePost;
+
+    // Persuade detail tables to filter to the new entity code.
+    // (This is a cheesy way to achieve this!).
+    productsDB.ClientEntityTable.EnableControls;
+    ProductsDB.PortionsQuery1.EnableControls;
+    productsDB.ClientEntityTable.DisableControls;
+    ProductsDB.PortionsQuery1.DisableControls;
+
+    ProductTagsFrame.EnsureInitialisedForProduct(Trunc(productsDB.ClientEntityTableEntityCode.Value));
+
+    PrizmSetFocus( ExtendedNameEditBox );
+
+    ProductsDb.LogProductChange('First product created');
+
+    //TODO: Is this necessary?
+    moveEntityListToClientEntityTableRecord;
+  except
+    on e: Exception do
+    begin
+      Log.Event('Error in CreateFirstProduct: ' + E.ClassName + ' ' + E.Message);
+
+      // Cancel the addition
+      productsDB.cancelDatasetChanges( productsDB.ProductTaxTable );
+      productsDB.cancelDatasetChanges( productsDB.PortionsQuery1 );
+      productsDB.cancelDatasetChanges( productsDB.IngredientsQuery1 );
+      productsDB.cancelDatasetChanges( productsDB.ClientEntityTable );
+
+      raise;
+    end;
+  end;
+  finally
+    productsDB.ClientEntityTable.EnableControls;
+    ProductsDB.ProductTaxTable.EnableControls;
+    ProductsDB.PortionsQuery1.EnableControls;
+    ProductsDB.IngredientsQuery1.EnableControls;
+    SetKDSLabel(SubcategoryComboBox.DataSource.DataSet.FieldByName('sub-category name').AsString);
+  end;
+end;
+
+procedure TLineEditForm.CloneCurrentProduct(fullClone: boolean);
+var
+  entityType: EntType;
+  entityTableValues,
+  taxRuleTableRows: variant;
+  copyTaxRules, copyPortions, copySupplierInfo, copyPreparedItemInfo, copyMultiPurchIngredients : boolean;
+  baseEntityCode: Double;
+  baseRetailName: string;
+begin
+  if EntityLookupFrame.IsFilteredOnSupplierRef then
+  begin
+    MessageDlg('It is not possible to add a product when a Supplier Ref filter is active.'#13#10 +
+               'Please disable the filter and try again.',
+               mtInformation, [mbOK], 0);
+    Exit;
+  end;
+
+  ProductsDB.ClientEntityTable.DisableControls;
+  ProductsDB.ProductTaxTable.DisableControls;
+  ProductsDB.PortionsQuery1.DisableControls;
+  ProductsDB.IngredientsQuery1.DisableControls;
+  ProductsDB.tblPreparedItemDetails.DisableControls;
+  ProductsDB.MultiPurchIngredientTable.DisableControls;
+
+  baseEntityCode := ProductsDB.ClientEntityTableEntityCode.value;
+  baseRetailName := ProductsDB.ClientEntityTableExtendedRTLName.value;
+
+  try try
+    // copy aside values from the current product
+    entityType := EntTypeStringToEnum( productsDB.ClientEntityTableEntityType.Value );
+
+    copyTaxRules := entityType in [etStrdLine,etRecipe,etPurchLine];
+    copyPortions := entityType in [etStrdLine,etRecipe,etChoice];
+    copySupplierInfo := entityType in [etStrdLine, etPurchLine];
+    copyPreparedItemInfo := (entityType = etPrepItem) and fullClone;
+    copyMultiPurchIngredients := (entityType = etMultiPurch) and fullClone;
+
+    productsDB.storeRowValues( entityTableValues, productsDB.ClientEntityTable );
+
+    if copyTaxRules then
+      productsDB.storeRows( taxRuleTableRows, productsDB.ProductTaxTable );
+
+    // Write these values into the new row if they are not null.
+    productsDB.ClientEntityTable.Insert;
+    productsDB.restoreRowValues( entityTableValues, productsDB.ClientEntityTable );
+
+    // Certain fields shouldn't be copied from the existing row.
+    productsDB.ClientEntityTableLMDT.Clear;
+    productsDB.ClientEntityTableExtendedRtlName.Clear;
+    productsDB.ClientEntityTableRetailName.Clear;
+    productsDB.ClientEntityTableRetailDescription.Clear;
+    productsDB.ClientEntityTableAztecEposButton1.Clear;
+    productsDB.ClientEntityTableAztecEposButton2.Clear;
+    productsDB.ClientEntityTableAztecEposButton3.Clear;
+    productsDB.ClientEntityTableImportExportReference.Clear;
+    productsDB.ClientEntityTablePurchaseName.Clear;
+    productsDB.ClientEntityTableB2BName.Clear;
+    productsDB.ClientEntityTableBudgetedCostPrice.Clear;
+    productsDB.ClientEntityTableDiscontinue.Value := FALSE;
+
+    productsDB.ClientEntityTableEntityCode.Value := productsDB.GetNextEntCode;
+    productsDB.ClientEntityTableDefaultFill( entityType );
+
+    // Must post the record due to the bug whereby records in a detail ADO table are not
+    // visible in visual controls until the master record is posted. Note that the record
+    // will not yet be sent to the database.
+    ProductsDB.ClientEntityTableInvisiblePost;
+
+    // add to ProductProperties
+    productsDB.addProductToProductProperties(productsDB.ClientEntityTableEntityCode.Value);
+
+    // Persuade detail tables to filter to the new entity code.
+    // (This is a cheesy way to achieve this!).
+    productsDB.ClientEntityTable.EnableControls;
+    ProductsDB.PortionsQuery1.EnableControls;
+    ProductsDB.IngredientsQuery1.EnableControls;
+    ProductsDB.tblPreparedItemDetails.EnableControls;
+    ProductsDB.MultiPurchIngredientTable.EnableControls;
+
+    productsDB.ClientEntityTable.DisableControls;
+    ProductsDB.PortionsQuery1.DisableControls;
+    ProductsDB.IngredientsQuery1.DisableControls;
+    ProductsDB.tblPreparedItemDetails.DisableControls;
+    ProductsDB.MultiPurchIngredientTable.DisableControls;
+
+    if copyTaxRules then
+      productsDB.restoreRows( taxRuleTableRows, productsDB.ProductTaxTable );
+
+    if copyPortions then
+      NewPortionIngredientsFrame.InitialiseFromAnotherProduct(fullClone, baseEntityCode, entityType);
+
+    if copySupplierInfo then
+      SupplierInfoFrame.InitialiseFromAnotherProduct(fullClone, baseEntityCode);
+
+    if copyPreparedItemInfo then
+      AztecPreparedItemFrame.InitialiseFromAnotherProduct(baseEntityCode);
+
+    if copyMultiPurchIngredients then
+      MultiPurchaseFrame.InitialiseFromAnotherProduct(baseEntityCode);
+
+    if fullClone then
+      ProductTagsFrame.InitialiseFromAnotherProduct(Trunc(productsDB.ClientEntityTableEntityCode.Value), Trunc(baseEntityCode))
+    else
+      ProductTagsFrame.EnsureInitialisedForProduct(Trunc(productsDB.ClientEntityTableEntityCode.Value));
+
+    PrizmSetFocus( ExtendedNameEditBox );
+
+    ProductsDb.LogProductChange('New product ' + ifthen(fullClone, 'fully cloned', 'partially cloned') + ' from "' + baseRetailName + '" (' + FloatToStr(baseEntityCode) + ')');
+
+    moveEntityListToClientEntityTableRecord;
+  except
+    on e: Exception do
+    begin
+      Log.Event('Error in CloneCurrentProduct: ' + E.ClassName + ' ' + E.Message);
+
+      // If an exception occurs, cancel the addition
+      ProductsDB.PortionChangesExist := False;
+      productsDB.cancelDatasetChanges( productsDB.ProductTaxTable );
+      productsDB.cancelDatasetChanges( productsDB.PortionsQuery1 );
+      productsDB.cancelDatasetChanges( productsDB.IngredientsQuery1 );
+      productsDB.cancelDatasetChanges( productsDB.ClientEntityTable );
+      productsDB.cancelDatasetChanges( productsDB.tblPreparedItemDetails );
+      productsDB.cancelDatasetChanges( productsDB.MultiPurchIngredientTable );
+
+      moveClientEntityTableToEntityListRecord;
+
+      raise;
+    end;
+  end finally
+    productsDB.ClientEntityTable.EnableControls;
+    ProductsDB.ProductTaxTable.EnableControls;
+    ProductsDB.PortionsQuery1.EnableControls;
+    ProductsDB.IngredientsQuery1.EnableControls;
+    ProductsDB.tblPreparedItemDetails.EnableControls;
+    ProductsDB.MultiPurchIngredientTable.EnableControls;
+
+    SetKDSLabel(SubcategoryComboBox.DataSource.DataSet.FieldByName('sub-category name').AsString);
+  end;
+end;
+
+procedure TLineEditForm.CloneItemActionUpdate(Sender: TObject);
+begin
+  CloneItemAction.Enabled := not IsEntityTableEmpty;
+end;
+
+// Added by AK for PM334
+procedure TLineEditForm.btn_LinkedProdsClick(Sender: TObject);
+begin
+  EntityListDataSet.DisableControls;
+  try
+    entityDelete.LinkedProducts;
+  finally
+    EntityListDataSet.EnableControls;
+  end;
+end;
+
+// Delete the currently selected entity.
+procedure TLineEditForm.DeleteItemActionExecute(Sender: TObject);
+var
+  delEntityCode: Double;
+  delRetailName: string;
+begin
+  // Go through the torturous delete logic - see EntityDeleteUnit
+  Inc( FprocessingEntityListScroll );
+  EntityListDataSet.DisableControls;
+  try
+    // Try and move the GUI onto the next or the previous item, so that the
+    // selection doesn't move back to the start of the table when the record
+    // vanishes.
+    delEntityCode := productsDB.ClientEntityTableEntityCode.Value;
+    delRetailName := ProductsDb.ClientEntityTableExtendedRTLName.Value;
+
+    if not ProductsDB.ProductNewlyInsertedAndNotSaved then
+       //save any changes whilst deleting product but also check any changes are valid.
+       ProductsDB.SaveAllTableChanges;
+
+    EntityListDataSet.Next;
+    if areEntityListsSynchronized then
+      EntityListDataSet.Prior;
+
+    // Do the delete
+    entityDelete.entityDelete;
+
+    if (productsDB.ClientEntityTableEntityCode.Value <> delEntityCode) or
+       (productsDB.ClientEntityTableDeleted.AsString = 'Y') then
+      // delete worked - move the client entity table to the new item we selected
+    begin
+      log.Event(delRetailName + '(' + FloatToStr(delEntityCode) + '): Product deleted');
+      moveClientEntityTableToEntityListRecord;
+    end
+    else
+    begin
+      // delete didn't work - return to the deleted item
+      moveEntityListToClientEntityTableRecord;
+    end;
+  finally
+    EntityListDataSet.EnableControls;
+    Dec( FprocessingEntityListScroll );
+  end;
+end;
+
+// Invoked to decide whether to allow the user to close the LineEdit dialog
+procedure TLineEditForm.FormCloseQuery(Sender: TObject;
+  var CanClose: Boolean);
+begin
+  try
+    // Fix up for issue with form close via window [X]
+    // This method of closing the form does not change the active control, so
+    // some OnExit() based validations won't fire unless we force them to:
+    ActiveControl := nil;
+    // ..however those validations fire EAbort which is handled via the VCL setter
+    // for activecontrol, so if the active control is still assigned, raise
+    // another abort.
+    if Assigned(ActiveControl) then
+      Abort;
+
+    // Post all table changes - this will perform validation.  If validation
+    // fails, it raises EAbort, which prevents the form from closing (see below).
+    productsDB.SaveAllTableChanges;
+
+    //productsDB.clearProductProperties('');
+    productsDB.deleteProductProperties;
+  except
+    // Something raised EAbort - don't allow form to close.
+    on EAbort do
+    begin
+      Log.Event('FormCloseQuery - EAbort');
+      CanClose := false;
+    end;
+  end;
+end;
+
+procedure TLineEditForm.btnCloseClick(Sender: TObject);
+begin
+  Close; // Causes FormCloseQuery above to be invoked.
+end;
+
+// User has pressed a button on the dialog - check if they have pressed
+// a shortcut.
+procedure TLineEditForm.FormShortCut(var Msg: TWMKey;
+  var Handled: Boolean);
+var
+  Shift : TShiftState;
+  ShiftCtl : TShiftState;
+begin
+  Shift := KeyDataToShiftState(Msg.KeyData);
+  ShiftCtl := Shift * [ssShift, ssAlt, ssCtrl];
+
+  // Ctrl+F - filter
+  if (Msg.CharCode = Ord('F')) and (ShiftCtl = [ssCtrl]) then begin
+    try
+      Handled := true;
+      EntityLookupFrame.showEditFilterForm;
+    except
+      on EAbort do
+        Log.Event('FormShortCut - EAbort');
+    end;
+  end;
+
+  // When focus is in the EntityLookupFrame search box, disable (most) shortcuts.
+  if not doesControlContainFocus( EntityLookupFrame.FindLineItemBox ) then begin
+
+    // F3 - jump to search box
+    if (Msg.CharCode = VK_F3) and (ShiftCtl = []) then begin
+      Handled := true;
+      try
+        productsDB.SaveAllTableChanges;
+        PrizmSetFocus( EntityLookupFrame.SearchTextEdit );
+      except
+        on EAbort do
+          Log.Event('FormShortCut - EAbort');
+      end;
+    end;
+
+    // F4 = set default supplier (if standard line dialog showing)
+    if (Msg.CharCode = VK_F4) and (ShiftCtl = []) then begin
+      if (PageControl.ActivePage = SupplierTabSheet) and
+         SupplierInfoFrame.UnitSupplierFrame.SetDefaultSupplierAction.Enabled
+      then begin
+        Handled := true;
+        SupplierInfoFrame.UnitSupplierFrame.SetDefaultSupplierAction.Execute;
+      end
+    end;
+
+    // F5 = Set default purchase unit OR switch to back page
+    if (Msg.CharCode = VK_F5) and (ShiftCtl = []) then begin
+      if (PageControl.ActivePage = SupplierTabSheet) and
+        SupplierInfoFrame.UnitSupplierFrame.SetDefaultPurchaseUnitAction.Enabled
+      then begin
+        Handled := true;
+        SupplierInfoFrame.UnitSupplierFrame.SetDefaultPurchaseUnitAction.Execute;
+      end else begin
+        Handled := true;
+        PageControl.SelectNextPage( true );
+      end;
+    end;
+
+    // F10 update touch screen
+    if (Msg.CharCode = VK_F10) and (ShiftCtl = []) then begin
+      Handled := true;
+      AutoTouchScreenButtonClick( nil );
+    end;
+  end;
+end;
+
+procedure TLineEditForm.setupStaticPickLists;
+begin
+  setComboBoxItems( SubcategoryComboBox, productsDB.subCategoryStringList );
+  setComboBoxItems( PrintStreamComboBox, productsDB.printStreamStringList );
+  wwdbcomboGiftCardType.Items.Assign(productsDB.GiftCardTypesStringList);
+  SupplierInfoFrame.setupstaticpicklists;
+  MultiPurchaseFrame.setupDbGrid;
+  TTCoursesAndTaxRulesFrame1.setupStaticPickLists;
+  AztecPreparedItemFrame.SetupStaticPickLists;
+end;
+
+procedure TLineEditForm.showBaseDataAddOptions( show : boolean );
+begin
+  // Disable base data addition on the main form
+  SubcategoryComboBox.ShowCreateNew := show;
+  PrintStreamComboBox.ShowCreateNew := show;
+  SupplierInfoFrame.PurchaseUnitComboBox.ShowCreateNew := show;
+  TTCoursesAndTaxRulesFrame1.cmbbxCourses.ShowCreateNew := show;
+  TTCoursesAndTaxRulesFrame1.AztecDBLookupBox1.ShowCreateNew := show;
+  TTCoursesAndTaxRulesFrame1.AztecDBLookupBox2.ShowCreateNew := show;
+  TTCoursesAndTaxRulesFrame1.AztecDBLookupBox3.ShowCreateNew := show;
+  TTCoursesAndTaxRulesFrame1.AztecDBLookupBox4.ShowCreateNew := show;
+
+  // No need to disable controls in the maint* dialogs, since there is no way
+  // to get to these dialogs.
+end;
+
+// Called before form is displayed
+procedure TLineEditForm.FormShow(Sender: TObject);
+begin
+  FGUIEnabled := True;
+
+  if not ProductsDB.adocRecipeModelling.Connected then
+    EntityListDataSet.Fields.Remove(EntityListDataSetRMControlled);
+
+  currEntCode := 0;
+  currEntName := '';
+
+  //Make SelectEntityTable share the data of ProductsDB.ClientEntityTable and also
+  //copy all filter settings, etc.
+  productsDB.CloneClientEntityTable( EntityListDataSet, false );
+  EntityListDataSet.First;
+
+  // wire up events to datasets and datasources (this can't easily be
+  // done in the form editor).
+  productsDB.EntityDataSource.OnStateChange := EntityDataSourceStateChange;
+  productsDB.EntityDataSource.OnDataChange := EntityDataSourceDataChange;
+  productsDB.ClientEntityTable.BeforePost := ClientEntityTableBeforePost;
+  ProductsDB.ProductTaxTable.BeforePost := ProductTaxTableBeforePost;
+  productsDB.ClientEntityTable.AfterScroll := ClientEntityTableAfterScroll;
+  productsDB.MultiPurchIngredDataSource.OnDataChange :=
+    MultiPurchIngredientDataSourceDataChange;
+  productsDB.MultiPurchIngredientTable.BeforePost := MultiPurchIngredientBeforePost;
+
+  if ProductsDB.shouldHideBaseDataAddOptions then
+    showBaseDataAddOptions( false );
+
+  // When ENTER is pressed in search box on LineEdit, set focus to retail name
+  EntityLookupFrame.OnConfirmSelectedItem := SetFocusAtRetailName;
+  // Ensure that we post edits before we try to filter the list
+  EntityLookupFrame.OnBeforeFilterOrSearch := BeforeEntityListFilterOrSearch;
+  EntityLookupFrame.SetFilter( ProductsDB.editable_entity_filter );
+
+  // Do static initialization of pick lists.
+  setupStaticPickLists;
+
+  SupplierInfoFrame.UnitSupplierFrame.attachToSupplierTable;
+
+  // invoke callbacks to setup dialog correctly initially
+  EntityDataSourceStateChange( productsDB.EntityDataSource );
+  EntityDataSourceDataChange( productsDB.EntityDataSource, nil );
+
+  // Enable shortcuts (this can't be done in the designer;  if this event is
+  // attached using the designer, then shortcuts can be performed from the
+  // Password form, site select form, etc).
+  OnShortCut := FormShortCut;
+
+  // Make sure dialog is centred within workarea.
+  Left := (Monitor.WorkareaRect.Right + Monitor.WorkareaRect.Left - Width) div 2;
+  Top := (Monitor.WorkareaRect.Bottom + Monitor.WorkareaRect.Top - Height) div 2;
+  if Left < Monitor.WorkareaRect.Left then
+    Left := Monitor.WorkareaRect.Left;
+  if Top < Monitor.WorkareaRect.Top then
+    Top := Monitor.WorkareaRect.Top;
+
+  // Setup dialog title
+  Caption := ProductModellingTextName + ' - ' + productsDB.level_title;
+  EntityLookupFrame.SetInitialFocus;
+
+  PrintStreamLabel.Caption := uLocalisedText.PrintStreamText + ':';
+  TTCoursesAndTaxRulesFrame1.lblChoicePrintMode.Caption := uLocalisedText.PrintStreamText + ':';
+  lblROAlert.Caption := 'This product is maintained via ' + uLocalisedText.RecipeModellingText + ' and is read only.';
+end;
+
+procedure TLineEditForm.btnSettingsClick(Sender: TObject);
+var
+ SettingsForm: TSettingsForm;
+ oldCostPriceMode: TCostPriceMode;
+ oldShowPortionPrices: boolean;
+ oldShowB2BName: boolean;
+ oldMaxAllowedPortions: integer;
+begin
+  SettingsForm := TSettingsForm.Create(Self);
+  try
+    if SettingsForm.ShowModal = mrOK then
+    begin
+      oldCostPriceMode := ProductsDb.costPriceModeForChoices;
+      oldShowPortionPrices := ProductsDb.ShowPortionPrices;
+      oldShowB2BName := ProductsDb.ShowB2BName;
+      oldMaxAllowedPortions := ProductsDb.MaxAllowedPortions;
+
+      ProductsDb.costPriceModeForChoices := SettingsForm.SettingsFrame.CostPriceMode;
+      ProductsDb.ShowPortionPrices := SettingsForm.SettingsFrame.ShowPortionPrices;
+      ProductsDb.ShowB2BName := SettingsForm.SettingsFrame.ShowB2BName;
+      ProductsDb.MaxAllowedPortions := SettingsForm.SettingsFrame.MaxNumberOfPortions;
+
+      //Force a recalculation of cost prices if the method of calculating a choice cost price has changed.
+      if oldCostPriceMode <> ProductsDb.costPriceModeForChoices then
+        productsdb.ClearBudgetedCostPriceCacheTables;
+
+      if oldShowB2BName <> ProductsDb.ShowB2BName then
+        SupplierInfoFrame.ShowHideB2BName;
+
+      if (oldCostPriceMode <> ProductsDb.costPriceModeForChoices) or
+         (oldShowPortionPrices <> ProductsDb.ShowPortionPrices) or
+         (oldShowB2BName <> ProductsDb.ShowB2BName) or
+         (oldMaxAllowedPortions <> ProductsDb.MaxAllowedPortions) then
+      begin
+        ProductsDb.SaveAllTableChanges;
+        NewPortionIngredientsFrame.InitialiseForCurrentProduct;
+      end;
+    end;
+  finally
+    SettingsForm.Free;
+  end;
+end;
+
+// Validate that values in combo boxes are valid
+procedure TLineEditForm.checkComboNamesValid (comboBox: TDBComboBox);
+
+  // Should a particular field be validated?  Only if the field has been modified, and,
+  // if we are only validating a single combo box, only if the field corresponds to that combo box.
+  function ShouldValidateField( field: TField ): boolean;
+  begin
+    if Assigned( combobox ) and (combobox.Field <> field) then
+      Result := false // Only validate the field we are leaving
+    else if productsDB.ProductNewlyInsertedAndNotSaved then
+      Result := true  // Validate all fields on insert
+    else if field.AsVariant <> field.OldValue then
+      Result := true  // Validate changed field
+    else
+      Result := false // Don't validate unchanged field
+  end;
+
+  function FieldMatchesDB(Field: TStringField; ADOQuery: TADOQuery; NameField: String; AllowBlank: Boolean): boolean;
+  var
+    DBValue: String;
+  begin
+    ADOQuery.Active := TRUE;
+    if IsBlank( field ) then begin
+      Result := allowBlank;
+    end
+    else if ADOQuery.Locate(NameField,Field.Value,[loCaseInsensitive]) then
+    begin
+      DBValue := ADOQuery.FieldByName(NameField).AsString;
+      // If dataset is editing, fix the case of the string.
+      if field.DataSet.State in [dsInsert,dsEdit] then begin
+        if field.Value <> DBValue then
+          field.Value := DBValue;
+      end;
+      Result := True;
+    end
+    else
+      Result := False;
+    ADOQuery.Active := FALSE;
+  end;
+
+begin
+  if ShouldValidateField( productsDB.ClientEntityTableSubCategoryName ) then
+  begin
+    if not FieldMatchesDB(productsDB.ClientEntityTableSubCategoryName,ProductsDB.SubcategoryQuery, 'SubcategoryName', True) then
+    begin
+      PrizmSetFocus( SubcategoryComboBox );
+      ShowMessage( productsDB.ClientEntityTableSubCategoryName.Value + ' is not a valid subcategory.' );
+      ProductsDB.refreshLookup(sltSubcategory);
+      setComboBoxItems( SubcategoryComboBox, productsDB.subCategoryStringList );
+      productsDB.ClientEntityTableSubCategoryName.Value := ProductsDB.ClientEntityTableSubCategoryName.OldValue;
+      Abort;
+    end;
+  end;
+
+  if ShouldValidateField( productsDB.ClientEntityTableDefaultPrinterStream ) then
+  begin
+    if not FieldMatchesDB(productsDB.ClientEntityTableDefaultPrinterStream,ProductsDB.PrintStreamQuery, 'Printer Stream Name', True) then
+    begin
+      PrizmSetFocus( PrintStreamComboBox );
+      ShowMessage( productsDB.ClientEntityTableDefaultPrinterStream.Value + ' is not a valid ' + uLocalisedText.PrintStreamText + '.' );
+      ProductsDB.refreshLookup(sltPrintStream);
+      setComboBoxItems( PrintStreamComboBox, productsDB.printStreamStringList );
+      productsDB.ClientEntityTableDefaultPrinterStream.AsVariant :=
+          productsDB.ClientEntityTableDefaultPrinterStream.OldValue;
+      Abort;
+    end
+  end;
+end;
+
+// When user attempts to leave a combo box, validate that the
+// value in the combo box is valid.
+{ TODO : It would be better if the combo box (TAztecDBComboBox) could itself validate what the user has typed in.
+  It of course has access to the list of valid options in its 'items' property. }
+procedure TLineEditForm.ComboBoxExit(Sender: TObject);
+begin
+  if (productsDB.ClientEntityTable.State = dsInsert) or (productsDB.ClientEntityTable.State = dsEdit) then
+    checkComboNamesValid(TDBComboBox( Sender ));
+end;
+
+// Returns TRUE if there are no entries in the ClientEntityTable.
+function TLineEditForm.IsEntityTableEmpty : boolean;
+begin
+  IsEntityTableEmpty := EntityListDataSet.EOF and EntityListDataSet.BOF;
+end;
+
+// Only enable delete action if there is an entry in the entity table.
+procedure TLineEditForm.DeleteItemActionUpdate(Sender: TObject);
+begin
+  DeleteItemAction.Enabled := not IsEntityTableEmpty;
+end;
+
+procedure TLineEditForm.FormCreate(Sender: TObject);
+var
+  i : Integer;
+begin
+
+  Application.OnException := LogException;
+
+  btnEQATECExceptionTest.Visible := EQATECMonitor.TriggerEQATECTestException();
+
+  BuildPseudoDisabledComponentList;
+
+  FprocessingEntityListScroll := 0;
+  RecalculateCostPricesOnPortionsTab := False;
+
+  // Install custom keyboard handling on all form controls to circumvent
+  // problems and bugs with the standard controls - see Utils unit.
+  installCustomKeyboardHandling( self );
+  PageControl.ActivePage := AztecStandardTabSheet;
+
+  // Ensure that PrizmSetFocus can correctly switch between tab sheets.
+  for i := 0 to PageControl.PageCount - 1 do
+    SetMakeVisibleHandler( PageControl.Pages[i], makeTabVisible );
+  SupplierInfoFrame.FutureCostDateCbx.Text := 'Current';
+
+  SupplierInfoFrame.OnDefaultPurchaseUnitChange := HandleDefaultPurchaseUnitChange;
+
+  ProductsDB.ScaleContainerTable.Open;
+  EntityLookupFrame.DataSource := EntityListDataSource;
+
+  ProductTagsFrame.Initialise(dmADO.AztecConn);
+  ProductsDb.TagChangesExist := ProductTagsFrame.TagSelectionsChanged;
+  ProductsDb.SaveTagChanges := ProductTagsFrame.SaveProductTagValues;
+
+  PortionsGridWndProc := classes.MakeObjectInstance( PortionsGridCustomWndProc );
+  PortionsGridSaveWndProc := Pointer( GetWindowLong( NewPortionIngredientsFrame.dbgPortions.Handle, GWL_WNDPROC ) );
+  SetWindowLong( NewPortionIngredientsFrame.dbgPortions.Handle, GWL_WNDPROC, LongInt( PortionsGridWndProc ) );
+
+  PricesGridWndProc := classes.MakeObjectInstance( PricesGridCustomWndProc );
+  PricesGridSaveWndProc := Pointer( GetWindowLong( NewPortionIngredientsFrame.dbgPortionPrices.Handle, GWL_WNDPROC ) );
+  SetWindowLong( NewPortionIngredientsFrame.dbgPortionPrices.Handle, GWL_WNDPROC, LongInt( PricesGridWndProc ) );
+
+
+  if EQATECMonitor.IsEQATECEnabled then
+  begin
+  	EQATECMonitor.SetupMonitor(Application.Title);
+   	EQATECMonitor.TrackFeatureStart(Application.Title);
+  end;
+
+  ProductsDB.GAidFlagEnabled := dmADO.CheckGAid_FlagUsage();
+
+  cbPromptForGiftAid.Visible := ProductsDB.GAidFlagEnabled;
+  OtherFlagsTabSheet.Visible := false;
+end;
+
+procedure TLineEditForm.LogException(Sender: TObject; E: Exception);
+begin
+  Log.Event('** ERROR: ' + E.Message);
+  EQATECMonitor.EQATECAppException(Application.Title, E);
+  Application.ShowException(E);
+end;
+
+procedure TLineEditForm.SubcategoryComboBoxCreateNew(Sender: TObject);
+begin
+  fMaintSubCateg := TfMaintSubCateg.Create(Self);
+
+  // Ensure categories are re-read when the filter dialog next appears
+  ProductsDB.CategoryTreeQuery.Active := false;
+
+  try
+    if fMaintSubCateg.ShowModal = mrOk then begin
+      TAztecDBComboBox( Sender ).DataSource.Edit;
+      TAztecDBComboBox( Sender ).Field.Text := fMaintSubCateg.edtSubCategName.Text;
+      SetKDSLabel(SubcategoryComboBox.Text);
+    end;
+  finally
+    fMaintSubCateg.Free;
+  end;
+end;
+
+procedure TLineEditForm.PrintStreamComboBoxCreateNew(Sender: TObject);
+begin
+  fMaintPrintStream := TfMaintPrintStream.Create(Self);
+
+  try
+    if fMaintPrintStream.ShowModal = mrOk then begin
+      TAztecDBComboBox( Sender ).DataSource.Edit;
+      TAztecDBComboBox( Sender ).Field.Text := fMaintPrintStream.edtStreamName.Text;
+    end;
+  finally
+    fMaintPrintStream.Free;
+  end;
+end;
+
+{ The CheckFactors procedure is not a requirement but it probably will be required
+  in the future
+procedure TLineEditForm.CheckFactors;
+var
+  CurIngredient: Real;
+  ZeroStandard: Boolean;
+begin
+  CurIngredient := -1;
+  ZeroStandard := False;
+
+  with ProductsDB.ADOQuery do
+  begin
+    Close;
+    SQL.Clear;
+
+    Hamish Note: given that all the data is cached in memory at this point,
+    using a SQL query will not work
+
+    SQL.Add('select a.DisplayOrder, b.*');
+    SQL.Add('from Portions a INNER JOIN PortionIngredients b');
+    SQL.Add('on a.PortionID = b.PortionID');
+    SQL.Add('where a.EntityCode = ' + format('%f', [ProductsDB.ClientEntityTableEntityCode.Value]));
+    SQL.Add('order by b.IngredientCode, a.DisplayOrder');
+    Open;
+
+    while not Eof do
+    begin
+      if CurIngredient <> FieldbyName('IngredientCode').AsFloat then
+      begin
+        CurIngredient := FieldbyName('IngredientCode').AsFloat;
+
+        if FieldByName('DisplayOrder').AsInteger = 1 then
+          ZeroStandard := FieldByName('Quantity').AsFloat = 0
+        else
+          ZeroStandard := True;
+      end;
+
+      if (FieldByName('CalculationType').AsInteger = ord(calcFactor)) and (ZeroStandard) then
+      begin
+        ShowMessage('Some portions contain Factored Ingredients where the standard quantity is 0.');
+        break;
+      end;
+
+      Next;
+    end;
+
+    Close;
+  end;
+end;
+}
+
+
+procedure TLineEditForm.LineTypeComboBoxKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+  with Sender as TDBLookupComboBox do begin
+    if Key = #27 then begin
+      // When escape is pressed, we want the drop down to close, but without messing up
+      // the value written to the field.  The only way to achieve this is to set the
+      // keystroke to #9 - tab.  Setting this to #0 doesn't work.
+      Key := #9;
+    end;
+  end;
+end;
+
+procedure TLineEditForm.redisplayCurrentRecord;
+begin
+  currEntCode := 0;
+  EntityDataSourceDataChange( nil, nil );
+  moveEntityListToClientEntityTableRecord;
+end;
+
+procedure TLineEditForm.ReloadButtonClick(Sender: TObject);
+begin
+  if MessageDlg( 'Reloading all data from the database will take some time, '#13#10 +
+                 'but will allow you to see changes made by other users. '#13#10 +
+                 'Do you want to proceed?'#13#10, mtConfirmation, [mbYes, mbNo], 0 )
+     = mrYes then
+  begin
+    EntityListDataSet.DisableControls;
+    try
+      ProductsDB.SaveAllTableChanges;
+      ProductsDB.RefreshDataFromDatabase;
+    finally
+      EntityListDataSet.EnableControls;
+    end;
+  end;
+end;
+
+
+procedure TLineEditForm.AztecEposButton1Enter(Sender: TObject);
+begin
+  // Redo vertical centring when you enter or leave a button in case you enter
+  // an empty button (in which case it is scrolled into view).
+  doAztecEposButtonVcentre;
+
+  // While the user is in the 3x8 panel, adjust to position of the edit control
+  // to ensure that the cursor is always visible.  TDBMemo ought to be able to
+  // do this, but unfortunately, it doesn't work when the memo is using centre
+  // alignment.
+  AutoScrollEposButtonTimer.Enabled := true;
+end;
+
+procedure TLineEditForm.AztecEposButton1Exit(Sender: TObject);
+begin
+  // Trim text when user leave the control
+  if TDBMemo(Sender).Field.DataSet.State in [dsInsert,dsEdit] then
+    TDBMemo(Sender).Field.AsString := Trim( TDBMemo(Sender).Field.AsString );
+
+  doAztecEposButtonVcentre;
+  AutoScrollEposButtonTimer.Enabled := false;
+  KeepAztecEposButtonCaretInView; // Recentre all controls
+end;
+
+procedure TLineEditForm.AztecEposButton1Change(Sender: TObject);
+begin
+  if (TDBMemo(Sender).Field.DataSet.State in [dsInsert,dsEdit]) and
+     (TDBMemo(Sender).Lines.Count > 1) then
+  begin
+    // Don't allow multi line text (vould happen if user, say, cuts and pastes).
+    // Strip off any additional lines of text
+    TDBMemo(Sender).SelStart := 0;
+    while TDBMemo(Sender).Lines.Count > 1 do
+      TDBMemo(Sender).Lines.Delete( 1 );
+    TDBMemo(Sender).Field.DataSet.UpdateRecord;
+    TDBMemo(Sender).Field.AsString := Trim( TDBMemo(Sender).Field.AsString );
+  end;
+
+  doAztecEposButtonVcentre;
+end;
+
+procedure TLineEditForm.KeepAztecEposButtonCaretInView;
+
+  procedure keepCaretInView( button : TDBMemo );
+  var
+    P: TPoint;
+    sidewidth: Integer;
+  begin
+    // sidewidth = the amount of the button off to the left & right of the screen
+    sidewidth := (button.Width-pnl3by8.ClientRect.Right) div 2;
+    if button <> ActiveControl then
+      button.Left := -sidewidth // centre control
+    else begin
+      Windows.GetCaretPos(P);
+      if P.X < sidewidth+1 then // If caret off LHS of pnl3by8...
+        button.Left := 0        // show LHS of memo
+      else if P.X <= sidewidth+pnl3by8.ClientRect.Right-1 then // If caret within visible area...
+        button.Left := -sidewidth    // centre control
+      else                           // else caret is of RHS of pnl3by8
+        button.Left := -sidewidth*2; // show RHS of control
+    end;
+  end;
+
+begin
+  // Ensure that caret is on screen by scrolling the scroll box
+  keepCaretInView( AztecEposButton1 );
+  keepCaretInView( AztecEposButton2 );
+  keepCaretInView( AztecEposButton3 );
+end;
+
+// Ensure that the caret is visible in the epos buttons
+procedure TLineEditForm.AutoScrollEposButtonTimerTimer(Sender: TObject);
+begin
+  KeepAztecEposButtonCaretInView;
+end;
+
+procedure TLineEditForm.LineTypeComboBoxKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  if Key = VK_F2 then begin
+    LineTypeComboBox.DropDown;
+    Key := 0;
+  end;
+end;
+
+
+// Is the GUI list in sync with the client entity table.
+function TLineEditForm.areEntityListsSynchronized : boolean;
+begin
+  if (EntityListDataSet.EOF and EntityListDataSet.BOF) then
+    Result := (productsDB.ClientEntityTable.EOF and productsDB.ClientEntityTable.BOF )
+  else
+    Result := productsDB.ClientEntityTableEntityCode.Value =
+              EntityListDataSetEntityCode.Value;
+end;
+
+procedure TLineEditForm.EntityListDataSetBeforeScroll(DataSet: TDataSet);
+begin
+  if FprocessingEntityListScroll > 0 then Exit;
+
+  // If there are changes waiting to be performed on the current item, then
+  // start a save operation, which gets completed in EntityListDataSetAfterScroll
+  if productsDB.AreThereTableChangesToSave then begin
+    if not FaboutToSaveChanges then begin
+      FaboutToSaveChanges := true;
+      EntityListDataSet.DisableControls;
+    end;
+  end;
+end;
+
+// Called after the GUI list scrolls.  It Posts any data not yet posted, then scrolls
+// the client entity table to the new record.  The call to SaveAllTableChanges can
+// raise an exception if validation on edited fields fails.
+procedure TLineEditForm.EntityListDataSetAfterScroll(DataSet: TDataSet);
+begin
+  if FprocessingEntityListScroll > 0 then Exit;
+
+  Inc( FprocessingEntityListScroll );
+  try
+    if FaboutToSaveChanges then begin
+      try
+        try
+          { The CheckFactors procedure is not currently a requirement but it probably
+            will be required in the future
+            CheckFactors;
+          }
+          ProductsDB.SaveAllTableChanges;
+
+          EntityLookupFrame.alwaysVisibleItem := 0.0;
+
+          // Save succeeded: move the ClientEntityTable to the newly selected item.
+          moveClientEntityTableToEntityListRecord;
+
+        except else
+          // Move the GUI to the problem product
+          moveEntityListToClientEntityTableRecord;
+          raise;
+        end;
+      finally
+        FaboutToSaveChanges := false;
+        EntityListDataSet.EnableControls;
+      end;
+    end else begin
+      // No changes to save.  Move the client entity table to the newly selected item.
+      EntityLookupFrame.alwaysVisibleItem := 0.0;
+      moveClientEntityTableToEntityListRecord;
+    end;
+    SetKDSLabel(SubcategoryComboBox.DataSource.DataSet.FieldByName('sub-category name').AsString);
+  finally
+    Dec( FprocessingEntityListScroll );
+    EntityLookupFrame.EntityGrid.Width := EntityLookupFrame.EntityGrid.Width + 1;
+    EntityLookupFrame.EntityGrid.Width := EntityLookupFrame.EntityGrid.Width - 1;
+  end;
+end;
+
+// Force the GUI list to point at the same record as the client entity table.
+procedure TLineEditForm.moveEntityListToClientEntityTableRecord;
+var
+  clientTableEntCode : double;
+begin
+  Inc( FprocessingEntityListScroll );
+  try
+    // if tables are not in sync, then reposition the gui table
+    if not areEntityListsSynchronized then begin
+
+      clientTableEntCode := productsDB.ClientEntityTableEntityCode.Value;
+      if not EntityListDataSet.Locate( 'EntityCode', clientTableEntCode, [] ) then begin
+        // Entity is not in the GUI list - it must have been filtered out.  Change the
+        // filter so that the item becomes visible.
+        EntityLookupFrame.alwaysVisibleItem := clientTableEntCode;
+        EntityListDataSet.Locate( 'EntityCode', clientTableEntCode, [] );
+      end;
+    end;
+  finally
+    Dec( FprocessingEntityListScroll );
+  end;
+end;
+
+// Force the client entity table to point at the same record as the GUI list.
+procedure TLineEditForm.moveClientEntityTableToEntityListRecord;
+begin
+  // if tables are not in sync, then reposition the client entity table table
+  if not areEntityListsSynchronized then
+    if not ProductsDB.ClientEntityTable.Locate( 'EntityCode', EntityListDataSetEntityCode.AsFloat, [] ) then
+    begin
+      // if locate is false, first entity is selected by default - force cursor to last entry to ensure GUI is
+      // synced correctly after an empty results table (bug 359523)
+      ProductsDB.ClientEntityTable.Last;
+      EntityDataSourceDataChange( self, nil ); // Row doesn't exist - make sure data is updated, though.
+    end
+    else
+    begin
+      // add product from Products to ProductProperties
+      ProductsDB.addProductToProductProperties(EntityListDataSetEntityCode.AsFloat);
+      checkOtherFlagsVisibility(EntTypeStringToEnum( productsDB.ClientEntityTableEntityType.Value ), true);
+
+    end;
+end;
+
+// Called when the current record is edited, to ensure that the gui list on the
+// LHS of the screen is updated appropriately.
+procedure TLineEditForm.ensureGuiListMatchesCurrentRecord;
+begin
+  if areEntityListsSynchronized and
+     (productsDB.ClientEntityTable.State in [dsEdit, dsInsert]) and
+     (FprocessingEntityListScroll = 0) then
+  begin
+    Inc( FprocessingEntityListScroll );
+    try
+      // A cheap and cheezy way to force the GUI list to refresh
+      EntityListDataSet.DisableControls;
+      EntityListDataSet.EnableControls;
+    finally
+      Dec( FprocessingEntityListScroll );
+    end;
+  end;
+end;
+
+
+procedure TLineEditForm.EntityListDataSourceDataChange(Sender: TObject;
+  Field: TField);
+begin
+  // Posting in the main table can cause the GUI table to get out of sync with
+  // the main table.  This fixes the problem by moving the GUI table to the correct record
+  // during a post.
+  if productsDB.postingClientEntityTable and (FprocessingEntityListScroll = 0) then
+    moveEntityListToClientEntityTableRecord;
+end;
+
+// If the current product is being edited, then use the edited value of the field
+procedure TLineEditForm.EntityListDataSetFieldGetText(Sender: TField;
+  var Text: String; DisplayText: Boolean);
+begin
+  if areEntityListsSynchronized and
+     (productsDB.ClientEntityTable.State in [dsEdit, dsInsert]) then
+  begin
+    if DisplayText then
+      Text := productsDB.ClientEntityTable.FieldByName( Sender.FieldName ).DisplayText
+    else
+      Text := productsDB.ClientEntityTable.FieldByName( Sender.FieldName ).Text;
+  end else
+    Text := Sender.AsString;
+end;
+
+// If the current product is being edited, then use the edited value of the field
+procedure TLineEditForm.EntityListDataSetEntityTypeGetText(Sender: TField;
+  var Text: String; DisplayText: Boolean);
+begin
+  if areEntityListsSynchronized and
+     (productsDB.ClientEntityTable.State in [dsEdit, dsInsert]) then
+  begin
+    productsDB.ClientEntityTableEntityTypeGetText(
+      productsDB.ClientEntityTableEntityType, Text, DisplayText );
+  end else
+    productsDB.ClientEntityTableEntityTypeGetText( Sender, Text, DisplayText );
+end;
+
+procedure TLineEditForm.BeforeEntityListFilterOrSearch( Sender : TObject );
+begin
+  ProductsDB.SaveAllTableChanges;
+end;
+
+procedure TLineEditForm.AztecBarcodesTabSheetShow(Sender: TObject);
+begin
+  ProductsDB.qryProductBarCodes.Open;
+  ProductsDB.qryProductBarcodeRanges.Open;
+  pnlBarcodeRanges.Visible := not DBCheckBoxSoldByWeight.Checked
+                              and not ProductHasContainers;
+end;
+
+procedure TLineEditForm.btnAddBarcodeClick(Sender: TObject);
+var
+  theBarCode: string;
+  Variable, Duplicate, OnThisProduct, InBarcodeRange, FirstCharZero, isCustomBarcode: boolean;
+begin
+  // Get barcode from the user.
+  if not GetBarcodeFromUser(theBarCode, isCustomBarcode) then
+    Exit;
+
+  // Check if barcode is priced.
+  Variable := Copy(theBarcode, 1, 1) = PRICE_EMBEDDED_BARCODE_IDENTIFIER;
+
+  // Check the product is Open Priced.
+  if Variable and (ProductsDB.ClientEntityTableWhetherOpenPriced.Value <> 'O') then
+  begin
+    ShowMessage('A priced barcode cannot be added to a Fixed Price product.');
+    Exit;
+  end;
+
+  // Check if Barcode start with a zero
+  FirstCharZero := Copy(theBarcode, 1, 1) = '0';
+
+  // Only the first 7 digits of priced barcodes are required.  Rest of string is
+  // reserved for the price.  Non-Priced barcodes are limited to 13 characters.
+  if Variable then
+     begin
+       if(isCustomBarcode AND (StrLen(PChar(theBarCode)) <> THREE_DIGIT_CUSTOM_PRICED_BARCODE_LENGTH)) then
+       begin
+          ShowMessage('A three digit PLU priced barcode must be 3 digits.');
+          exit;
+       end
+       else if StrLen(PChar(theBarCode)) > STANDARD_PRICED_BARCODE_LENGTH then
+          begin
+            ShowMessage('A priced barcode cannot be greater than 7 digits.');
+            exit;
+          end
+       else
+       begin
+          if(variable and isCustomBarcode) then
+            theBarCode := Copy(theBarCode, 1, THREE_DIGIT_CUSTOM_PRICED_BARCODE_LENGTH)
+          else
+            theBarCode := Copy(theBarCode, 1, STANDARD_PRICED_BARCODE_LENGTH);
+       end;
+     end
+  else
+    theBarCode := Copy(theBarCode, 1, 13);
+
+  // Check for a duplicate value.
+  with ProductsDB.ADOQuery do
+  begin
+    Close;
+    SQL.Clear;
+    SQL.Add('SELECT * FROM ProductBarcode');
+    SQL.Add('WHERE Barcode = ''' + theBarcode + '''');
+
+    // To prevent barcode only differentiated by a leading zero from being added
+    // and causing Comms to fail 365367
+    if FirstCharZero then
+      SQL.Add('OR Barcode = ''' + Copy(theBarcode, 2, StrLen(PChar(theBarCode))) + '''')
+    else
+      SQL.Add('OR Barcode = ''0' + theBarcode + '''');
+
+    Open;
+
+    Duplicate := RecordCount > 0;
+    OnThisProduct := FieldByName('EntityCode').AsFloat = currEntCode;
+    Close;
+  end;
+
+  // check that it does not fall within any barcode ranges
+  with ProductsDB.ADOQuery do
+  try
+    Close;
+    SQL.Clear;
+    // SQL query amended 14/10/14 to fix bug 358855 (changed from table ThemeBarcodeRange to ThemeBarcodeExceptionRange)
+    SQL.Text := Format('select count(*) as MatchCount from ThemeBarcodeExceptionRange where dbo.fnBarcodeInRange(StartValue, EndValue, %s, null) = 1', [theBarcode]);
+    Open;
+    InBarcodeRange := FieldByName('MatchCount').AsInteger > 0;
+  finally
+    Close;
+  end;
+
+  // Insert Barcode.
+  if Duplicate then
+    if OnThisProduct then
+      ShowMessage('Cannot add barcode ' + theBarCode + ' as it is already assigned to this product.')
+    else
+      ShowMessage('Cannot add barcode ' + theBarCode + ' as it is already assigned to another product.')
+  else if InBarcodeRange then
+    ShowMessage('Cannot add barcode ' + theBarcode + ' as it falls within an existing barcode range.')
+  else
+  begin
+    with ProductsDB.qryProductBarCodes do
+    begin
+      Insert;
+      FieldByName('EntityCode').AsFloat := ProductsDB.ClientEntityTableEntityCode.Value;
+      FieldByName('BarCode').AsString := theBarCode;
+      FieldByName('Variable').AsBoolean := Variable;
+      FieldByName('IsCustomBarcode').AsBoolean := isCustomBarcode;
+      Post;
+      Requery;
+    end;
+  end;
+end;
+
+procedure TLineEditForm.btnDeleteBarcodeClick(Sender: TObject);
+var
+  theBarCode: string;
+begin
+  if ProductsDB.qryProductBarCodes.RecordCount = 0 then
+  begin
+    ShowMessage('There is no barcode selected to delete.');
+    Exit;
+  end;
+
+  theBarCode := ProductsDB.qryProductBarCodes.FieldByName('BarCode').AsString;
+
+  // Prompt User
+  if MessageDlg('Are you sure you wish to delete barcode ' + theBarCode, mtConfirmation,
+    [mbYes, mbNo], 0) = mrYes then
+  begin
+    // Delete Barcode.
+    ProductsDB.qryProductBarCodes.Delete;
+  end;
+end;
+
+procedure TLineEditForm.ChangeProductPricing(Sender: TObject);
+var
+  HasPricedBarcodes: boolean;
+begin
+  if (Sender as TDBRadioGroup).ItemIndex = 1 then
+  begin
+    // check for variable price bar codes
+    with ProductsDB.ADOQuery do
+    begin
+      Close;
+      SQL.Clear;
+      SQL.Add('select * from ProductBarcode');
+      SQL.Add('where EntityCode = ' + format('%f', [ProductsDB.ClientEntityTableEntityCode.Value]));
+      SQL.Add('and Variable = 1');
+      Open;
+
+      HasPricedBarcodes := RecordCOunt > 0;
+
+      Close;
+    end;
+
+    if HasPricedBarcodes then
+    begin
+      // prompt user
+      if MessageDlg('Changing to Fixed Pricing will cause all Priced and Custom Priced Barcodes to ' +
+        'be deleted for this product.' + #10#13 + 'Do you wish to continue?',
+        mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+      begin
+        // delete variable price bar codes
+        with ProductsDB.ADOCommand do
+        begin
+          CommandText := 'delete from ProductBarCode where EntityCode = ' +
+            format('%f', [ProductsDB.ClientEntityTableEntityCode.Value]) + ' and Variable = 1';
+          Execute;
+        end;
+
+        ProductsDB.qryProductBarCodes.Requery;
+      end
+      else
+        (Sender as TDBRadioGroup).ItemIndex := 0;
+    end;
+  end;
+end;
+
+procedure TLineEditForm.SubcategoryComboBoxCloseUp(Sender: TObject);
+begin
+  if SubcategoryComboBox.Items[SubcategoryComboBox.ItemIndex] <> '<Create New...>' then
+  begin
+    SetKDSLabel(SubcategoryComboBox.Items[SubcategoryComboBox.ItemIndex]);
+  end;
+end;
+
+procedure TLineEditForm.SetKDSLabel(subCategoryName: string);
+var
+  divisionPart, entityPart : string;
+begin
+  divisionPart := ReverseString(Copy(ReverseString(ProductsDB.GetDivisionIdForSubcategory(subCategoryName)), 1, 4));
+  entityPart := Copy(EntityCodeEditBox.Text, Length(EntityCodeEditBox.Text) - 5, 6);
+
+  if divisionPart = '' then
+  begin
+    log.Event('Error: Could not set KDS Item Id for ' + productsDB.ClientEntityTableExtendedRTLName.Value +
+              '(' + productsDb.ClientEntityTableEntityCode.AsString +
+              ') because failed to find the Division Id for subcategory: ' + subCategoryName);
+    edtKDSItemID.Text := '';
+  end
+  else
+  begin
+    edtKDSItemID.Text := divisionPart + entityPart;
+  end;
+end;
+
+procedure TLineEditForm.NewPortionsTabSheetShow(Sender: TObject);
+begin
+  if not NewPortionIngredientsFrame.IsInitialisedForCurrentProduct then
+  begin
+    NewPortionIngredientsFrame.InitialiseForCurrentProduct;
+  end
+  else
+  begin
+    if RecalculateCostPricesOnPortionsTab then
+    begin
+      //Recalculate the cost prices displayed on the Portions tab.
+      NewPortionIngredientsFrame.RefreshCostPrices;
+      RecalculateCostPricesOnPortionsTab := False;
+    end;
+  end;
+end;
+
+procedure TLineEditForm.TagsTabSheetShow(Sender: TObject);
+begin
+  ProductTagsFrame.EnsureInitialisedForProduct(Trunc(productsDB.ClientEntityTableEntityCode.Value));
+end;
+
+procedure TLineEditForm.ValidateDiscontinue;
+begin
+
+  productsDB.ClientEntityTable.Edit;
+  if (productsDB.ClientEntityTable.State in [dsEdit, dsInsert]) then
+    begin
+      if DBcbDiscontinue.Checked = False then
+         begin
+           if MessageDlg('Discontinuing this product will make it unavailable for new Stock Orders. Proceed?',
+                         mtWarning, [mbYes, mbNo], 0) = mrYes then
+              productsDB.ClientEntityTableDiscontinue.Value := True;
+         end
+       else
+         begin
+           if MessageDlg('Reintroducing this product will make it available for new Stock Orders. Proceed?',
+                         mtWarning, [mbYes, mbNo], 0) = mrYes then
+              productsDB.ClientEntityTableDiscontinue.Value := False;
+
+        end;
+     end;
+end;
+
+procedure TLineEditForm.DBcbDiscontinueMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  ValidateDiscontinue;
+end;
+
+procedure TLineEditForm.DBcbDiscontinueKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  ValidateDiscontinue;
+end;
+
+procedure TLineEditForm.ProductTaxTableBeforePost(DataSet: TDataSet);
+var
+  et: EntType;
+begin
+  et := EntTypeStringToEnum( productsDB.ClientEntityTableEntityType.Value );
+  if IsBlank(productsDB.ProductTaxTableTaxRule1) and
+     IsBlank(productsDB.ProductTaxTableTaxRule2) and
+     IsBlank(productsDB.ProductTaxTableTaxRule3) and
+     IsBlank(productsDB.ProductTaxTableTaxRule4) and
+    (et in [etStrdLine,etRecipe]) then
+  begin
+    ShowMessage('All Standard Lines and Recipes MUST have at least one Tax Rule defined');
+    Abort;
+  end;
+end;
+
+procedure TLineEditForm.SupplierTabSheetShow(Sender: TObject);
+begin
+  SupplierInfoFrame.EnsureInitialisedForCurrentProduct;
+end;
+
+procedure TLineEditForm.HandleDefaultPurchaseUnitChange(Sender: TObject);
+begin
+  RecalculateCostPricesOnPortionsTab := True;
+end;
+
+procedure TLineEditForm.DBCheckBoxSoldByWeightClick(Sender: TObject);
+begin
+  if not (FprocessingEntityListScroll > 0) and (ProductsDB.ClientEntityTable.RecordCount > 0) then
+  begin
+    //This check ought be done in the EntityDataSourceDataChange routine, but
+    //TDBCheckBoxes do not force the productsDB.EntityDataSource.OnDataChange
+    //event to occur.
+
+    if (Sender as TDbCheckBox).Checked then
+    begin
+      if ProductsDB.IsUsedAsIngredient(ProductsDB.ClientEntityTableEntityCode.Value) then
+      begin
+        ShowMessage('This product is a child of another product and cannot be sold by weight.');
+        with TProtectionHackDbCheckBox(Sender) do
+        begin
+          ClicksDisabled := True;
+          Checked := False;
+          ClicksDisabled := False;
+        end;
+      end
+      else if ProductsDb.ProductHasChoices then
+      begin
+        ShowMessage('This product contains choices and cannot be sold by weight.');
+        with TProtectionHackDbCheckBox(Sender) do
+        begin
+          ClicksDisabled := True;
+          Checked := False;
+          ClicksDisabled := False;
+        end;
+      end
+      else if ProductsDB.ProductHasBarcodeRanges then
+      begin
+        ShowMessage('This product has barcode ranges and cannot be sold by weight.');
+        with TProtectionHackDbCheckBox(Sender) do
+        begin
+          ClicksDisabled := True;
+          Checked := False;
+          ClicksDisabled := False;
+        end;
+      end;
+    end;
+
+    pnlBarcodeRanges.Visible := not (Sender as TDbCheckBox).Checked
+                                and not ProductHasContainers;
+  end;
+end;
+
+procedure TLineEditForm.NewPortionIngredientsFrameCookTimesButtonClick(
+  Sender: TObject);
+begin
+  NewPortionIngredientsFrame.CookTimesActionExecute(Sender);
+end;
+
+procedure TLineEditForm.btnEditBarcodeRangesClick(Sender: TObject);
+begin
+  uBarcodeRanges.ShowProductBarcodeRanges(EntityListDataSetEntityCode.AsFloat, EntityListDataSetRetailName.AsString);
+  ProductsDB.qryProductBarcodeRanges.Requery();
+end;
+
+procedure TLineEditForm.NewPortionIngredientsFrameContainersButtonClick(
+  Sender: TObject);
+begin
+  NewPortionIngredientsFrame.ContainersActionExecute(Sender);
+end;
+
+procedure TLineEditForm.SetGUIEditibility(WinControl: TWinControl; GUIEnabled: Boolean);
+
+  procedure ToggleGUIEditability(AComponent: TComponent; AGUIEnabled: Boolean);
+  var
+    CanToggle: Boolean;
+  begin
+    if (AComponent = NewPortionIngredientsFrame.dbgPortions)
+    or (AComponent = MultiPurchaseFrame.DBGrid1)
+    or (AComponent = AztecPreparedItemFrame.PortionIngredientsFrame.IngredientsGrid)
+    or (AComponent = grdProductBarcode)
+    or (AComponent = grdProductBarcodeRange)
+    or (AComponent = InsertItemButton)
+    or (AComponent = ReloadButton)
+    or (AComponent = lblROAlert)
+    or (AComponent = NewPortionIngredientsFrame.IngredientsAsOfComboBox)
+    or (AComponent = SupplierInfoFrame.FutureCostDateCbx)
+    or (AComponent = NewPortionIngredientsFrame.ContainersButton)
+    or (AComponent = NewPortionIngredientsFrame.CookTimesButton)
+    or (AComponent = NewPortionIngredientsFrame.FormsActionList)
+    or (AComponent = ActionList1)
+    or (Acomponent = btn_LinkedProds)
+    or (Acomponent = btnSettings)
+    or (Acomponent = btnClose) then
+      CanToggle := False
+    else
+      CanToggle := True;
+
+    if CanToggle then
+    begin
+      if AComponent is TActionList then
+        case AGUIEnabled of
+          False: TActionList(AComponent).State := asSuspended;
+          True: TActionList(AComponent).State := asNormal;
+        end
+      else if AComponent is TDBGrid then
+        TDbGrid(AComponent).ReadOnly := not AGUIEnabled
+      else if AComponent is TControl then
+        TControl(AComponent).Enabled := AGUIEnabled;
+    end;
+  end;
+
+var
+  i: Integer;
+begin
+  for i := 0 to WInControl.ComponentCount - 1 do
+  begin
+    //Leave containers functional - we want to be able to selctively enable/disable some components
+    if (not (   (WinControl.Components[i] is TPanel)
+            or (WinControl.Components[i] is TPageControl)
+            or (WinControl.Components[i] is TTabSheet)
+            or (WinControl.Components[i] is TFrame)))  then
+    begin
+      if (WinControl.Components[i] is TControl) or (WinControl.Components[i] is TActionList) then
+      begin
+        ToggleGUIEditability(TComponent(WinControl.Components[i]), GuiEnabled);
+      end;
+
+      //Some controls don't grey-out nicely:
+      //Fix the greying of TGroupBoxes
+      if (WinControl.Components[i] is TGroupBox) then
+        case GUIEnabled of
+          True: TGroupBox(WinControl.Components[i]).Font.Color := clInfoText;
+          False: TGroupBox(WinControl.Components[i]).Font.Color := clGrayText;
+        end;
+      //Fix the greying of TDBRadioGroup
+      if (WinControl.Components[i] is TDBRadioGroup) then
+        case GUIEnabled of
+          True: TDBRadioGroup(WinControl.Components[i]).Font.Color := clInfoText;
+          False: TDBRadioGroup(WinControl.Components[i]).Font.Color := clGrayText;
+        end;
+      //Fix the greying of TRadioGroup
+      if (WinControl.Components[i] is TRadioGroup) then
+        case GUIEnabled of
+          True: TRadioGroup(WinControl.Components[i]).Font.Color := clInfoText;
+          False: TRadioGroup(WinControl.Components[i]).Font.Color := clGrayText;
+        end;
+    end;
+
+    //Recurse through all the TWinControl children that we find unless we are currently inspecting the
+    //left hand side entity lookup frame.
+    if WinControl.Components[i] is TWinControl then
+      if  (TWinControl(WinControl.Components[i]).ControlCount > 0)
+      and (WinControl.Components[i] <> EntityLookupFrame) then
+        SetGUIEditibility(TWinControl(WinControl.Components[i]), GuiEnabled);
+  end;
+end;
+
+procedure TLineEditForm.HandleEvents(GuiEnabled: Boolean);
+var
+  i, j: Integer;
+  DummyMethod: TMethod;
+  EventHolder: TEventHolder;
+  PseudoDisabledComponent: TPseudoDisabledComponent;
+
+begin
+  with DummyMethod do
+  begin
+    Code := nil;
+    Data := nil;
+  end;
+
+  if not FGUIEnabled then
+  begin
+    for i := 0 to FPseudoDisabledComponents.Count - 1 do
+    begin
+      PseudoDisabledComponent := TPseudoDisabledComponent(FPseudoDisabledComponents[i]);
+      for j := 0 to PseudoDisabledComponent.FEventList.Count - 1 do
+      begin
+        EventHolder := TEventHolder(PseudoDisabledComponent.FEventList.Objects[j]);
+        SetMethodProp(PseudoDisabledComponent.FComponent,EventHolder.FEventName,DummyMethod);
+      end;
+    end;
+  end
+  else begin
+    for i := 0 to FPseudoDisabledComponents.Count - 1 do
+    begin
+      PseudoDisabledComponent := TPseudoDisabledComponent(FPseudoDisabledComponents[i]);
+      for j := 0 to PseudoDisabledComponent.FEventList.Count - 1 do
+      begin
+        EventHolder := TEventHolder(PseudoDisabledComponent.FEventList.Objects[j]);
+        SetMethodProp(PseudoDisabledComponent.FComponent,EventHolder.FEventName,EventHolder.FEvent);
+      end;
+    end;
+  end;
+  NewPortionIngredientsFrame.dbgPortions.RefreshDisplay;
+  SupplierInfoFrame.UnitSupplierFrame.FlexiDBGrid1.Refresh;
+end;
+
+procedure TLineEditForm.BuildPseudoDisabledComponentList;
+
+  procedure BuildEventList(Component: TPseudoDisabledComponent);
+  var
+    EventCount: Integer;
+    List: PPropList;
+    EventHolder: TEventHolder;
+    i: Integer;
+  begin
+    EventCount := GetPropList(Component.FComponent,List);
+    for i := 0 to EventCount - 1 do
+    begin
+      //Only record assigned events
+      if (List^[i].Name <> '') and (List^[i].PropType^.Kind = tkMethod) then
+      begin
+        EventHolder := TEventHolder.Create;
+        EventHolder.FEvent :=  GetMethodProp(Component.FComponent,List^[i].Name);
+        EventHolder.FEventName := List^[i].Name;
+        Component.FEventList.AddObject(EventHolder.FEventName,EventHolder);
+      end;
+    end;
+  end;
+
+  procedure AddComponent(Component: TComponent);
+  var
+    PseudoDisabledComponent: TPseudoDisabledComponent;
+  begin
+    PseudoDisabledComponent := TPseudoDisabledComponent.Create;
+    PseudoDisabledComponent.FComponent := Component;
+    PseudoDisabledComponent.FEventList := TStringlist.Create;
+
+    //Take references to all the components events
+    BuildEventList(PseudoDisabledComponent);
+
+    FPseudoDisabledComponents.Add(PseudoDisabledComponent);
+  end;
+
+  procedure RemoveEvent(Component: TComponent; Event: String);
+  var
+    ComponentIndex: Integer;
+    EventIndex: Integer;
+    i: Integer;
+  begin
+    //Inefficient - if the there were lots of components, but there aren't (6 at
+    //the last count) so we'll leave the naive search for now.
+    ComponentIndex := -1;
+    for i := 0 to FPseudoDisabledComponents.Count - 1 do
+    begin
+      if TPseudoDisabledComponent(FPseudoDisabledComponents[i]).FComponent = Component then
+      begin
+        ComponentIndex := i;
+        Break;
+      end;
+    end;
+
+    if ComponentIndex <> -1 then
+    begin
+      EventIndex := TPseudoDisabledComponent(FPseudoDisabledComponents[ComponentIndex]).FEventList.IndexOf(Event);
+      if EventIndex <> -1 then
+      begin
+        TPseudoDisabledComponent(FPseudoDisabledComponents[ComponentIndex]).FEventList.Objects[EventIndex].Free;
+        TPseudoDisabledComponent(FPseudoDisabledComponents[ComponentIndex]).FEventList.Delete(EventIndex);
+      end;
+    end;
+  end;
+
+begin
+  FPseudoDisabledComponents := TList.Create;
+
+  //Portions grid - leave the draw group header cell event in place to
+  //ensure the header is drawn correctly.
+  AddComponent(NewPortionIngredientsFrame.dbgPortions);
+  RemoveEvent(NewPortionIngredientsFrame.dbgPortions,'OnDrawGroupHeaderCell');
+
+  //SupplierGrid
+  AddComponent(SupplierInfoFrame.UnitSupplierFrame.FlexiDBGrid1);
+  //Barcode grid
+  AddComponent(grdProductBarcode);
+  //Barcode range grid
+  AddComponent(grdProductBarcodeRange);
+  //Multi-purch grid
+  AddComponent(MultiPurchaseFrame.DBGrid1);
+  //Prep item grid
+  AddComponent(AztecPreparedItemFrame.PortionIngredientsFrame.IngredientsGrid);
+end;
+
+procedure TLineEditForm.DestroyPseudoDisabledComponentList;
+var
+  i: Integer;
+begin
+  for i := 0 to FPseudoDisabledComponents.Count - 1 do
+  begin
+    TPseudoDisabledComponent(FPseudoDisabledComponents[i]).FEventList.Free;
+  end;
+  FPseudoDisabledComponents.Free;
+end;
+
+procedure TLineEditForm.FormDestroy(Sender: TObject);
+begin
+  DestroyPseudoDisabledComponentList;
+
+  //Note: It is necessary to explicitly call ProductTagsFrame.Free here. Otherwise when the Destroy method of ProductTagsFrame
+  //is called all of it's combo boxes are already cleared and the objects attached are therefore not Freed.
+  ProductTagsFrame.Free;
+end;
+
+procedure TLineEditForm.EntityLookupFrameEntityGridDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+var
+  RMControlled: Boolean;
+begin
+  with EntityLookupFrame.EntityGrid do
+  begin
+    if ProductsDB.adocRecipeModelling.Connected then
+    begin
+      RMControlled := not DataSource.DataSet.FieldByName('RMControlled').IsNull;
+
+      if RMControlled and not (gdSelected in State) then
+      begin
+        Canvas.Brush.Color := clBtnFace;
+        Canvas.Font.Color := clGrayText;
+        Canvas.FillRect(Rect);
+      end;
+    end;
+
+    DefaultDrawColumnCell(Rect,DataCol,Column,State);
+  end;
+end;
+
+procedure TLineEditForm.cbxIsGiftCardClick(Sender: TObject);
+var
+  ListItemInfo: TListItemInfo;
+  TargetIndex: Integer;
+begin
+  wwdbcomboGiftCardType.Enabled := (Sender as TCheckBox).Checked;
+
+  if FSettingIsGiftCardCheckBox then exit;
+
+  if not (Sender as TCheckBox).Checked then
+  begin
+    TargetIndex := ProductsDB.GiftCardTypesStringList.IndexOf(uDatabaseADO.GIFT_CARD_NOTUSED);
+    ListItemInfo := TListItemInfo(ProductsDB.GiftCardTypesStringList.Objects[TargetIndex]);
+  end
+  else begin
+    TargetIndex := ProductsDB.GiftCardTypesStringList.IndexOf(uDatabaseADO.GIFT_CARD_ZONALCLM);
+    ListItemInfo := TListItemInfo(ProductsDB.GiftCardTypesStringList.Objects[TargetIndex]);
+  end;
+  if not (ProductsDB.ClientEntityTable.State in [dsEdit]) then
+    ProductsDB.ClientEntityTable.Edit;
+  if ListItemInfo.ListItemSchemaIndex = -1 then
+    ProductsDB.ClientEntityTableisGiftCard.Value := varNull
+  else
+    ProductsDB.ClientEntityTableisGiftCard.Value := ListItemInfo.ListItemSchemaIndex;
+end;
+
+procedure TLineEditForm.wwdbcomboGiftCardTypeChange(Sender: TObject);
+begin
+  FSettingIsGiftCardCheckBox := True;
+  try
+    cbxIsGiftCard.Checked := ProductsDB.GiftCardTypesStringList.IndexOf((Sender as TwwDBComboBox).text) > 0;
+  finally
+    FSettingIsGiftCardCheckBox := False;
+  end;
+end;
+
+procedure TLineEditForm.actIsGiftCardExecute(Sender: TObject);
+var
+  ListItemInfo: TListItemInfo;
+  TargetIndex: Integer;
+begin
+  wwdbcomboGiftCardType.Enabled := (Sender as TAction).Checked;
+
+  if FSettingIsGiftCardCheckBox then exit;
+
+  if not (cbxIsGiftCard.Checked) then
+  begin
+    TargetIndex := ProductsDB.GiftCardTypesStringList.IndexOf(uDatabaseADO.GIFT_CARD_NOTUSED);
+    ListItemInfo := TListItemInfo(ProductsDB.GiftCardTypesStringList.Objects[TargetIndex]);
+  end
+  else begin
+    TargetIndex := ProductsDB.GiftCardTypesStringList.IndexOf(uDatabaseADO.GIFT_CARD_ZONALCLM);
+    ListItemInfo := TListItemInfo(ProductsDB.GiftCardTypesStringList.Objects[TargetIndex]);
+  end;
+  if not (ProductsDB.ClientEntityTable.State in [dsEdit]) then
+    ProductsDB.ClientEntityTable.Edit;
+  if ListItemInfo.ListItemSchemaIndex = -1 then
+    ProductsDB.ClientEntityTableisGiftCard.Value := varNull
+  else
+    ProductsDB.ClientEntityTableisGiftCard.Value := ListItemInfo.ListItemSchemaIndex;
+end;
+
+
+procedure TLineEditForm.actIsGiftCardUpdate(Sender: TObject);
+begin
+  with (Sender as TAction) do
+  begin
+    wwdbcomboGiftCardType.Enabled := checked;
+  end;
+end;
+
+procedure TLineEditForm.PortionsGridCustomWndProc( var Msg: TMessage );
+begin
+   Msg.Result := CallWindowProc( PortionsGridSaveWndProc, NewPortionIngredientsFrame.dbgPortions.Handle, Msg.Msg, Msg.WParam, Msg.LParam );
+   case Msg.Msg of
+      WM_HSCROLL:
+         NewPortionIngredientsFrame.dbgPortionPrices.Perform( Msg.Msg, Msg.WParam, Msg.LParam );
+      WM_DESTROY:
+      begin
+         SetWindowLong( NewPortionIngredientsFrame.dbgPortions.Handle, GWL_WNDPROC, Longint( PortionsGridSaveWndProc ) );
+         Classes.FreeObjectInstance( PortionsGridWndProc );
+      end;
+  end;
+end;
+
+procedure TLineEditForm.PricesGridCustomWndProc( var Msg: TMessage );
+begin
+   Msg.Result := CallWindowProc( PricesGridSaveWndProc, NewPortionIngredientsFrame.dbgPortionPrices.Handle, Msg.Msg, Msg.WParam, Msg.LParam );
+   case Msg.Msg of
+      WM_HSCROLL:
+         NewPortionIngredientsFrame.dbgPortions.Perform( Msg.Msg, Msg.WParam, Msg.LParam );
+      WM_DESTROY:
+      begin
+         SetWindowLong( NewPortionIngredientsFrame.dbgPortionPrices.Handle, GWL_WNDPROC, Longint( PricesGridSaveWndProc ) );
+         Classes.FreeObjectInstance( PricesGridWndProc );
+      end;
+  end;
+end;
+
+procedure TLineEditForm.btnEQATECExceptionTestClick(Sender: TObject);
+begin
+   raise Exception.Create(Application.Title+' text exception raised.');
+end;
+
+procedure TLineEditForm.FormResize(Sender: TObject);
+begin
+  EntityLookupFrame.EntityGrid.Columns[Integer(pmRetailDescription)].Width := RetailDescriptionLength;
+end;
+
+procedure TLineEditForm.cbIsAdmissionClick(Sender: TObject);
+var
+  errCount: Integer;
+begin
+  Log.Event('Admission click...');
+  validateIsAdmissionFlag;
+
+  if not (ProductsDB.ClientPPTable.State in [ dsEdit]) then
+    ProductsDB.ClientPPTable.Edit;
+
+  ProductsDB.ClientPPTableIsAdmission.Value := cbIsAdmission.Checked;//(Sender as TCheckBox).Checked;
+
+  ProductsDB.ClientPPTable.Post;
+
+  if (ProductsDB.ClientPPTable.ChangeCount > 0) then
+    ProductsDB.ClientPPTable.ApplyUpdates(0);
+end;
+
+procedure TLineEditForm.cbValidateMembershipClick(Sender: TObject);
+var
+  clickHandler: TNotifyEvent;
+begin
+  if (not skipValidateMembershipFlag and not validateMembershipFlag) then
+  begin
+    clickHandler := (Sender as TCheckBox).OnClick;
+    (Sender as TCheckBox).OnClick := nil;
+    (Sender as TCheckBox).State := cbUnchecked;
+    (Sender as TCheckBox).OnClick := clickHandler;
+    exit;
+  end;
+
+  if not (ProductsDB.ClientPPTable.State in [ dsEdit]) then
+    ProductsDB.ClientPPTable.Edit;
+
+  ProductsDB.ClientPPTableValidateMembership.Value := (Sender as TCheckBox).Checked;
+
+  ProductsDB.ClientPPTable.Post;
+
+  skipValidateMembershipFlag := false;
+
+  if (ProductsDB.ClientPPTable.ChangeCount > 0) then
+    ProductsDB.ClientPPTable.ApplyUpdates(0);
+end;
+
+procedure TLineEditForm.cbIsFootfallClick(Sender: TObject);
+var
+  errCount: Integer;
+begin
+  validateIsFootfallFlag;
+
+  if not (ProductsDB.ClientPPTable.State in [ dsEdit]) then
+    ProductsDB.ClientPPTable.Edit;
+
+  ProductsDB.ClientPPTableIsFootfall.Value := (Sender as TCheckBox).Checked;
+
+  ProductsDB.ClientPPTable.Post;
+
+  if (ProductsDB.ClientPPTable.ChangeCount > 0) then
+    ProductsDB.ClientPPTable.ApplyUpdates(0);
+end;
+
+procedure TLineEditForm.cbIsDonationClick(Sender: TObject);
+begin
+  validateIsDonationFlag;
+  
+  if not (ProductsDB.ClientPPTable.State in [ dsEdit]) then
+    ProductsDB.ClientPPTable.Edit;
+
+  ProductsDB.ClientPPTableIsDonation.Value := (Sender as TCheckBox).Checked;
+
+  ProductsDB.ClientPPTable.Post;
+
+  if ((Sender as TCheckBox).Checked and cbPromptForGiftAid.Visible and
+       not cbPromptForGiftAid.Checked) then cbPromptForGiftAid.Checked := true;
+
+  if (ProductsDB.ClientPPTable.ChangeCount > 0) then
+    ProductsDB.ClientPPTable.ApplyUpdates(0);
+end;
+
+procedure TLineEditForm.cbPromptForGiftAidClick(Sender: TObject);
+var
+  clickHandler: TNotifyEvent;
+begin
+  if (not skipPromptForGiftAidFlag and not validatePromptForGiftAidFlag) then
+  begin
+    clickHandler := (Sender as TCheckBox).OnClick;
+    (Sender as TCheckBox).OnClick := nil;
+    (Sender as TCheckBox).State := cbUnchecked;
+    (Sender as TCheckBox).OnClick := clickHandler;
+    exit;
+  end;
+
+  if not (ProductsDB.ClientPPTable.State in [ dsEdit]) then
+    ProductsDB.ClientPPTable.Edit;
+
+  ProductsDB.ClientPPTablePromptForGiftAid.Value := (Sender as TCheckBox).Checked;
+
+  ProductsDB.ClientPPTable.Post;
+
+  skipPromptForGiftAidFlag := false;
+
+  if (ProductsDB.ClientPPTable.ChangeCount > 0) then
+    ProductsDB.ClientPPTable.ApplyUpdates(0);
+end;
+
+procedure TLineEditForm.checkOtherFlagsVisibility(ProductType: EntType; reinit: boolean);
+var
+  productHasChildrenCount: Integer;
+  productIsChild: boolean;
+begin
+  // check has children, reinit=true when changing current product
+  if (reinit) then
+    NewPortionIngredientsFrame.InitialiseForCurrentProduct;
+    
+  productHasChildrenCount := ProductsDB.qEditPortions.RecordCount;
+
+  // check is child
+  productIsChild := ProductsDb.IsUsedAsIngredient(ProductsDB.CurrentEntityCode);
+  
+  // allow only for Recipe
+  if (ProductType in [etStrdLine,etRecipe]) then
+  begin
+    cbIsAdmission.Enabled := true;
+    cbValidateMembership.Enabled := false;
+    
+    if (productHasChildrenCount > 0) then
+    begin
+
+      if (not reinit) and (cbIsFootfall.Checked) then
+      begin
+        cbIsFootfall.Checked := false;
+      end;
+
+      if (not reinit) and (cbIsDonation.Checked) then begin
+        cbIsDonation.Checked := false;
+      end;
+
+      cbIsFootfall.Enabled := false;
+      cbIsDonation.Enabled := false;
+
+      //Product has children assigned
+      if (productIsChild) then
+      begin
+        cbIsAdmission.Enabled := false;
+        //Admission product is a child of another product
+      end
+      else
+      begin
+        cbIsAdmission.Enabled := true;
+      end;
+
+    end
+    else
+    begin
+      if (productIsChild) then
+      begin
+        cbIsAdmission.Enabled := false;
+        //Admission product is a child of another product
+      end
+      else
+      begin
+        cbIsAdmission.Enabled := true;
+      end;
+      cbValidateMembership.Enabled := false;
+      cbIsFootfall.Enabled := true;
+      cbIsDonation.Enabled := true;
+      cbPromptForGiftAid.Enabled := false;
+    end;
+
+
+    if (cbIsAdmission.Checked) then
+    begin
+      cbIsFootfall.Enabled := false;
+      cbIsDonation.Enabled := false;
+      cbPromptForGiftAid.Enabled := false;
+      cbValidateMembership.Enabled := true;
+
+      //Product flags Admission, Footfall, Donation are mutually exclusive
+    end;
+
+    if (cbIsFootfall.Checked) then
+    begin
+      cbIsAdmission.Enabled := false;
+      cbIsDonation.Enabled := false;
+      cbPromptForGiftAid.Enabled := false;
+      //Product flags Admission, Footfall, Donation are mutually exclusive
+    end;
+
+    if (cbIsDonation.Checked) then
+    begin
+      cbIsAdmission.Enabled := false;
+      cbIsFootfall.Enabled := false;
+      cbPromptForGiftAid.Enabled := true;
+
+      //Product flags Admission, Footfall, Donation are mutually exclusive
+    end
+
+  end
+  else
+  begin
+    cbIsAdmission.Enabled := false;
+    cbValidateMembership.Enabled := false;
+    cbIsFootfall.Enabled := false;
+    cbIsDonation.Enabled := false;
+    cbPromptForGiftAid.Enabled := false;
+
+    //Product must be Recipe
+  end;
+
+end;
+
+procedure TLineEditForm.validateIsAdmissionFlag;
+var
+  productHasChildrenCount: Integer;
+begin
+  // check is child
+  productHasChildrenCount := ProductsDB.qEditPortions.RecordCount;
+  // if checked make Donation,Footfall disabled
+  if (cbIsAdmission.Enabled and cbIsAdmission.Checked) then
+  begin
+    cbIsFootfall.Enabled := false;
+    cbIsDonation.Enabled := false;
+    cbValidateMembership.Enabled := true
+  end
+  else
+  begin
+    cbValidateMembership.Enabled := false;
+    if not cbIsFootfall.Enabled and (productHasChildrenCount <= 0) then cbIsFootfall.Enabled := true;
+    if not cbIsDonation.Enabled and (productHasChildrenCount <= 0) then cbIsDonation.Enabled := true;
+    if (cbIsAdmission.Enabled and cbValidateMembership.Checked ) then begin
+      skipValidateMembershipFlag := true;
+      cbValidateMembership.Checked := false;
+      if cbValidateMembership.Enabled then cbValidateMembership.Enabled := false
+    end;
+
+  end;
+end;
+
+function TLineEditForm.validateMembershipFlag: boolean;
+begin
+  // valid only for isAdmission=true
+  Result := false;
+  if (cbIsAdmission.Enabled and cbIsAdmission.Checked) then
+    Result := true
+
+  else
+  if(cbIsAdmission.Enabled and not cbIsAdmission.Checked) then
+  begin
+    ShowMessage('Validate Membership flag is valid only for Admission products!');
+    Result := false;
+  end;
+
+end;
+
+procedure TLineEditForm.validateIsDonationFlag;
+var
+  productIsChild: Boolean;
+begin
+  // check is child
+  productIsChild := ProductsDb.IsUsedAsIngredient(ProductsDB.CurrentEntityCode);
+  // if checked make Footfall,Admission disabled
+  if (cbIsDonation.Enabled and cbIsDonation.Checked) then
+  begin
+    cbIsAdmission.Enabled := false;
+    cbIsFootfall.Enabled := false;
+    cbPromptForGiftAid.Enabled := true
+  end
+  else
+  begin
+    cbPromptForGiftAid.Enabled := false;
+    if not cbIsAdmission.Enabled and not productIsChild then cbIsAdmission.Enabled := true;
+    if not cbIsFootfall.Enabled then cbIsFootfall.Enabled := true;
+
+    if (cbIsDonation.Enabled and cbPromptForGiftAid.Checked ) then begin
+      skipPromptForGiftAidFlag := true;
+      cbPromptForGiftAid.Checked := false;
+      if cbPromptForGiftAid.Enabled then cbPromptForGiftAid.Enabled := false
+    end;
+  end;
+
+end;
+
+procedure TLineEditForm.validateIsFootfallFlag;
+var
+  productIsChild: Boolean;
+begin
+  // check is child
+  productIsChild := ProductsDb.IsUsedAsIngredient(ProductsDB.CurrentEntityCode);
+  // if checked make Donation,Admission disabled
+  if (cbIsFootfall.Enabled and cbIsFootfall.Checked) then
+  begin
+    cbIsAdmission.Enabled := false;
+    cbIsDonation.Enabled := false;
+  end
+  else
+  begin
+    if not cbIsAdmission.Enabled and not productIsChild then cbIsAdmission.Enabled := true;
+    if not cbIsDonation.Enabled then cbIsDonation.Enabled := true;
+  end;
+end;
+
+function TLineEditForm.validatePromptForGiftAidFlag: boolean;
+begin
+  // valid only for isDonation=true
+  Result := false;
+  if (cbIsDonation.Enabled and cbIsDonation.Checked) then
+    Result := true
+
+  else
+  if(cbIsDonation.Enabled and not cbIsDonation.Checked) then
+  begin
+    ShowMessage('Prompt For Gift Aid flag is valid only for Donation products!');
+    Result := false;
+  end;
+end;
+
+procedure TLineEditForm.CountryOfOriginTextBoxExit(Sender: TObject);
+begin
+  if not (ProductsDB.ClientPPTable.State in [ dsEdit]) then
+    ProductsDB.ClientPPTable.Edit;
+
+  ProductsDB.ClientPPTableCountryOfOrigin.Value := (Sender as TMemo).Text;
+
+  ProductsDB.ClientPPTable.Post;
+
+  if (ProductsDB.ClientPPTable.ChangeCount > 0) then
+    ProductsDB.ClientPPTable.ApplyUpdates(0);
+end;
+
+//Bug 549683: Product Modelling - Does not enforce unique Import/Export references.
+//Bug 543192: Product Modelling - More than one product can be given the same "Import/Export Ref"
+procedure TLineEditForm.ImportExportRefEditBoxExit(Sender: TObject); 
+var
+  retailName, entityCode, msg: string;
+begin
+  try
+    entityCode := EntityCodeEditBox.Text;
+    with ProductsDB.ADOQuery do
+    try
+        SQL.Text :=
+          'select '  +
+          '[Retail Name] RetailName, EntityCode ' +
+          'from '+
+          'Products ' +
+          'where ' +
+          '(' +
+                '(Deleted is null) ' +
+                 ' or ' +
+                '(Deleted <> ' + QuotedStr('Y') + ')' +
+          ')' +
+          ' and ' +
+          '[Import/Export Reference] = ' + QuotedStr(ImportExportRefEditBox.Text) +
+          ' and [EntityCode] <> ' + QuotedStr(entityCode);
+
+        Open;
+
+        // in case select command return a result
+        if recordCount > 0 then
+        begin
+           retailName := FieldByName('RetailName').AsString;
+           entityCode := FloatToStr(FieldByName('EntityCode').AsFloat);
+
+
+           msg := 'Value of "Import/Export Ref" must be unique.' + #10#13 +
+                  'Value  ' + ImportExportRefEditBox.Text + '  already exists ' +
+                  'for: "' + retailName + '", Entity Code: ' + entityCode;
+
+
+           ShowMessage(msg);
+           Log.Event(msg);
+
+           ImportExportRefEditBox.SetFocus;
+        end
+    finally
+      close;
+    end;
+  except
+  end;
+end;
+
+end.

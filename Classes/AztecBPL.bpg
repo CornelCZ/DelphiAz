@@ -1,0 +1,54 @@
+#------------------------------------------------------------------------------
+VERSION = BWS.01
+#------------------------------------------------------------------------------
+!ifndef ROOT
+ROOT = $(MAKEDIR)\..
+!endif
+#------------------------------------------------------------------------------
+MAKE = $(ROOT)\bin\make.exe -$(MAKEFLAGS) -f$**
+DCC = $(ROOT)\bin\dcc32.exe $**
+BRCC = $(ROOT)\bin\brcc32.exe $**
+#------------------------------------------------------------------------------
+PROJECTS = VclCommon60.bpl wmiset60.bpl AztecSecurityLib.bpl \
+  AztecSplashScreenLib.bpl AztecUtilityLib.bpl AztecLoggingLib.bpl \
+  AztecDatabaseLib.bpl AztecBaseClassesLib.bpl AztecCommsLib.bpl \
+  AztecConfigurationLib.bpl AztecReportingLib.bpl
+#------------------------------------------------------------------------------
+default: $(PROJECTS)
+#------------------------------------------------------------------------------
+
+
+AztecBaseClassesLib.bpl: Base Classes\AztecBaseClassesLib.dpk
+  $(DCC)
+
+AztecUtilityLib.bpl: Utilities\AztecUtilityLib.dpk
+  $(DCC)
+
+AztecSplashScreenLib.bpl: Splash\AztecSplashScreenLib.dpk
+  $(DCC)
+
+AztecSecurityLib.bpl: Security\AztecSecurityLib.dpk
+  $(DCC)
+
+AztecReportingLib.bpl: Reporting\AztecReportingLib.dpk
+  $(DCC)
+
+AztecLoggingLib.bpl: Logging\AztecLoggingLib.dpk
+  $(DCC)
+
+AztecDatabaseLib.bpl: Database\AztecDatabaseLib.dpk
+  $(DCC)
+
+AztecConfigurationLib.bpl: Configuration\AztecConfigurationLib.dpk
+  $(DCC)
+
+AztecCommsLib.bpl: Comms\AztecCommsLib.dpk
+  $(DCC)
+
+VclCommon60.bpl: WMISet\Common\VclCommon60.dpk
+  $(DCC)
+
+wmiset60.bpl: WMISet\WMISet\wmiset60.dpk
+  $(DCC)
+
+

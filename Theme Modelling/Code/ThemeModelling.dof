@@ -1,0 +1,183 @@
+[FileVersion]
+Version=6.0
+[Compiler]
+A=8
+B=0
+C=1
+D=1
+E=0
+F=0
+G=1
+H=1
+I=1
+J=0
+K=0
+L=1
+M=0
+N=1
+O=1
+P=1
+Q=0
+R=0
+S=0
+T=0
+U=0
+V=1
+W=0
+X=1
+Y=1
+Z=1
+ShowHints=1
+ShowWarnings=1
+UnitAliases=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
+[Linker]
+MapFile=0
+OutputObjs=0
+ConsoleApp=1
+DebugInfo=1
+RemoteSymbols=0
+MinStackSize=16384
+MaxStackSize=1048576
+ImageBase=4194304
+ExeDescription=
+[Directories]
+OutputDir=..\..\Bin
+UnitOutputDir=..\..\dcu
+PackageDLLOutputDir=
+PackageDCPOutputDir=
+SearchPath=$(DELPHI)\Lib\Debug;..\..\Common Files\WinRunner;..\..\Classes\Splash;..\..\Common Files
+Packages=AztecBaseClassesLib;AztecCommsLib;AztecConfigurationLib;AztecDatabaseLib;AztecLoggingLib;AztecReportingLib;AztecSecurityLib;AztecSplashScreenLib;AztecUtilityLib;dclOffice2k;designide;VclCommon60;wmiset60;adortl;bdertl;dbrtl;ip3000v6;rtl;vcl;vcldb;vcldbx;vclsmp;vclx;rbDB66;rbBDE66;rbRCL66
+Conditionals=
+DebugSourceDirs=
+UsePackages=1
+[Parameters]
+RunParams=username=zonaldev;password=AOYLWWO
+HostApplication=
+Launcher=
+UseLauncher=0
+DebugCWD=
+[RDP Source Files]
+Item0=uEditPanelDesignDetails.dfm
+Item1=uEditGenericDetails.dfm
+Item2=uEditThemeDetails.dfm
+Item3=uMatchOutletTablePlans.dfm
+Item4=uOutletTablePlans.dfm
+Item5=uSharedPanels.dfm
+Item6=uThemeModellingMenu.dfm
+Item7=uThemes.dfm
+Item8=..\..\Common Files\uPassword.dfm
+Item9=..\..\Common Files\dADOAbstract.dfm
+Item10=uADO.dfm
+Item11=uDMThemeData.dfm
+Item12=uEditOutletTablePlan.dfm
+Item13=uEnterTableNumberDialog.dfm
+Item14=uTillLabelEditor.dfm
+Item15=uTillButtonEditor.dfm
+Item16=uTillPanelEditor.dfm
+Item17=uEditThemeTablePlan.dfm
+Item18=uEditSharedPanel.dfm
+Item19=uEditPanelDesign.dfm
+Item20=uDesignSharedPanel.dfm
+Item21=uButtonTypeDropDown.dfm
+Item22=uButtonPicker.dfm
+Item23=uPickSite.dfm
+Item24=uBaseEdit.dfm
+Item25=uAddEdit.dfm
+Item26=uAddEditPrinter.dfm
+Item27=uAddEditTerminal.dfm
+Item28=uSharedPanelProperties.dfm
+Item29=uUpdateTerminals.dfm
+Item30=uStdGrid.dfm
+Item31=uValidateSubPanels.dfm
+Item32=uEditJobSecurity.dfm
+Item33=uEditDialogs.dfm
+Item34=uEditSeatPlan.dfm
+Item35=uSiteCustomise.dfm
+Item36=uThemeTablePlanGroups.dfm
+Item37=uEditChoices.dfm
+Item38=uEditDialogSecurity.dfm
+Item39=uEditTimedJobSecurity.dfm
+Item40=uEditTimedJobPeriod.dfm
+Item41=uShowSitePriceReport.dfm
+Item42=uSitePriceReport.dfm
+Item43=uTillSubPanelEditor.dfm
+Item44=uSitePanels.dfm
+Item45=uDesignSitePanel.dfm
+Item46=uEditDiscount.dfm
+Item47=uEditTicketing.dfm
+Item48=uAddEditTicketSequence.dfm
+Item49=uPickProduct.dfm
+Item50=uEditCurrency.dfm
+Item51=..\..\Common Files\uAztecSplash.dfm
+Item52=uFunctionVersionWarning.dfm
+Item53=uSelectServers.dfm
+Item54=uSelectPort.dfm
+Item55=uNewCorrectionReason.dfm
+Item56=uEditSwipeCardRange.dfm
+Item57=uSwipeCardRanges.dfm
+Item58=uTerminalGraphics.dfm
+Item59=uAddGraphic.dfm
+Item60=uAddEditConquerorTerminal.dfm
+Item61=uEditOrderDisplay.dfm
+Item62=uSiteVariations.dfm
+Item63=..\..\Common Files\uImportErrorLog.dfm
+Item64=uPickFutureDate.dfm
+Item65=uEditVariationPanel.dfm
+Item66=uProductInPanelReport.dfm
+Item67=uSiteThemes.dfm
+Item68=uReports.dfm
+Item69=uProductInPanelReportParams.dfm
+Item70=uSiteVariationsImportErrors.dfm
+Item71=uSiteVariationsImportErrorReport.dfm
+Item72=ThemeModelling.drc
+[Language]
+ActiveLang=
+ProjectLang=$00000809
+RootDir=
+[Version Info]
+IncludeVerInfo=0
+AutoIncBuild=0
+MajorVer=1
+MinorVer=0
+Release=0
+Build=0
+Debug=0
+PreRelease=0
+Special=0
+Private=0
+DLL=0
+Locale=2057
+CodePage=1252
+[Version Info Keys]
+CompanyName=
+FileDescription=
+FileVersion=1.0.0.0
+InternalName=
+LegalCopyright=
+LegalTrademarks=
+OriginalFilename=
+ProductName=
+ProductVersion=1.0.0.0
+Comments=
+[Excluded Packages]
+c:\Program Files (x86)\borland\delphi6\Bin\dclclxdb60.bpl=Borland CLX Database Components
+C:\Program Files (x86)\Borland\Delphi6\Bin\dclclxstd60.bpl=Borland CLX Standard Components
+c:\Program Files (x86)\borland\delphi6\Projects\Bpl\AztecDBCombos.bpl=Aztec Custom DB Controls
+c:\Program Files (x86)\borland\delphi6\Projects\Bpl\AztecCtls.bpl=Aztec FlexiDbGrid component
+c:\Program Files (x86)\borland\delphi6\Projects\Bpl\Package1.bpl=(untitled)
+c:\program files (x86)\borland\delphi6\Projects\Bpl\OverbyteIcsDel70.bpl=Overbyte ICS V6 for Delphi 7
+c:\Program Files (x86)\borland\delphi6\Projects\Bpl\TillButtons.bpl=Till Buttons for EPos
+c:\Program Files (x86)\borland\delphi6\Bin\dclsoap60.bpl=Borland SOAP Components
+[HistoryLists\hlUnitAliases]
+Count=1
+Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
+[HistoryLists\hlSearchPath]
+Count=1
+Item0=$(DELPHI)\Lib\Debug;..\..\Common Files\WinRunner;..\..\Classes\Splash;..\..\Common Files
+[HistoryLists\hlUnitOutputDirectory]
+Count=1
+Item0=..\..\dcu
+[HistoryLists\hlOutputDirectorry]
+Count=2
+Item0=..\..\Bin
+Item1=c:\dev\trunk\bin

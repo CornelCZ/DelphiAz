@@ -1,0 +1,573 @@
+unit uAztecDatabaseUtils;
+
+interface
+
+uses ADODB;
+
+const
+
+  ZONALACCESS_LOGIN_NAME = 'zonalaccess';
+  ZONAL_PASSWORD = 'southpark';
+  ZONAL_ACCESS_PASSWORD = '7H56HH34LOHVTGEMNS7XV';
+  ZONAL_SYSADMIN_PASSWORD = '0049356GNHsxkzi26TYMF';
+
+  //ZONAL_LOGIN_NAME = 'Zonal';
+
+  { The connection string disables connection pooling within the OLE DB library, using the text
+    "OLE DB Services = -2". It is used as a workaround for an OLE DB bug which causes a
+    "Connection Failure" error when a TADOConnection objectis opened after one has previously
+    been destroyed, and the destroyed one had activated an application role.
+    See microsoft error report http://support.microsoft.com/default.aspx?scid=kb;en-us;Q229564 for details. }
+  // This constant is still used by the RemoteSQL component, which creates its own connections string for
+  // remote computers. Might be able to use remote registry access to get the correct database/datasource.
+  DISABLE_OLEDB_RESOURCE_POOLING = 'OLE DB Services = -2';
+
+function GetAztecADOConnection: TADOConnection; overload;
+
+//The following three functions are provided here so that if an ADODataset or ADOCommand object is required
+//they can be obtained knowing that all the recommended settings are correct e.g. CommandTimeout.
+function GetADODataset(AConnection: TADOConnection): TADODataset;
+function GetADOCommand(AConnection: TADOConnection): TADOCommand;
+function GetADOQuery(AConnection : TADOConnection) : TADOQuery;
+
+procedure GetAztecDatabaseParameters(var DatabaseMachine: string; var DatabaseName: string);
+function GetAztecUDLFileName : string;
+
+function GetAztecDBConnectionString : string;
+function GetSysAdminAztecDBConnectionString : string;
+
+procedure OverrideServerName(serverName : string);
+
+procedure SetAztecConnectionProperties(var ADOConnection : TADOConnection);
+
+procedure SetUpAztecADOConnection(var ADOConnection : TADOConnection);
+procedure SetUpSysAdminAztecADOConnection(var ADOConnection : TADOConnection);
+procedure EnsureDefaultDatabase(ADOConnection : TADOConnection);
+function GetDefaultDatabaseForLogin(ADOConnection : TADOConnection; LoginName : string) : string;
+function DelSQLTable(tableName: string; DB : TADOConnection): Boolean;
+function SQLTableExists(TableName : string; DB : TADOConnection): Boolean;
+procedure UpdateUDLDetail(const AUDLPath, ASetting, ANewValue: string);
+function GetAztecDBName: String;
+
+implementation
+
+uses SysUtils, DB, ActiveX,
+     Classes, uAztecStringUtils, uSystemUtils, registry, windows, Dialogs;
+
+var
+  OverridenServerName : string;
+  ProviderToUse : string;
+
+procedure OverrideServerName(serverName : string);
+begin
+  OverridenServerName := serverName;
+end;
+
+function GetAztecUDLFileName : string;
+begin
+  Result := EnsureTrailingSlash(GetProgramFilesDir) + 'common files\system\ole db\data links\Aztec.udl';
+end;
+
+function EnsureLeadingSlash(path: string): string;
+begin
+  if (path <> '') and (path[1] <> '\') then
+    result := '\' + path
+  else
+    result := path;
+end;
+
+function SQLFailoverConfigured: boolean;
+begin
+  if OverridenServerName <> '' then
+  begin
+    Result := false
+  end
+  else
+  begin
+    with TRegistry.Create do try
+      RootKey := HKEY_LOCAL_MACHINE;
+      OpenKeyReadOnly('SOFTWARE\Zonal\Aztec');
+      Result := ValueExists('DatabaseMachineFailover');
+    finally
+      Free;
+    end;
+  end;
+end;
+
+
+procedure CollectOLEDBProviders(OLEDBProviders: TStringList);
+var
+  Reg: TRegistry;
+  Providers: TStringList;
+  i: Integer;
+begin
+  OLEDBProviders.Clear;
+  Reg := TRegistry.Create(KEY_READ);
+  Providers := TStringList.Create;
+  try
+    Reg.RootKey := HKEY_CLASSES_ROOT;
+    if Reg.OpenKeyReadOnly('CLSID') then
+    begin
+      Reg.GetKeyNames(Providers);
+      for i := 0 to Providers.Count - 1 do
+      begin
+        if Reg.OpenKeyReadOnly(EnsureLeadingSlash('CLSID\' + Providers[i])) then //
+        begin
+          if Reg.KeyExists('OLE DB Provider') then
+          begin
+            if Reg.OpenKeyReadOnly(EnsureLeadingSlash('CLSID\' + Providers[i] + '\ProgID')) then
+            begin
+              OLEDBProviders.Add(Reg.ReadString(''));
+            end;
+          end;
+          Reg.CloseKey; // Close the ProgID key after reading
+        end;
+      end;
+    end;
+  finally
+    Providers.Free;
+    Reg.Free;
+  end;
+end;
+
+// determine the best available provider in the order of how new they are
+function GetBestProvider: string;
+var
+  OLEDBProviders: TStringList;
+begin
+  if Length(ProviderToUse) = 0 then
+  begin
+    with TRegistry.Create do
+    try
+      RootKey := HKEY_LOCAL_MACHINE;
+      OpenKeyReadOnly('SOFTWARE\Zonal\Aztec');
+      if ValueExists('DebugOLEDBProvider') then
+        ProviderToUse := ReadString('DebugOLEDBProvider');
+    finally
+      free;
+    end;
+
+    if Length(ProviderToUse) = 0 then
+    begin
+
+      // code below removed as our SQL statements are not compatible with the
+      // checks done by SQL Server 2019 when using the newest Providers
+      // We are forced to use the old Provider, even though it makes certain
+      // queries VERY slow (when using with SQL Server 2019) else features stop working
+
+//OLEDBProviders := TStringList.Create;
+//      CollectOLEDBProviders(OLEDBProviders);
+//
+//      if OLEDBProviders.IndexOf('MSOLEDBSQL19.1') <> -1 then
+//        ProviderToUse := 'MSOLEDBSQL19.1'
+//      else if OLEDBProviders.IndexOf('MSOLEDBSQL.1') <> -1 then
+//        ProviderToUse := 'MSOLEDBSQL.1'
+//      else if OLEDBProviders.IndexOf('SQLNCLI10.1') <> -1 then
+//        ProviderToUse := 'SQLNCLI10.1'
+//      else
+        ProviderToUse := 'SQLOLEDB.1';
+
+//      OLEDBProviders.Free;
+
+    end;
+
+    Result := ProviderToUse;
+  end
+  else
+    Result := ProviderToUse;
+end;
+
+
+
+procedure GetAztecDatabaseParametersInternal(
+  var DatabaseMachine, DatabaseName, Provider, FailoverMachine: string);
+begin
+  Provider := GetBestProvider;
+
+  with TRegistry.Create do
+  try
+    RootKey := HKEY_LOCAL_MACHINE;
+    OpenKeyReadOnly('SOFTWARE\Zonal\Aztec');
+    if ValueExists('DatabaseName') then
+      DatabaseName := ReadString('DatabaseName')
+    else
+      DatabaseName := 'Aztec';
+
+    if OverridenServerName <> '' then
+    begin
+      DatabaseMachine := OverridenServerName;
+      FailoverMachine := '';
+    end
+    else
+    begin
+      if ValueExists('DatabaseMachine') then
+        DatabaseMachine := ReadString('DatabaseMachine')
+      else
+        DatabaseMachine := '(local)';
+
+      if ValueExists('DatabaseMachineFailover') then
+      begin
+        FailoverMachine := ReadString('DatabaseMachineFailover')
+      end
+      else
+      begin
+        FailoverMachine := '';
+      end;
+    end;
+  finally
+    free;
+  end;
+end;
+
+procedure GetAztecDatabaseParameters(var DatabaseMachine: string; var DatabaseName: string);
+var
+  TempConn: TADOConnection;
+  TempQry: TADOQuery;
+  Dummy1, Dummy2: string;
+begin
+  if SQLFailoverConfigured then
+  begin
+    // use a dummy connection to process failover
+    // in order to return the actual DB server in use
+    TempConn := GetAztecADOConnection;
+    TempQry := TADOQuery.Create(nil);
+    try
+      TempQry.Connection := TempConn;
+      TempQry.SQL.Text := 'select SERVERPROPERTY(''ServerName''), DB_NAME()';
+      TempQry.Open;
+      DatabaseMachine := TempQry.Fields[0].AsString;
+      DatabaseName := TempQRy.Fields[1].AsString;
+      TempQry.Close;
+      TempConn.Close;
+    finally
+      TempQry.Free;
+      TempConn.Free;
+    end;
+  end
+  else
+    GetAztecDatabaseParametersInternal(DatabaseMachine, DatabaseName, Dummy1, Dummy2);
+end;
+
+function GetAppName : string;
+begin
+  Result := 'Aztec '+ChangeFileExt(ExtractFileName(ParamStr(0)), '');
+end;
+
+function GetAztecDBConnectionString : string;
+var
+  DatabaseMachine: string;
+  DatabaseName: string;
+  Provider, FailoverMachine: string;
+begin
+  GetAztecDatabaseParametersInternal(DatabaseMachine, DatabaseName, Provider, FailoverMachine);
+  if FailoverMachine <> '' then
+    FailoverMachine := Format(';Failover Partner=%s', [FailoverMachine]);
+  Result := Format('Provider=%s;Persist Security Info=False;'+
+    'Application Name=%s;User ID=%s;Password=%s;Data Source=%s;Initial Catalog=%s%s',
+    [Provider, GetAppName,ZONALACCESS_LOGIN_NAME, ZONAL_ACCESS_PASSWORD, DatabaseMachine, DatabaseName, FailoverMachine]);
+end;
+
+function GetSysAdminAztecDBConnectionString : string;
+var
+  DatabaseName: string;
+  DatabaseMachine: string;
+  Provider, FailoverMachine: string;
+begin
+  GetAztecDatabaseParametersInternal(DatabaseMachine, DatabaseName, Provider, FailoverMachine);
+  if FailoverMachine <> '' then
+    FailoverMachine := Format(';Failover Partner=%s', [FailoverMachine]);
+  Result := Format('Provider=%s;Persist Security Info=False;'+
+    'Application Name=%s;User ID=%s;Password=%s;Data Source=%s;Initial Catalog=%s%s',
+    [Provider, GetAppName,'ZonalSysAdmin', ZONAL_SYSADMIN_PASSWORD, DatabaseMachine, DatabaseName, FailoverMachine]);
+end;
+
+
+procedure SetUpSysAdminAztecADOConnection(var ADOConnection : TADOConnection);
+begin
+  CoInitialize(nil);
+
+  try
+    with ADOConnection do
+    begin
+      ConnectionTimeout := 0;
+      CommandTimeout := 0;
+      ConnectionString := GetSysAdminAztecDBConnectionString;
+      KeepConnection := TRUE;
+      LoginPrompt := FALSE;
+      Open;
+    end;
+  finally
+    CoUnInitialize;
+  end;
+end;
+
+procedure SetAztecConnectionProperties(var ADOConnection : TADOConnection);
+begin
+  with ADOConnection do
+  begin
+    ConnectionTimeout := 0;
+    CommandTimeout := 0;
+    ConnectionString := GetAztecDBConnectionString;
+    KeepConnection := TRUE;
+    LoginPrompt := FALSE;
+    Open;       
+  end;
+
+end;
+
+procedure SetUpAztecADOConnection(var ADOConnection : TADOConnection);
+begin
+  SetAztecConnectionProperties(ADOConnection);
+  EnsureDefaultDatabase(ADOConnection);
+end;
+
+
+function GetAztecADOConnection : TADOConnection;
+begin
+  Result := TADOConnection.Create ( Nil );
+  SetUpAztecADOConnection(Result);
+end;
+
+function GetADODataset(AConnection : TADOConnection) : TADODataset;
+begin
+  Result := TADODataset.Create(nil);
+  Result.Connection := AConnection;
+  Result.CommandType := cmdText;
+  Result.CommandTimeout := 0;
+end;
+
+function GetADOCommand(AConnection : TADOConnection) : TADOCommand;
+begin
+  Result := TADOCommand.Create(nil);
+  Result.Connection := AConnection;
+  Result.CommandTimeout := 0;
+end;
+
+function GetADOQuery(AConnection : TADOConnection) : TADOQuery;
+begin
+  Result := TADOQuery.Create(nil);
+  Result.Connection := AConnection;
+  Result.CommandTimeout := 0;
+end;
+
+procedure ActivateApplicationRole (RoleName, RolePassword : string; ADOConnection : TADOConnection);
+var ADOCommand : TADOCommand;
+begin
+  ADOCommand := TADOCommand.Create(nil);
+  with ADOCommand do
+  try try
+    Connection := ADOConnection;
+    CommandTimeout := 0;
+
+    CommandText := 'sp_setapprole '+ QuotedStr(RoleName) + ', ' +
+                   '{Encrypt N '+QuotedStr(RolePassword)+'}, ''odbc''';
+    Execute;
+  except
+    On E:Exception do
+      Raise Exception.Create('Failed to set the '+RoleName+' application role in uAztecDatabaseUtils.ActivateApplicationRole. '+
+            'Error message was: ' + E.Message);
+  end;
+  finally
+    FreeAndNil(ADOCommand);
+  end;
+end;
+
+function DelSQLTable(tableName: string; DB : TADOConnection): Boolean;
+begin
+  Result := False;
+  with TADOCommand.Create(nil) do
+  try try
+    Connection := DB;
+    CommandType := cmdText;
+    CommandText := 'drop table [' + tableName + ']';
+    Execute;
+    Result := True;
+  except
+  end;
+  finally
+    Free;
+  end
+end;
+
+function SQLTableExists(TableName : string; DB : TADOConnection): Boolean;
+var
+ queryStr : String;
+begin
+  if TableName[1] = '#' then
+    { Temporary table name. Look for table in tempDB database }
+    queryStr := 'SELECT * FROM tempdb..sysobjects WHERE id=OBJECT_ID(''tempdb..'+TableName+''')'
+  else
+    { Not a temporary table name. Look for table in Aztec database }
+    queryStr := 'SELECT Table_Name FROM INFORMATION_SCHEMA.TABLES WHERE UPPER(Table_Name) = ''' + UpperCase(TableName) + '''';
+
+  with TADODataSet.Create(nil) do
+  try
+    Connection := DB;
+    CommandType := CmdText;
+    CommandText := queryStr;
+    Open;
+    Result := (RecordCount > 0);
+    Close;
+  finally
+    Free;
+  end;
+end;
+
+procedure UpdateUDLDetail(const AUDLPath, ASetting, ANewValue: string);
+var
+  hdrbuff: array[0..1] of byte;
+  unicodebuffer: TByteArray;
+  unicodechars: cardinal;
+  utf8buffer: pchar;
+  i: integer;
+  UDL_items: TStringlist;
+  tmpstr: string;
+begin
+  with TFileStream.Create(AUDLPath, fmOpenRead) do try
+    seek(0, soFromBeginning);
+    utf8buffer := allocmem(size+2);
+    readbuffer(unicodebuffer, size);
+    UnicodetoUtf8(utf8buffer, PWideChar(@unicodebuffer), size);
+    with TStringlist.create do try
+      text := strpas(utf8buffer);
+      for i := pred(count) downto 0 do
+      begin
+        // remove any blank lines, INI comments, INI sections or gibberish
+        // (there always seems to be gibberish in the first line of a UDL..
+        // e.g. FF FE in unicode, translated to EF BB BF in UTF..?!?)
+        if trim(strings[i]) = '' then delete(i)
+        else if trim(strings[i])[1] = ';' then delete(i)
+        else if trim(strings[i])[1] = '[' then delete(i)
+        else if trim(strings[i])[1] > chr(127) then delete(i)
+      end;
+      UDL_items := TStringlist.create;
+      SeparateList(text, ';', TStrings(UDL_items));
+
+      if ANewValue = '' then
+      begin
+        if udl_items.IndexOfName(ASetting) <> -1 then
+          udl_items.Delete(udl_items.IndexOfName(ASetting));
+      end
+      else
+      begin
+        if udl_items.Values[ASetting] = '' then
+          udl_items.Add(ASetting + '=' + ANewValue)
+        else
+          udl_items.Values[ASetting] := ANewValue;
+      end;
+
+      tmpstr := '';
+      for i := 0 to pred(udl_items.count) do
+      begin
+        tmpstr := tmpstr + udl_items[i];
+        if i < pred(udl_items.count) then
+          tmpstr := tmpstr + ';';
+      end;
+      clear;
+      add('[oledb]');
+      add('; Everything after this line is an OLE DB initstring');
+      add(tmpstr);
+      strpcopy(utf8buffer, text);
+      unicodechars := Utf8tounicode(PWideChar(@unicodebuffer), utf8buffer, 20000);
+    finally
+      free;
+    end;
+    freemem(utf8buffer);
+  finally
+    free;
+  end;
+  with TFileStream.create(AUDLPath, fmCreate) do try
+    seek(0, soFromBeginning);
+    hdrbuff[0] := $ff;
+    hdrbuff[1] := $fe;
+    writebuffer(hdrbuff, 2);
+    writebuffer(unicodebuffer, unicodechars * 2);
+  finally
+    free;
+  end;
+end;
+
+function GetDefaultDatabaseForLogin(ADOConnection : TADOConnection; LoginName : string) : string;
+var
+  ADOQuery : TADOQuery;
+begin
+  ADOQuery := TADOQuery.Create(nil);
+
+  with ADOQuery do
+  try try
+    Connection := ADOConnection;
+    SQL.Add('DECLARE	@DatabaseName varchar(50)');
+
+    SQL.Add('EXEC	[dbo].[zsp_GetDefaultDatabaseForLogin]');
+    SQL.Add('           @loginname = N'''+LoginName+''',');
+    SQL.Add('           @DatabaseName = @DatabaseName OUTPUT');
+
+    SQL.Add('SELECT	@DatabaseName as N''DatabaseName''');
+    Open;
+    result :=FieldByName('DatabaseName').AsString;
+  except
+    On E:Exception do
+    begin
+      messagedlg('Incorrect Default Database.'#13#10+
+                'Please contact the Zonal Help Centre'#13#10+
+                'This will impact the communications process',
+                mtWarning, [mbOk], 0);
+    end;
+  end;
+  finally
+    FreeAndNil(ADOQuery);
+  end;
+
+end;
+
+procedure EnsureDefaultDatabase(ADOConnection : TADOConnection);
+
+var
+  ADOQuery : TADOQuery;
+  MachineName : string;
+  DatabaseName : string;
+  Dummy1, Dummy2: string;
+begin
+  GetAztecDatabaseParametersInternal(MachineName, DatabaseName, Dummy1, Dummy2);
+  if GetDefaultDatabaseForLogin(ADOConnection,ZONALACCESS_LOGIN_NAME) <> DatabaseName then
+  begin
+    ADOQuery := TADOQuery.Create(nil);
+    with ADOQuery do
+    try try
+      Connection := ADOConnection;
+      SQL.Add('DECLARE @Return_Value int');
+
+      SQL.Add('EXEC @return_value = [dbo].[zsp_SetDefaultDatabaseForLogin]');
+      SQL.Add('                 @LoginName = N'+QuotedStr(ZONALACCESS_LOGIN_NAME)+',');
+      SQL.Add('                 @DatabaseName = N'+QuotedStr(DatabaseName));
+      ExecSQL;
+
+    except
+      On E:Exception do
+      begin
+        if GetDefaultDatabaseForLogin(ADOConnection,ZONALACCESS_LOGIN_NAME) <> DatabaseName then
+        begin
+          messagedlg('Incorrect Default Database.'#13#10+
+                'Please contact the Zonal Help Centre'#13#10+
+                'This will impact the communications process',
+                mtWarning, [mbOk], 0);
+        end;
+      end;
+    end;
+    finally
+      FreeAndNil(ADOQuery);
+    end;
+  end;
+end;
+
+function GetAztecDBName: String;
+var
+  DatabaseName : string;
+  Dummy1, Dummy2, Dummy3: string;
+begin
+  GetAztecDatabaseParametersInternal(Dummy1, DatabaseName, Dummy2, Dummy3);
+  Result := DatabaseName;
+end;
+
+end.
+

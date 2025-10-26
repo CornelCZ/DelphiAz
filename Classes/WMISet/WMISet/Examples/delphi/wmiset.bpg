@@ -1,0 +1,49 @@
+#------------------------------------------------------------------------------
+VERSION = BWS.01
+#------------------------------------------------------------------------------
+!ifndef ROOT
+ROOT = $(MAKEDIR)\..
+!endif
+#------------------------------------------------------------------------------
+MAKE = $(ROOT)\bin\make.exe -$(MAKEFLAGS) -f$**
+DCC = $(ROOT)\bin\dcc32.exe $**
+BRCC = $(ROOT)\bin\brcc32.exe $**
+#------------------------------------------------------------------------------
+PROJECTS = DiskQuotas.exe ProcessControl.exe StorageInfo.exe WmiQuery.exe \
+  RegEditor.exe OsViewer.exe SystemEvents.exe ScheduledJobs.exe ServiceDemo.exe \
+  NetworkConfig.exe
+#------------------------------------------------------------------------------
+default: $(PROJECTS)
+#------------------------------------------------------------------------------
+
+DiskQuotas.exe: DiskQuotas\DiskQuotas.dpr
+  $(DCC)
+
+ProcessControl.exe: ProcessControl\ProcessControl.dpr
+  $(DCC)
+
+StorageInfo.exe: StorageInfo\StorageInfo.dpr
+  $(DCC)
+
+WmiQuery.exe: WmiQuery\WmiQuery.dpr
+  $(DCC)
+
+RegEditor.exe: RegEditor\RegEditor.dpr
+  $(DCC)
+
+OsViewer.exe: OsViewer\OsViewer.dpr
+  $(DCC)
+
+SystemEvents.exe: SystemEvents\SystemEvents.dpr
+  $(DCC)
+
+ScheduledJobs.exe: WmiMethods\ScheduledJob\ScheduledJobs.dpr
+  $(DCC)
+
+ServiceDemo.exe: WmiMethods\Service\ServiceDemo.dpr
+  $(DCC)
+
+NetworkConfig.exe: WmiMethods\NetworkConfig\NetworkConfig.dpr
+  $(DCC)
+
+

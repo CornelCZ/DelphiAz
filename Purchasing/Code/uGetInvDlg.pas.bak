@@ -1,0 +1,362 @@
+unit uGetInvDlg;
+
+interface
+
+uses Windows, SysUtils, Classes, Graphics, Forms, Controls, StdCtrls,
+  Buttons, ExtCtrls, Grids, Wwdbigrd, Wwdbgrid, Wwkeycb, Db, Wwdatsrc,
+  DBTables, Messages, ADODB, dialogs, DBGrids, Menus, Variants;
+
+type
+  Tfgetinvdlg = class(TForm)
+    Panel1: TPanel;
+    Panel2: TPanel;
+    Panel3: TPanel;
+    BitBtn1: TBitBtn;
+    BitBtn2: TBitBtn;
+    dsInvoiceList: TwwDataSource;
+    SpeedBtnSupplier: TSpeedButton;
+    SpeedBtnDelNote: TSpeedButton;
+    SpeedBtnDate: TSpeedButton;
+    suppsearch: TwwIncrementalSearch;
+    Bevel1: TBevel;
+    Label1: TLabel;
+    Label3: TLabel;
+    qryAuditCurrent: TADOQuery;
+    qryNonAuditCurrent: TADOQuery;
+    qryAccepted: TADOQuery;
+    dbGridInvoiceList: TwwDBGrid;
+    btnFreeze: TBitBtn;
+    procedure SpeedBtnSupplierClick(Sender: TObject);
+    procedure SpeedBtnDelNoteClick(Sender: TObject);
+    procedure SpeedBtnDateClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbGridInvoiceListKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbGridInvoiceListDblClick(Sender: TObject);
+    procedure FormCreate(Sender : TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure BitBtn1Click(Sender: TObject);
+    procedure AuditCurrentFrozenChange(Sender: TField);
+    procedure dbGridInvoiceListMouseUp(Sender: TObject;
+      Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure btnFreezeClick(Sender: TObject);
+    procedure BitBtn2Click(Sender: TObject);
+  private
+    { Private declarations }
+    frozenSelected: boolean;
+    procedure SetGridFormat;
+    procedure FillInvoiceList(var theQry: TADOQuery);
+    procedure SetGUISortDetails(orderField: string; Descending: boolean = FALSE);
+    procedure SaveSelectedInvoiceDetails;
+  public
+    { Public declarations }
+    Task : integer; // edit invoice : 1,
+                    // view current invoices : 2, view accepted : 3,
+                    // audit invoice : 4
+                    // audit_add invoice : 5
+    SupplierName, DeliveryNoteNo, Note, invoiceNoMask, OrderNo : string;
+    DeliveryNoteDate: TDateTime;
+    theMaskID: Smallint;
+    procedure SetTask(theTask: Smallint);
+  end;
+
+var
+  fgetinvdlg: Tfgetinvdlg;
+
+implementation
+
+uses
+  uADO, uGlobals, uLog, uInvFrm;
+
+{$R *.DFM}
+
+procedure Tfgetinvdlg.FormCreate(Sender: TObject);
+begin
+  log.event('fgetinvdlg; FormCreate');
+  label3.Caption := 'Search on Supplier:';
+  if purchHelpExists then
+    setHelpContextID(self, HLP_DELIVERY_NOTE_SELECTION);
+end;
+
+procedure Tfgetinvdlg.SetTask(theTask: Smallint);
+begin
+  qryAccepted.Close;
+  qryAuditCurrent.Close;
+  qryNonAuditCurrent.Close;
+
+  Task := theTask;
+  try
+    case Task of
+      TASK_VIEW_ACC              : FillInvoiceList(qryAccepted);
+      TASK_AUDIT, TASK_AUDIT_ADD : FillInvoiceList(qryAuditCurrent);
+    else
+      FillInvoiceList(qryNonAuditCurrent);
+    end;
+  except
+    on E: Exception do
+    begin
+      Log.Event('fgetinvdlg; ERROR - FormCreate: - ' + E.Message);
+      raise;
+    end;
+  end;
+end;
+
+procedure Tfgetinvdlg.FormShow(Sender: TObject);
+begin
+  Log.Event('fgetinvdlg; FormShow');
+//  SpeedBtnDelNote.Caption := GetLocalisedName(INVOICE) + ' No. (F6)';
+  suppsearch.SelectAll;
+  btnFreeze.Visible := ( (Task = TASK_AUDIT) or (Task = TASK_AUDIT_ADD) );
+  SetGridFormat;
+  dsInvoiceList.DataSet.Locate('supplier name', suppsearch.Text, []);
+  screen.Cursor := crDefault;
+end;
+
+procedure Tfgetinvdlg.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  log.event('fgetinvdlg; FormClose');
+end;
+
+procedure Tfgetinvdlg.FillInvoiceList(var theQry: TADOQuery);
+begin
+  try
+    if isMaster then
+      theQry.Parameters.ParamByName('onlyValidSuppliers').Value := False
+    else
+      theQry.Parameters.ParamByName('onlyValidSuppliers').Value := True;
+    theQry.Open;
+    if SiteCode <> 0 then
+    begin
+      theQry.Filtered := true;
+      theQry.Filter := '[Site Code] = ' + IntToStr(SiteCode);
+    end;
+    dsInvoiceList.DataSet := theQry;
+  except
+    on E: Exception do
+    begin
+      Log.Event('fgetinvdlg; ERROR - FillInvoiceList : ' + E.Message + theQry.SQL.Text);
+      raise;
+    end;
+  end;
+end;
+
+procedure Tfgetinvdlg.SpeedBtnSupplierClick(Sender: TObject);
+begin
+  SetGUISortDetails('Supplier Name');
+end;
+
+procedure Tfgetinvdlg.SpeedBtnDelNoteClick(Sender: TObject);
+begin
+  SetGUISortDetails('Delivery Note No.');
+end;
+
+procedure Tfgetinvdlg.SpeedBtnDateClick(Sender: TObject);
+begin
+  SetGUISortDetails('Date', True);
+end;
+
+procedure Tfgetinvdlg.SetGUISortDetails(orderField: string; Descending: boolean = FALSE);
+begin
+  try
+    suppSearch.SearchField := orderField;
+    if Descending then
+      TADOQuery(dsInvoiceList.DataSet).Sort := '[' + orderField + '] DESC'
+    else
+      TADOQuery(dsInvoiceList.DataSet).Sort := '[' + orderField + '] ASC';
+    label3.Caption := 'Search on ' + orderField + ':';
+    suppSearch.FindValue;
+  except
+    on E: Exception do
+    begin
+      Log.Event('fgetinvdlg; ERROR - SetGUISortDetails: ' + E.Message + dsInvoiceList.DataSet.Name);
+      raise;
+    end;
+  end;
+end;
+
+
+procedure Tfgetinvdlg.SetGridFormat;
+begin
+  // set formatting required for all task modes
+  dsInvoiceList.DataSet.FieldByName('Site Code').Visible := false;
+  dsInvoiceList.DataSet.FieldByName('Supplier Name').ReadOnly := true;
+  dsInvoiceList.DataSet.FieldByName('Supplier Name').DisplayLabel := 'Supplier';
+  dsInvoiceList.DataSet.FieldByName('Supplier Name').DisplayWidth := 20;
+  dsInvoiceList.DataSet.FieldByName('Delivery Note No.').ReadOnly := true;
+  if (UKUSmode = 'UK') then
+    dsInvoiceList.DataSet.FieldByName('Delivery Note No.').DisplayLabel := 'Delivery Note No.'
+  else
+    dsInvoiceList.DataSet.FieldByName('Delivery Note No.').DisplayLabel := 'Invoice No.';
+  dsInvoiceList.DataSet.FieldByName('Delivery Note No.').DisplayWidth := 15;
+  dsInvoiceList.DataSet.FieldByName('Note').Visible := false;
+  dsInvoiceList.DataSet.FieldByName('Date').ReadOnly := true;
+  dsInvoiceList.DataSet.FieldByName('Date').DisplayWidth := 10;
+  dsInvoiceList.DataSet.FieldByName('Order No').Visible := false;
+
+  // set the format required for specific task modes
+  case Task of
+    TASK_VIEW_ACC :
+      begin
+        qryAccepted.FieldByName('Total Amount').ReadOnly := true;
+        qryAccepted.FieldByName('Total Amount').DisplayLabel := 'Total Cost';
+        qryAccepted.FieldByName('Total Amount').DisplayWidth := 10;
+        TFloatField(qryAccepted.FieldByName('Total Amount')).DisplayFormat := '0.00';
+      end;
+    TASK_AUDIT, TASK_AUDIT_ADD :
+      begin
+        qryAuditCurrent.FieldByName('LMDT').ReadOnly := true;
+        qryAuditCurrent.FieldByName('LMDT').DisplayLabel := 'Last Modified';
+        qryAuditCurrent.FieldByName('Total Amount').ReadOnly := true;
+        qryAuditCurrent.FieldByName('Total Amount').DisplayLabel := 'Total Cost';
+        qryAuditCurrent.FieldByName('Total Amount').DisplayWidth := 10;
+        TFloatField(qryAuditCurrent.FieldByName('Total Amount')).DisplayFormat := '0.00';
+        TBooleanField(qryAuditCurrent.FieldByName('Frozen')).DisplayValues := '1;0';
+        qryAuditCurrent.FieldByName('Frozen').ReadOnly := false;
+        qryAuditCurrent.FieldByName('Frozen').OnChange := AuditCurrentFrozenChange;
+        qryAuditCurrent.FieldByName('FrozenBy').Visible := false;
+        qryAuditCurrent.FieldByName('FrozenOn').Visible := false;
+        qryAuditCurrent.FieldByName('MaskID').Visible := false;
+        dbGridInvoiceList.ControlType.Add('Frozen;CheckBox;1;0');
+      end;
+  else
+    qryNonAuditCurrent.FieldByName('LMDT').ReadOnly := true;
+    qryNonAuditCurrent.FieldByName('LMDT').DisplayLabel := 'Last Modified';
+    qryNonAuditCurrent.FieldByName('MaskID').Visible := False;
+  end;
+end;
+
+procedure Tfgetinvdlg.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+var
+  mymsg : TMessage;
+begin
+  case key of
+    vk_f5 : begin
+              SpeedBtnSupplier.Down := true;
+              SpeedBtnSupplierClick(sender);
+            end;
+    vk_f6 :begin
+              SpeedBtnDelNote.Down := true;
+              SpeedBtnDelNoteClick(sender);
+            end;
+    vk_f7 :begin
+              SpeedBtnDate.Down := true;
+              SpeedBtnDateClick(sender);
+            end;
+    vk_prior, vk_next, vk_up,
+    vk_down, vk_home, vk_end : begin
+                                 mymsg.Msg := wm_keydown;
+                                 mymsg.WParam := key;
+                                 mymsg.LParam := 0;
+                                 mymsg.Result := 0;
+                                 fgetinvdlg.KeyPreview := false;
+                                 dbGridInvoiceList.Dispatch(mymsg);
+                                 key := 0;
+                               end;
+  end; // case
+  suppsearch.setfocus;
+end;
+
+procedure Tfgetinvdlg.dbGridInvoiceListKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  fgetinvdlg.KeyPreview := true;
+end;
+
+procedure Tfgetinvdlg.dbGridInvoiceListDblClick(Sender: TObject);
+begin
+  if ( (Task = TASK_AUDIT) or (Task = TASK_AUDIT_ADD) ) and frozenSelected then
+    exit;
+
+  SaveSelectedInvoiceDetails;
+  modalresult := mrOK;
+end;
+
+procedure Tfgetinvdlg.BitBtn1Click(Sender: TObject);
+begin
+  SaveSelectedInvoiceDetails;
+end;
+
+procedure Tfgetinvdlg.SaveSelectedInvoiceDetails;
+begin
+  try
+    SupplierName := dbGridInvoiceList.DataSource.DataSet.Fields.FieldByName('Supplier Name').AsString;
+    DeliveryNoteNo := dbGridInvoiceList.DataSource.DataSet.Fields.FieldByName('Delivery Note No.').AsString;
+    Note := dbGridInvoiceList.DataSource.DataSet.Fields.FieldByName('Note').AsString;
+    DeliveryNoteDate := dbGridInvoiceList.DataSource.DataSet.Fields.FieldByName('Date').AsDateTime;
+    OrderNo := dbGridInvoiceList.DataSource.DataSet.Fields.FieldByName('Order No').AsString;
+    if not ((Task = TASK_VIEW_CURR) or (Task = TASK_VIEW_ACC)) then
+    begin
+      theMaskID := dbGridInvoiceList.DataSource.DataSet.Fields.FieldByName('MaskID').Value;
+      invoiceNoMask := dmADO.GetSupplierMask(SupplierName, theMaskID);
+    end;
+
+    // check for any pending updates in qryAuditCurrent and warn user
+    if ( (Task = TASK_AUDIT) or (Task = TASK_AUDIT_ADD) ) then
+    begin
+      qryAuditCurrent.DisableControls;
+      qryAuditCurrent.Filtered := true;
+      qryAuditCurrent.FilterGroup := fgPendingRecords;
+      if qryAuditCurrent.RecordCount > 0 then
+      begin
+        case MessageDlg('You have selected one or more invoices to be frozen or ' + #13#10 + 'unfrozen.  Do you want to save these changes?',
+                   mtConfirmation, [mbYes, mbNO], 0) of
+          mrYes: qryAuditCurrent.UpdateBatch(arAll);
+          mrNo:  qryAuditCurrent.CancelBatch(arAll);
+        end;
+      end;
+      qryAuditCurrent.FilterGroup := fgNone;
+      qryAuditCurrent.EnableControls;
+    end;
+  except
+    on E: Exception do
+    begin
+      Log.Event('fgetinvdlg; ERROR - SaveSelectedInvoiceDetails: ' + E.Message);
+      raise;
+    end;
+  end;
+end;
+
+procedure Tfgetinvdlg.AuditCurrentFrozenChange(Sender: TField);
+begin
+  if Sender.AsBoolean then
+  begin
+    qryAuditCurrent.FieldByName('FrozenOn').Value := now;
+    qryAuditCurrent.FieldByName('FrozenBy').Value := CurrentUser.UserName;
+  end
+  else
+  begin
+    qryAuditCurrent.FieldByName('FrozenOn').Clear;
+    qryAuditCurrent.FieldByName('FrozenBy').Clear;
+  end;
+end;
+
+procedure Tfgetinvdlg.dbGridInvoiceListMouseUp(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var t: TGridCoord;
+begin
+  // need this because double-clicking on the grid is normally used to
+  // select an invoice for editing but the user has to double-click the
+  // frozen column to change its value.  The FrozenSelected value is
+  // checked in dbGridInvoiceListDblClick
+  t:=dbGridInvoiceList.MouseCoord(X,Y);
+  if t.X = 6 then
+    frozenSelected := true
+  else
+    frozenSelected := false;
+end;
+
+procedure Tfgetinvdlg.btnFreezeClick(Sender: TObject);
+begin
+  qryAuditCurrent.UpdateBatch(arAll);
+end;
+
+procedure Tfgetinvdlg.BitBtn2Click(Sender: TObject);
+begin
+  if ( (Task = TASK_AUDIT) or (Task = TASK_AUDIT_ADD) ) then
+    qryAuditCurrent.CancelBatch(arAll);
+end;
+
+end.

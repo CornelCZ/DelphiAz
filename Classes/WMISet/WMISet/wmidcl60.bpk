@@ -1,0 +1,162 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<!-- C++Builder XML Project -->
+<PROJECT>
+  <MACROS>
+    <VERSION value="BCB.06.00"/>
+    <PROJECT value="wmidcl60.bpl"/>
+    <OBJFILES value="wmidcl60.obj WmiReg.obj WmiRegEditors.obj"/>
+    <RESFILES value=""/>
+    <IDLFILES value=""/>
+    <IDLGENFILES value=""/>
+    <DEFFILE value=""/>
+    <RESDEPEN value="$(RESFILES)"/>
+    <LIBFILES value=""/>
+    <LIBRARIES value="dclocx.lib bcbsmp.lib"/>
+    <SPARELIBS value="rtl.lib dbrtl.lib bcbsmp.lib dclocx.lib wmirtl60.lib"/>
+    <PACKAGES value="rtl.bpi vcl.bpi dclstd.bpi designide.bpi VclCommonDcl60.bpi wmirtl60.bpi 
+      dbrtl.bpi"/>
+    <PATHCPP value=".;"/>
+    <PATHPAS value=".;"/>
+    <PATHRC value=".;"/>
+    <PATHASM value=".;"/>
+    <DEBUGLIBPATH value="$(BCB)\lib\debug"/>
+    <RELEASELIBPATH value="$(BCB)\lib\release"/>
+    <LINKER value="ilink32"/>
+    <USERDEFINES value="$(SYSDEFINES);$(USERDEFINES)"/>
+    <SYSDEFINES value="NO_STRICT;USEPACKAGES"/>
+    <MAINSOURCE value="wmidcl60.cpp"/>
+    <INCLUDEPATH value="..\common"/>
+    <LIBPATH value="$(BCB)\Lib;$(BCB)\Projects\Lib;..\common"/>
+    <WARNINGS value=""/>
+    <WARNOPTSTR value=""/>
+    <OTHERFILES value=""/>
+  </MACROS>
+  <OPTIONS>
+    <IDLCFLAGS value="-I..\common -src_suffix cpp -D$(SYSDEFINES) -D$(USERDEFINES) -boa"/>
+    <CFLAG1 value="-O2 -H=f:\PROGRA~1\borland\CBUILD~3\lib\vcl60.csm -Hc -w -Vx -Ve -Tkh30000 
+      -X- -a8 -b- -k- -vi -I$(BCB)\lib\obj;$(BCB)\include\vcl;$(BCB)\include 
+      -D$(SYSDEFINES);$(USERDEFINES) -c -w-par -w-inl -tWM -tWM -tWM"/>
+    <PFLAGS value="-N2. -N0. -$Y- -$L- -$D- -$A8 
+      -U$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib;$(RELEASELIBPATH) 
+      -I$(BCB)\lib\obj;$(BCB)\include\vcl;$(BCB)\include 
+      -D$(SYSDEFINES);$(USERDEFINES) -v -LUdclstd -M -JPHNE -JPHNE -JPHNE"/>
+    <RFLAGS value="-i$(BCB)\lib\obj;$(BCB)\include\vcl;$(BCB)\include 
+      -D$(SYSDEFINES);$(USERDEFINES)"/>
+    <AFLAGS value="/mx /w2 /zn /i$(BCB)\lib\obj /i$(BCB)\include\vcl /i$(BCB)\include 
+      /d$(SYSDEFINES) /d$(USERDEFINES)"/>
+    <LFLAGS value="-l. -I. -D&quot;Design time package with WmiSet Components&quot; -aa -Tpp -Gpd -x 
+      -Gn -Gl -Gi -L$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib;$(RELEASELIBPATH)"/>
+    <OTHERFILES value=""/>
+  </OPTIONS>
+  <LINKER>
+    <ALLOBJ value="c0pkg32.obj $(PACKAGES) sysinit.obj sysinit.obj sysinit.obj $(OBJFILES)"/>
+    <ALLRES value="$(RESFILES)"/>
+    <ALLLIB value="$(LIBFILES) $(LIBRARIES) import32.lib cp32mt.lib"/>
+    <OTHERFILES value=""/>
+  </LINKER>
+  <FILELIST>
+      <FILE FILENAME="wmidcl60.cpp" FORMNAME="" UNITNAME="wmidcl60" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="WmiReg.pas" FORMNAME="" UNITNAME="WmiReg" CONTAINERID="PascalCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="WmiRegEditors.pas" FORMNAME="" UNITNAME="WmiRegEditors" CONTAINERID="PascalCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\rtl.bpi" FORMNAME="" UNITNAME="rtl" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\vcl.bpi" FORMNAME="" UNITNAME="vcl" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\dclstd.bpi" FORMNAME="" UNITNAME="dclstd" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\designide.bpi" FORMNAME="" UNITNAME="designide" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\VclCommonDcl60.bpi" FORMNAME="" UNITNAME="VclCommonDcl60" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\ntset\wmirtl60.bpi" FORMNAME="" UNITNAME="wmirtl60" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="dbrtl.bpi" FORMNAME="" UNITNAME="dbrtl" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+  </FILELIST>
+  <BUILDTOOLS>
+  </BUILDTOOLS>
+
+  <IDEOPTIONS>
+[Version Info]
+IncludeVerInfo=1
+AutoIncBuild=0
+MajorVer=1
+MinorVer=0
+Release=0
+Build=0
+Debug=0
+PreRelease=0
+Special=0
+Private=0
+DLL=0
+Locale=1033
+CodePage=1252
+
+[Version Info Keys]
+CompanyName=
+FileDescription=
+FileVersion=1.0.0.0
+InternalName=
+LegalCopyright=
+LegalTrademarks=
+OriginalFilename=
+ProductName=
+ProductVersion=1.0.0.0
+Comments=
+
+[Excluded Packages]
+c:\SystemComponents\ntset\ntdcl60.bpl=Windows NT Specific Components
+
+[HistoryLists\hlIncludePath]
+Count=4
+Item0=..\common
+Item1=..\common;$(BCB)\include;
+Item2=F:\Program Files\Borland\CBuilder6\Projects;$(BCB)\include;$(BCB)\include\vcl;..\common
+Item3=F:\Program Files\Borland\CBuilder6\Projects;$(BCB)\include;$(BCB)\include\vcl
+
+[HistoryLists\hlLibraryPath]
+Count=2
+Item0=$(BCB)\Lib;$(BCB)\Projects\Lib;..\common
+Item1=..\common;F:\Program Files\Borland\CBuilder6\Projects;$(BCB)\lib\obj;$(BCB)\lib
+
+[HistoryLists\hlDebugSourcePath]
+Count=1
+Item0=$(BCB)\source\vcl
+
+[HistoryLists\hlConditionals]
+Count=2
+Item0=$(SYSDEFINES);$(USERDEFINES)
+Item1=_DEBUG
+
+[HistoryLists\hlIntOutputDir]
+Count=1
+Item0=.
+
+[HistoryLists\hIBPIOutputDir]
+Count=1
+Item0=.
+
+[Debugging]
+DebugSourceDirs=$(BCB)\source\vcl
+
+[Parameters]
+RunParams=
+Launcher=
+UseLauncher=0
+DebugCWD=
+HostApplication=
+RemoteHost=
+RemotePath=
+RemoteLauncher=
+RemoteCWD=
+RemoteDebug=0
+
+[Compiler]
+ShowInfoMsgs=0
+LinkDebugVcl=0
+LinkCGLIB=0
+
+[CORBA]
+AddServerUnit=1
+AddClientUnit=1
+PrecompiledHeaders=1
+
+[Linker]
+LibPrefix=
+LibSuffix=
+LibVersion=
+  </IDEOPTIONS>
+</PROJECT>

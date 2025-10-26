@@ -1,0 +1,46 @@
+package TillButtons;
+
+{$R *.res}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO ON}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DESCRIPTION 'Till Buttons for EPos'}
+{$IMPLICITBUILD OFF}
+{$DEFINE TILLBUTTON_COMP}
+
+requires
+  rtl,
+  vcl,
+  vcldb,
+  dbrtl,
+  adortl,
+  AztecDatabaseLib,
+  ip3000v6,
+  AztecLoggingLib,
+  AztecSplashScreenLib,
+  dsnap,
+  rbRCL66;
+
+contains
+  uTillButton in '..\..\Theme Modelling\Code\uTillButton.pas',
+  uUpdateTerminals in '..\..\Theme Modelling\Code\uUpdateTerminals.pas' {UpdateTerminals};
+
+end.

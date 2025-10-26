@@ -1,0 +1,3 @@
+LoadClockoutTicketFooterData		TEXT	LoadClockoutTicketFooterData.sql
+SaveClockoutTicketFooterData		TEXT	SaveClockoutTicketFooterData.sql
+DropClockoutTicketFooterData		TEXT	DropClockoutTicketFooterData.sql

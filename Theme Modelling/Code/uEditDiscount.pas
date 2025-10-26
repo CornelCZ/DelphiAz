@@ -1,0 +1,1327 @@
+unit uEditDiscount;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, uProductTreeBuilder, DB, wwdbedit, StdCtrls, CheckLst, Mask,
+  DBCtrls, ImgList, ADODB, ComCtrls, uEPOSTextHelper, uDatabaseVersion, uGlobals,
+  ExtCtrls;
+
+const
+  MAXIMUM_DISCOUNT = 99999.99;
+  MAXIMUM_DISCOUNT_RATE = 100;
+
+type
+  TDiscountItem = class // Used to store each selected node. These Nodes are then added to the ThemeDiscountItems table.
+    uniqueName : String;
+    displayName : String;
+    indexLevel : integer;
+    include : integer;
+    itemIndex : integer;
+    GroupQualifier : boolean;
+    nogo : boolean;
+  end;
+
+
+
+type
+  TIntervalBound = (ibRightClosed, ibRightOpen, ibLeftClosed, ibLeftOpen);
+
+  TIntervalRightBound = ibRightClosed..ibRightOpen;
+  TIntervalLeftBound = ibLeftClosed..ibLeftOpen;
+
+  TEditDiscountType = (edtFixedRate, edtFixedAmount, edtOpenRate, edtOpenAmount);
+
+  TEditDiscount = class(TProductTreeBuilder)
+    qTmp: TADOQuery;
+    qTmpDiscountAmount: TBCDField;
+    qTmpMinimumSpend: TBCDField;
+    qTmpMaximumDiscount: TBCDField;
+	qTmpDiscountPercentage: TBCDField;
+    qTmpMaximumRate: TIntegerField;
+    dsTmp: TDataSource;
+    qDelTmp: TADOQuery;
+    qrySaveDiscountBarcodes: TADOQuery;
+    cmdLoadDiscountBarcodes: TADOCommand;
+    pnlDiscountDetails: TPanel;
+    lbName: TLabel;
+    edName: TEdit;
+    Label2: TLabel;
+    lblDiscountAmount: TLabel;
+    cbDiscountType: TComboBox;
+    lblMaxDiscount: TLabel;
+    DBEditMaxDiscount: TDBEdit;
+    gbxMinimumSpend: TGroupBox;
+    Label4: TLabel;
+    Label5: TLabel;
+    dbeMinSpend: TDBEdit;
+    cbMinSpend: TComboBox;
+    btnDefineMinSpendGroup: TButton;
+    btnAssignBarcodes: TButton;
+    gbxEpos: TGroupBox;
+    cbOpensCashDrawer: TCheckBox;
+    cbPrintReceipt: TCheckBox;
+    cbDisablesPromotions: TCheckBox;
+    cbPreventFurtherSales: TCheckBox;
+    gpbxAdditionalActivationRequirements: TGroupBox;
+    lbPercentage: TLabel;
+    cbReasonRequired: TCheckBox;
+    gpbxEPoSText: TGroupBox;
+    mmEposName: TMemo;
+    pnlReasons: TPanel;
+    btnSelectReasons: TButton;
+    adoqLoadDiscountReasons: TADOQuery;
+    adoqSaveDiscountReasons: TADOQuery;
+    cbReferenceRequired: TCheckBox;
+    clbGrantedCardRanges: TCheckListBox;
+    lblSwipeCardRangesRequired: TLabel;
+    bvlSplitter: TBevel;
+    lblClmDiscount: TLabel;
+    lblMaxRate: TLabel;
+    DBEditMaxRate: TDBEdit;
+    cbAppliesToOrderLineFamily: TCheckBox;
+    lblAppliesToOrderLineFamilyHint: TLabel;
+    lblAppliesToOrderLineFamilyInfo: TLabel;
+    lblIgnoreExclusiveTaxInfo: TLabel;
+    cbIgnoreExclusiveTax: TCheckBox;
+    gbxForfeitSetup: TGroupBox;
+    cbConfirmForfeit: TDBCheckBox;
+    lblForfeitThreshold: TLabel;
+    dbeForfeitThreshold: TDBEdit;
+    qTmpConfirmForfeit: TBooleanField;
+    qTmpConfirmForfeitThresholdAmount: TBCDField;
+    dbeAmount: TDBEdit;
+    procedure FormCreate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormDestroy(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure btOkClick(Sender: TObject);
+    procedure btCancelClick(Sender: TObject);
+    procedure cbMinSpendChange(Sender: TObject);
+    procedure qTmpBeforeOpen(DataSet: TDataSet);
+    procedure cbDiscountTypeChange(Sender: TObject);
+    procedure btnDefineMinSpendGroupClick(Sender: TObject);
+    procedure btnAssignBarcodesClick(Sender: TObject);
+    procedure NumericFieldKeyPress(Sender: TObject; var Key: Char);
+    procedure btnSelectReasonsClick(Sender: TObject);
+    procedure cbReasonRequiredClick(Sender: TObject);
+    procedure cbReferenceRequiredClick(Sender: TObject);
+    procedure cbAppliesToOrderLineFamilyClick(Sender: TObject);
+    procedure cbIgnoreExclusiveTaxClick(Sender: TObject);
+    procedure dbeForfeitThresholdContextPopup(Sender: TObject;
+      MousePos: TPoint; var Handled: Boolean);
+    procedure cbConfirmForfeitClick(Sender: TObject);
+    procedure DiscardContextPopup(Sender: TObject; MousePos: TPoint;
+      var Handled: Boolean);
+  private
+    EPOSTextHelper: TEposTextHelper;
+    BarcodesModified: Boolean;
+    MinSpendProdGroupID : integer;
+    MinSpendProductGroupModified: Boolean;
+    MinSpendProdGroupList : TStringList;
+    FReasonsModified: Boolean;
+    procedure SetFieldAccessibility;
+    procedure SaveBarcodes;
+    function GetProductGrouping(isGroupQualifier: Boolean): integer;
+    procedure CreateTempDiscountTables;
+    procedure LoadDiscountItemData;
+    procedure SaveDiscountItemsToDatabase;
+    procedure LoadGrantedCardRanges;
+    procedure SaveGrantedCardRanges;
+    procedure LoadReasons;
+    procedure SaveReasons;
+    procedure SetSingleItemDiscountAccessibility;
+    procedure SetForfeitSetupControls(ControlsEnabled: Boolean);
+    procedure HandleDiscountTypeChange;
+    procedure ValidateBoundaryValues(ValueName: String; Value, IntervalStart, IntervalEnd: currency;
+      IntervalLeftBoundary: TIntervalLeftBound = ibLeftClosed;
+      IntervalRightBoundary: TIntervalRightBound = ibRightClosed); overload;
+    procedure ValidateBoundaryValues(ValueName: String; Value, IntervalStart, IntervalEnd: Integer;
+      IntervalLeftBoundary: TIntervalLeftBound = ibLeftClosed;
+      IntervalRightBoundary: TIntervalRightBound = ibRightClosed); overload;
+    function BoundaryText(IntervalBoundary: TIntervalBound): String;
+    function BoundariesSatisfied(Value, IntervalStart,
+      IntervalEnd: Variant; IntervalLeftBoundary: TIntervalLeftBound;
+      IntervalRightBoundary: TIntervalRightBound): Boolean;
+  public
+    CurrDiscountId: integer;
+    EditingDiscount: Boolean;
+    CLMExternalDiscount: Boolean;
+    MinSpendDiscountItemsCount : integer;
+    SingleItemDiscount: Boolean;
+    IgnoreExlusiveTax: Boolean;
+    procedure LoadData;
+    procedure SaveData;
+    procedure GetNoGoProducts;
+    procedure LoadNoGoForDiscounts;
+  end;
+
+var
+  EditDiscount: TEditDiscount;
+
+implementation
+
+uses uADO, uAztecLog, uEditDiscountProdGroup,
+     uEditDiscountBarcodes, uEditDiscountReasons;
+
+{$R *.dfm}
+
+procedure EnableChildControls(ParentControl: TWinControl; _Enabled: Boolean);
+var
+  i: Integer;
+begin
+  for i := 0 to ParentControl.ControlCount - 1 do
+  begin
+    ParentControl.Controls[i].Enabled := _Enabled;
+  end;
+
+  if ParentControl is TGroupBox then
+    case _Enabled of
+      True: TGroupBox(ParentControl).font.color := clWindowText;
+      False: TGroupBox(ParentControl).font.color := clGrayText;
+    end;
+end;
+
+procedure TEditDiscount.FormCreate(Sender: TObject);
+begin
+  CreateTempDiscountTables;
+  GetNoGoProducts;
+
+  inherited; // ProductTreeBuilder - get all Divs/Cats/Subs/Prods in temp tables, create and init the Tree View
+             //                      including NoGo setting if configured and there are NoGo products...
+  with dmADO.qRun do
+  begin
+    SQL.Text := 'IF OBJECT_ID(''tempdb..#DiscountCards'') IS NOT NULL DROP TABLE #DiscountCards ' +
+                ' Select a.SwipeCardRangeID, a.Description, '+
+                ' cast(case isNull(b.DiscountID,0) when 0 then 0 else 1 end as bit) Selected , ' +
+                ' cast(case isNull(b.DiscountID,0) when 0 then 0 else 1 end as bit) OriginalValue ' +
+                ' into #DiscountCards From ThemeSwipeCardRange a '+
+                ' left outer Join ThemeDiscountCardSecurity b on '+
+                ' B.SwipeCardRangeID = a.SwipeCardRangeID '+
+                ' and b.DiscountID = ' +IntToStr(dmADO.qDiscounts.FieldbyName('DiscountID').AsInteger) +
+                ' where promotional = 0 ';
+    ExecSql;
+
+    Close;
+    SQL.Text := 'select * from #DiscountCards';
+    clbGrantedCardRanges.Clear;
+    Open;
+    while not EOF do
+    begin
+      clbGrantedCardRanges.AddItem(FieldByName('Description').AsString, TObject(FieldByName('SwipeCardRangeID').AsInteger));
+      Next;
+    end;
+    Close;
+  end;
+
+  qTmp.Open;
+  qTmp.Edit;
+
+  EPOSTextHelper := TEPOSTextHelper.Create(edName, mmEposName);
+  BarcodesModified := False;
+  MinSpendProductGroupModified := False;
+  FReasonsModified := False;
+end;
+
+procedure TEditDiscount.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  inherited;
+  Log('Form Close ' + Caption);
+end;
+
+procedure TEditDiscount.FormDestroy(Sender: TObject);
+begin
+  inherited;
+  qtmp.cancel;
+  qtmp.close;
+end;
+
+procedure TEditDiscount.FormShow(Sender: TObject);
+begin
+  inherited;
+  Log('Form Show ' + Caption);
+
+  SetFieldAccessibility;
+
+  // dbeAmount is only applicable to fixed rate/amount type discounts
+  case cbDiscountType.ItemIndex of
+    ord(edtFixedRate):
+      begin
+        dbeAmount.DataField := 'DiscountPercentage';
+      end;
+    ord(edtFixedAmount):
+      begin
+        dbeAmount.DataField := 'DiscountAmount';
+      end;
+  end;
+
+  if edName.Text <> '' then
+    TreeBuilderLoadDiscItems(dmADO.qDiscounts.FieldByName('DiscountID').AsInteger, False); // else loadDiscountItems(0, False);
+
+  setSearchBox(True);
+  SearchRootNode := tvAllProducts.Selected;
+  tvAllProducts.FullCollapse;
+  MinSpendProdGroupList := TStringList.Create;
+  dmADO.LogDuration('TEditDiscount.FormShow end, Nodes are set.');
+end;
+
+procedure TEditDiscount.SetFieldAccessibility;
+begin
+  SetSingleItemDiscountAccessibility;
+
+  with dmADO.qCLMDiscount do
+  try
+    Close;
+    Parameters.ParamByName('currDiscountId').Value := CurrDiscountId;
+    Parameters.ParamByName('appDiscountId').Value := CurrDiscountId;
+    Open;
+    CLMExternalDiscount := FieldByName('ClmUsed').AsBoolean;
+  finally
+    Close;
+  end;
+
+  case cbDiscountType.ItemIndex of
+    ord(edtOpenAmount):
+      begin
+        qTmp.FieldByName('DiscountAmount').AsInteger := 0;
+        qTmp.FieldByname('DiscountPercentage').AsInteger := 0;
+        qTmp.FieldByName('MaximumRate').AsInteger := 0;
+        dbeAmount.Enabled := False;
+        lblDiscountAmount.Enabled := False;
+        DBEditMaxDiscount.Enabled := True and not SingleItemDiscount;
+        DBEditMaxRate.Enabled := False;
+        lblMaxDiscount.Enabled := True and not SingleItemDiscount;
+        lblMaxRate.Enabled := False;
+        lbPercentage.Visible := False;
+      end;
+    ord(edtFixedAmount):
+      begin
+        qTmp.FieldByName('MaximumDiscount').AsInteger := 0;
+        qTmp.FieldByName('MaximumRate').AsInteger := 0;
+        dbeAmount.Enabled := True;
+        lblDiscountAmount.Enabled := True;
+        DBEditMaxDiscount.Enabled := False;
+        DBEditMaxRate.Enabled := False;
+        lblMaxDiscount.Enabled := False;
+        lblMaxRate.Enabled := False;
+        lbPercentage.Visible := False;
+      end;
+    ord(edtOpenRate):
+      begin
+        qTmp.FieldByName('DiscountAmount').AsInteger := 0;
+        qTmp.FieldByname('DiscountPercentage').AsInteger := 0;
+        dbeAmount.Enabled := False;
+        lblDiscountAmount.Enabled := False;
+        DBEditMaxDiscount.Enabled := True and not SingleItemDiscount;
+        DBEditMaxRate.Enabled := True;
+        lblMaxDiscount.Enabled := True and not SingleItemDiscount;
+        lblMaxRate.Enabled := True;
+        lbPercentage.Visible := True;
+        lbPercentage.Enabled := False;
+      end;
+    ord(edtFixedRate):
+      begin
+        qTmp.FieldByName('MaximumRate').AsInteger := 0;
+        dbeAmount.Enabled := True;
+        lblDiscountAmount.Enabled := True;
+        DBEditMaxDiscount.Enabled := True and not SingleItemDiscount;
+        DBEditMaxRate.Enabled := False;
+        lblMaxDiscount.Enabled := True and not SingleItemDiscount;
+        lblMaxRate.Enabled := False;
+        lbPercentage.Visible := True;
+        lbPercentage.Enabled := True;
+      end;
+  end;
+  cbDiscountType.Enabled :=
+    not ( (cbDiscountType.ItemIndex = ord(edtOpenAmount)) and CLMExternalDiscount );
+  lblClmDiscount.Visible := not cbDiscountType.Enabled;
+  SetForfeitSetupControls((cbDiscountType.ItemIndex = ord(edtFixedAmount)) and not SingleItemDiscount);
+  //* sigh - the annoying TGroupBox does not respect the enabled setting correctly
+  //and we end up having to loop through the contained controls.
+  EnableChildControls(gpbxAdditionalActivationRequirements, not SingleItemDiscount);
+  EnableChildControls(gbxMinimumSpend, not SingleItemDiscount);
+  //** sigh - but the 'Define Group' button needs special treatment because of *
+  btnDefineMinSpendGroup.Enabled := (cbMinSpend.ItemIndex = 2) and not SingleItemDiscount;
+  btnAssignBarcodes.Enabled := not SingleItemDiscount;
+  cbDisablesPromotions.Enabled := not SingleItemDiscount;
+  cbPreventFurtherSales.Enabled := not SingleItemDiscount;
+end;
+
+procedure TEditDiscount.SetForfeitSetupControls(ControlsEnabled: Boolean);
+begin
+  cbConfirmForfeit.Enabled := ControlsEnabled;
+  lblForfeitThreshold.enabled := ControlsEnabled and cbConfirmForfeit.Checked;
+  dbeForfeitThreshold.Enabled := lblForfeitThreshold.enabled;
+
+  if (not ControlsEnabled) then
+  begin
+    qTmp.FieldByName('ConfirmForfeit').AsBoolean := false;
+    qTmp.FieldByName('ConfirmForfeitThresholdAmount').AsCurrency := 0.00;
+  end;
+end;
+
+procedure TEditDiscount.btOkClick(Sender: TObject);
+begin
+  inherited;
+  ButtonClicked(Sender);
+  if trim(edname.Text) = '' then
+    raise exception.create('Please pick a valid name for this discount!');
+
+  if (cbDiscountType.itemindex = ord(edtFixedRate)) then
+    ValidateBoundaryValues('discount rate', qTmp.FieldByName('DiscountPercentage').AsFloat, 0, MAXIMUM_DISCOUNT_RATE);
+
+  ValidateBoundaryValues('warning threshold', qTmp.FieldByName('ConfirmForfeitThresholdAmount').AsCurrency, 0, MAXIMUM_DISCOUNT);
+
+	if (cbDiscountType.itemindex = ord(edtFixedAmount)) then
+    ValidateBoundaryValues('discount amount', qTmp.FieldByName('DiscountAmount').AsCurrency, 0, MAXIMUM_DISCOUNT);
+
+  if (cbDiscountType.itemindex = ord(edtFixedAmount))
+    and qTmp.FieldByName('ConfirmForfeit').AsBoolean
+    and (qTmp.FieldByName('DiscountAmount').AsCurrency < qTmp.FieldByName('ConfirmForfeitThresholdAmount').AsCurrency) then
+    raise Exception.Create('The fixed discount amount cannot be less than the warning threshold.');
+
+  if (qTmp.FieldByName('ConfirmForfeitThresholdAmount').AsCurrency > qTmp.FieldByName('DiscountAmount').AsCurrency) then
+    raise Exception.Create('The warning threshold cannot be greater than fixed discount amount.');
+
+  ValidateBoundaryValues('maximum discount amount', qTmp.FieldByName('MaximumDiscount').AsCurrency, 0, MAXIMUM_DISCOUNT);
+
+  if (cbDiscountType.ItemIndex = ord(edtOpenRate)) then
+    ValidateBoundaryValues('maximum rate', qTmp.FieldByName('MaximumRate').AsInteger, 0, MAXIMUM_DISCOUNT_RATE, ibLeftOpen, ibRightClosed);
+
+  ValidateBoundaryValues('minimum spend amount', qTmp.FieldByName('MinimumSpend').AsCurrency, 0, MAXIMUM_DISCOUNT);
+
+  if not treeNodesDivisonalCheck then
+    raise Exception.create('Please select at least one applicable discount item.');
+  if cbMinSpend.ItemIndex <> 2 then
+     MinSpendProdGroupID := -1;
+  if (cbMinSpend.ItemIndex = 2) and (MinSpendDiscountItemsCount = 0) then
+     raise Exception.Create('No minimum spend group has been defined.  Please select at least one applicable minimum spend discount item.');
+
+  modalresult := mrOk;
+
+  if qTmp.State in [dsEdit, dsInsert] then
+    qTmp.Post;
+end;
+
+procedure TEditDiscount.qTmpBeforeOpen(DataSet: TDataSet);
+begin
+  qDeltmp.ExecSQL;
+end;
+
+procedure TEditDiscount.LoadData;
+begin
+  with dmADO.qDiscounts do
+  begin
+    edName.text := fieldbyname('name').asstring;
+    mmEposName.Lines.text :=
+      fieldbyname('Eposname1').asstring + #13+
+      fieldbyname('Eposname2').asstring + #13+
+      fieldbyname('Eposname3').asstring;
+    while (length(mmEposName.lines.text) > 0) and (mmEposName.lines.text[length(mmEposname.lines.text)] = #10) do
+      mmEposname.lines.text := copy(mmEposname.lines.text, 1, length(mmEposname.lines.text) -2);
+
+    cbDiscountType.ItemIndex := fieldByName('DiscountType').AsInteger;
+    HandleDiscountTypeChange;
+
+    case cbDiscountType.ItemIndex of
+      ord(edtFixedRate):
+        qTmp.FieldByName('DiscountPercentage').AsFloat := fieldbyname('Amount').AsFloat;
+      ord(edtFixedAmount):
+        qTmp.FieldByName('DiscountAmount').AsCurrency := fieldbyname('Amount').asinteger / 100.0;
+    end;
+
+    qTmp.FieldByName('MinimumSpend').AsCurrency := fieldbyname('MinimumSpend').AsInteger / 100.0;
+    qTmp.FieldByName('MaximumRate').AsInteger := FieldByName('MaximumRate').AsInteger;
+    qTmp.FieldByName('MaximumDiscount').AsCurrency := FieldByName('MaximumDiscount').AsCurrency / 100.0;
+    qTmp.FieldByName('ConfirmForfeit').AsBoolean := FieldByName('ConfirmForfeit').AsBoolean;
+    qTmp.FieldByName('ConfirmForfeitThresholdAmount').AsCurrency :=
+                                        FieldByName('ConfirmForfeitThresholdAmount').AsCurrency;
+
+    if fieldbyname('MinimumSpendDivisional').asboolean then
+      cbMinSpend.ItemIndex := 1
+    else
+      cbMinSpend.ItemIndex := 0;
+
+    if FieldByName('MinSpendProdGroupID').AsInteger > 0 then
+      cbMinSpend.ItemIndex := 2;
+
+    MinSpendProdGroupID := FieldByName('MinSpendProdGroupID').AsInteger;
+
+    cbOpensCashDrawer.Checked := FieldByName('OpensCashDrawer').AsBoolean;
+    cbPrintReceipt.Checked := FieldByName('AutoPrintReceipt').AsBoolean;
+    cbDisablesPromotions.Checked := FieldByName('DisablesPromotions').AsBoolean;
+    cbPreventFurtherSales.Checked := FieldByName('PreventFurtherSales').AsBoolean;
+    cbReasonRequired.Checked := FieldByName('ReasonRequired').AsBoolean;
+    cbReferenceRequired.Checked := FieldByName('ReferenceRequired').AsBoolean;
+    cbAppliesToOrderLineFamily.Checked := FieldByName('AppliesToOrderLineFamily').AsBoolean;
+    cbIgnoreExclusiveTax.Checked := FieldByName('DoNotDiscountNonServiceChargeExclusiveTaxes').AsBoolean;
+
+    LoadGrantedCardRanges;
+    LoadDiscountItemData;
+    LoadReasons;
+  end;
+end;
+
+procedure TEditDiscount.SaveData;
+
+  function DiscountReasonsExist: boolean;
+  begin
+    with dmADO.adoqRun do
+    begin
+      Close;
+      SQL.Clear;
+      SQL.Add('select count(*) as ReasonCount from #themediscountReasonMap');
+      Open;
+      Result := FieldByname('ReasonCount').Asinteger > 0;
+    end;
+  end;
+
+begin
+  Log('Saving discount Data');
+
+  try
+    try
+      dmADO.qDiscounts.DisableControls;
+      if EditingDiscount then
+      begin
+        dmADO.qDiscounts.Filtered := FALSE;
+        dmADO.qDiscounts.Refresh;
+        if not dmADO.qDiscounts.Locate('DiscountId', CurrDiscountId, []) then
+          raise Exception.Create('Cannot locate discount "' + edname.Text + '", Id = ' + IntToStr(CurrDiscountId) +
+            ', it may have been deleted since you started editing it');
+        dmADO.qDiscounts.edit;
+      end;
+
+      dmADO.BeginTransaction;
+
+      with dmADO.qDiscounts do
+      begin
+        fieldbyname('Deleted').AsBoolean := FALSE;
+        fieldbyname('name').asstring := edName.text;
+        if mmEposName.Lines.count > 0 then
+          Fieldbyname('eposname1').asstring := mmEposName.lines[0]
+        else
+          Fieldbyname('eposname1').asstring := '';
+        if mmEposName.Lines.count > 1 then
+          Fieldbyname('eposname2').asstring := mmEposName.lines[1]
+        else
+          Fieldbyname('eposname2').asstring := '';
+        if mmEposName.Lines.count > 2 then
+          Fieldbyname('eposname3').asstring := mmEposName.lines[2]
+        else
+          Fieldbyname('eposname3').asstring := '';
+          
+        fieldbyname('DiscountType').AsInteger := cbDiscountType.itemindex;
+
+        case FieldByName('DiscountType').AsInteger of
+          ord(edtFixedRate):
+            begin
+              fieldbyname('Amount').AsFloat := qTmp.FieldByName('DiscountPercentage').AsFloat;
+            end;
+          ord(edtOpenRate):
+            begin
+              fieldByName('Amount').AsFloat := 0;
+            end;
+          ord(edtFixedAmount):
+            begin
+              fieldbyname('Amount').AsFloat := round(qTmp.FieldByName('DiscountAmount').AsCurrency * 100);
+            end;
+          ord(edtOpenAmount):
+            begin
+              fieldByName('Amount').AsFloat := 0;
+            end;
+        end;
+
+        FieldByName('OpensCashDrawer').AsBoolean := cbOpensCashDrawer.Checked;
+        FieldByName('AutoPrintReceipt').AsBoolean := cbPrintReceipt.Checked;
+        FieldByName('MaximumRate').AsInteger := qtmp.FieldByName('MaximumRate').AsInteger;
+        FieldByName('ConfirmForfeit').AsBoolean := qTmp.FieldByName('ConfirmForfeit').AsBoolean;
+        FieldByName('ConfirmForfeitThresholdAmount').AsCurrency :=
+                                                qTmp.FieldByName('ConfirmForfeitThresholdAmount').AsCurrency;
+
+        ProdGroupToSaveList := MinSpendProdGroupList;
+        // save discount items from producttree to the temporary table and get value for DiscountItemsCount
+        TreeBuilderSaveDiscItems(CurrDiscountId, False);
+
+    // This may be a BUG!! See function isIncluded, it does NOT mean "All Products are included",
+    // it means: "are more products selected than not selected". Search TGEM for the field name to see how it's used.
+        FieldByName('IncludeAllProducts').AsBoolean := isIncluded;
+    // -------------------------------------------------------------------------------------------------------------
+
+        if DiscountItemsCount = 0 then
+          FieldByName('ProductGroupID').AsInteger := 0
+        else
+          FieldByName('ProductGroupID').AsInteger := GetProductGrouping(False);
+
+        FieldByName('AppliesToOrderLineFamily').AsBoolean := SingleItemDiscount;
+
+        FieldByName('DoNotDiscountNonServiceChargeExclusiveTaxes').AsBoolean := IgnoreExlusiveTax;
+
+       
+        if not SingleItemDiscount then  //Some settings are not applicable to single item discounts
+        begin
+          FieldByName('DisablesPromotions').AsBoolean := cbDisablesPromotions.Checked;
+          FieldByName('MaximumDiscount').AsCurrency := round(qTmp.fieldbyname('MaximumDiscount').ascurrency * 100);
+          FieldByName('PreventFurtherSales').AsBoolean := cbPreventFurtherSales.Checked;
+
+          //Additional activation criteria
+          FieldByName('ReferenceRequired').AsBoolean := cbReferenceRequired.Checked;
+          SaveGrantedCardRanges;
+
+          //Barcode triggers
+          if BarcodesModified then
+            SaveBarcodes;
+
+          //Minimum spend
+          FieldByName('MinimumSpend').asinteger := round(qTmp.fieldbyname('MinimumSpend').ascurrency * 100);
+          FieldByName('MinimumSpendDivisional').asboolean := (cbMinSpend.ItemIndex = 1);
+          if MinSpendDiscountItemsCount = 0 then
+            FieldByName('MinSpendProdGroupID').AsInteger := -1
+          else
+          begin
+            if MinSpendProductGroupModified then
+              FieldByName('MinSpendProdGroupID').AsInteger := GetProductGrouping(True)
+            else
+             FieldByName('MinSpendProdGroupID').AsInteger := MinSpendProdGroupID;
+          end;
+        end
+        else begin
+          //TODO: FIX THIS NONSENSE!
+          //Arrgrghrhrgrgrhrghgrg!  Someone has implemented a bit field that is set
+          //from a combolist that has three items ("Discount Items", "Whole Account" and "Min. Spend Group")
+          //and some crazy logic in T_GEM (look for the comment "--MinimumSpendDivisional = 0 => whole account available to meet the minimum spend requirement (if any)")
+          //decides how to implement MinSpendProdGroupID.
+          //EB 28/11/'16
+          FieldByName('MinimumSpendDivisional').asboolean := True;
+          FieldByName('MinSpendProdGroupID').AsInteger := -1;
+        end;
+
+        if cbReasonRequired.Checked  and  not DiscountReasonsExist then
+          FieldByName('ReasonRequired').AsBoolean := False
+        else
+          FieldByName('ReasonRequired').AsBoolean := cbReasonRequired.Checked;
+      end;
+
+      dmADO.qDiscounts.post;
+
+      //Change the LMDT of a discounts button to ensure that any changes are
+      //handled properly through all sites.
+      dmADO.updateDiscountPanelButton(CurrDiscountId);
+
+      // save discount items in the temporary table to the database
+      SaveDiscountItemsToDatabase;
+
+      if FReasonsModified then
+        SaveReasons;
+
+      // newly created Discount only -- and -- NOT for Open Rate discounts
+      if (not EditingDiscount) and (dmADO.qDiscounts.FieldByName('DiscountType').AsInteger <> ord(edtOpenRate)) then
+      begin
+        // assign this new Discount as a CLM allowed Discount for all non-deleted Sites; Story 607345
+        // the ID field of table ac_ClmSiteDiscount is an identity field.
+        with dmADO.qRun do
+        begin
+          SQL.Clear;
+          SQL.Add('SET NOCOUNT ON;');
+          SQL.Add('BEGIN TRY');
+          SQL.Add('  INSERT ac_ClmSiteDiscount (SiteId, DiscountId)');
+          SQL.Add('  SELECT ID, ' + IntToStr(CurrDiscountId) + ' FROM ac_Site WHERE Deleted = 0');
+          SQL.Add('END TRY');
+          SQL.Add('BEGIN CATCH');
+          SQL.Add('  EXEC ac_spRethrowError');
+          SQL.Add('END CATCH');
+          ExecSQL;
+        end;
+      end;
+
+      dmADO.CommitTransaction;
+    except
+      on E:exception do
+      begin
+        Log('Error saving Discount changes: ' + E.ClassName + ' ' + E.Message);
+        ShowMessage('Failed to save changes due to an unexpected error.'#13#10#13#10 +
+                    'Error message: ' + E.ClassName + ' ' + E.Message);
+      end;
+    end;
+  finally
+    if dmADO.InTransaction then
+      dmADO.RollbackTransaction;
+
+    dmADO.qDiscounts.Filtered := TRUE;
+    dmADO.qDiscounts.Locate('DiscountId', CurrDiscountId, []);
+    dmADO.qDiscounts.EnableControls;
+  end;
+end;
+
+procedure TEditDiscount.cbDiscountTypeChange(Sender: TObject);
+begin
+  HandleDiscountTypeChange;
+end;
+
+procedure TEditDiscount.HandleDiscountTypeChange;
+begin
+  SetFieldAccessibility;
+
+  case cbDiscountType.ItemIndex of
+    ord(edtFixedRate):
+      begin
+        if round(qTmp.FieldByName('DiscountAmount').AsFloat) > MAXIMUM_DISCOUNT_RATE then
+          qTmp.FieldByName('DiscountPercentage').AsFloat := 0
+        else
+          qTmp.FieldByName('DiscountPercentage').AsFloat := qTmp.FieldByName('DiscountAmount').AsFloat;
+        dbeAmount.DataField := 'DiscountPercentage';
+        dbeAmount.MaxLength := 6;
+      end;
+    ord(edtOpenRate):
+      begin
+        if (qTmp.FieldByName('MaximumRate').AsInteger = 0) then
+           qTmp.FieldByName('MaximumRate').AsInteger := 100;
+      end;
+    else
+      begin
+        qTmp.FieldByName('DiscountAmount').AsCurrency := qTmp.FieldByName('DiscountPercentage').AsCurrency;
+        dbeAmount.DataField := 'DiscountAmount';
+        dbeAmount.MaxLength := 8;
+      end;
+  end;
+end;
+
+procedure TEditDiscount.btCancelClick(Sender: TObject);
+begin
+  inherited;
+  ButtonClicked(Sender);
+end;
+
+procedure TEditDiscount.LoadGrantedCardRanges;
+var
+  SelectedID, i: integer;
+begin
+  with dmado.qRun do
+  begin
+    SQL.Text := 'select * from #DiscountCards';
+    Open;
+    while not EOF do
+    begin
+      if FieldByName('Selected').AsBoolean then
+      begin
+        SelectedID := FieldByName('SwipeCardRangeID').AsInteger;
+        for i := 0 to pred(clbGrantedCardRanges.Count) do
+          if Integer(TObject(clbGrantedCardRanges.Items.Objects[i])) = SelectedID then
+            clbGrantedCardRanges.Checked[i] := True;
+      end;
+      Next;
+    end;
+    Close;
+  end;
+end;
+
+procedure TEditDiscount.SaveGrantedCardRanges;
+var
+  SelectedID, i: integer;
+begin
+  if SingleItemDiscount then Exit;
+
+  with dmado.qRun do
+  begin
+    SQL.Text := 'select * from #DiscountCards';
+    Open;
+    while not EOF do
+    begin
+      SelectedID := FieldByName('SwipeCardRangeID').AsInteger;
+      for i := 0 to pred(clbGrantedCardRanges.Count) do
+        if Integer(TObject(clbGrantedCardRanges.Items.Objects[i])) = SelectedID then
+        begin
+          Edit;
+          FieldByName('Selected').AsBoolean := clbGrantedCardRanges.Checked[i];
+          Post;
+        end;
+      Next;
+    end;
+    Close;
+
+    SQL.Text := format(
+      'delete ThemeDiscountCardSecurity where DiscountID = %d and SwipeCardRangeID in '+
+      '(select SwipeCardRangeID from #DiscountCards where Selected = 0 and OriginalValue = 1)',
+      [CurrDiscountId]);
+    ExecSQL;
+
+    SQL.Text := format(
+      'insert ThemeDiscountCardSecurity (DiscountID, SwipeCardRangeID) '+
+      'select %d, SwipeCardRangeID from #DiscountCards where Selected = 1 and OriginalValue = 0',
+      [CurrDiscountId]);
+    ExecSQL;
+  end;
+end;
+
+procedure TEditDiscount.CreateTempDiscountTables;
+begin
+  with dmado.qRun do
+  begin
+    SQL.Text :=
+      ' IF OBJECT_ID(''tempdb..#ThemeDiscountItems'') IS NOT NULL ' +
+      '    DROP TABLE #ThemeDiscountItems ' +
+      ' ' +
+      ' CREATE TABLE #ThemeDiscountItems ( ' +
+      '   DiscountID int NOT NULL, ' +
+      '   [Unique Name] varchar (20) NOT NULL, ' +
+      '   DisplayName varchar(50) NULL, ' +
+      '   ItemIndex int NULL, ' +
+      '   Include int NULL, ' +
+      '   isGroupQualifier bit NOT NULL ) ' +
+      ' ' +
+      ' CREATE CLUSTERED INDEX TMP_TDI_IDX ON #ThemeDiscountItems ' +
+      '   ( ' +
+      '     DiscountID ASC, ' +
+      '     [Unique Name] ASC, ' +
+      '     [isGroupQualifier] ASC ' +
+      '   )  ' +
+      ' ' +
+      ' IF OBJECT_ID(''tempdb..#GQItems'') IS NOT NULL ' +
+      '    DROP TABLE #GQItems ' +
+      ' ' +
+      ' CREATE TABLE #GQItems ( ' +
+      '   [Unique Name] varchar (20) NOT NULL, ' +
+      '   DisplayName varchar(50) NULL, ' +
+      '   ItemIndex int NULL, ' +
+      '   Include int NULL ) ' +
+      ' ' +
+      ' IF OBJECT_ID(''tempdb..#NoDiscountItems'') IS NOT NULL ' +
+      '    DROP TABLE #NoDiscountItems ' +
+      ' ' +
+      ' CREATE TABLE #NoDiscountItems ( ' +
+      '   DiscountID int NOT NULL, ' +
+      '   [Unique Name] varchar (20) NOT NULL, ' +
+      '   DisplayName varchar(50) NULL, ' +
+      '   ItemIndex int NULL, Include int NULL) ' +
+      ' ' +
+
+
+      ' IF OBJECT_ID(''tempdb..#AllProductGrouping'') IS NOT NULL ' +
+      '   DROP TABLE #AllProductGrouping ' +
+      ' ' +
+      ' CREATE TABLE #AllProductGrouping ( ' +
+      '   GroupingType tinyint, ' +
+      '   GroupingTypeTargetId bigint, ' +
+      '   isGroupQualifier bit ) ' +
+      ' ' +
+      ' IF OBJECT_ID(''tempdb..#ThemeDiscountReasonMap'') IS NOT NULL ' +
+      ' DROP TABLE #ThemeDiscountReasonMap ' +
+      ' ' +
+      ' CREATE TABLE #ThemeDiscountReasonMap ' +
+      ' (  ' +
+      '   DiscountID bigint, ' +
+      '   ReasonID int, ' +
+      '   PRIMARY KEY(DiscountID, ReasonID) ' +
+      ' )';
+    ExecSQL;
+  end;
+end;
+
+procedure TEditDiscount.LoadDiscountItemData;
+var
+  DiscountID: Integer;
+begin
+  with dmado.qRun do
+  try
+    DiscountID := dmADO.qDiscounts.FieldByName('DiscountID').AsInteger;
+    SQL.Text :=
+      ' INSERT #ThemeDiscountItems (DiscountID, [Unique Name], DisplayName, ItemIndex, Include, isGroupQualifier) ' +
+      ' SELECT DiscountID, [Unique Name], DisplayName, ItemIndex, Include, isGroupQualifier ' +
+      ' FROM ThemeDiscountItems ' +
+      ' WHERE DiscountID = ' + IntToStr(DiscountID);
+    ExecSQL;
+    SQL.Text :=
+      ' SELECT COUNT(*) AS MinSpendItemsCount ' +
+      ' FROM #ThemeDiscountItems ' +
+      ' WHERE isGroupQualifier = 1 ';
+    Open;
+    MinSpendDiscountItemsCount := FieldByName('MinSpendItemsCount').AsInteger;
+
+    if (dmADO.NoDiscAdmissions or dmADO.NoDiscDonations) then
+    begin                     // #NoDiscountItems already filled in proc below, called by FormCreate.
+       close;
+       // Include = 3 means NoGo, i.e. product not allowed in Discounts;
+       SQL.Text := 'update #ThemeDiscountItems set Include = 3' +
+         'from #ThemeDiscountItems t join #NoDiscountItems n on t.[Unique Name] = n.[Unique Name]' +
+         // above UPDATE overwrites the normal and the GroupQualifier, if any -------------------
+         // we must INSERT records for both
+         '  ' +
+         ' INSERT #ThemeDiscountItems (DiscountID, [Unique Name], DisplayName, ItemIndex, Include, isGroupQualifier) ' +
+         ' SELECT n.DiscountID, n.[Unique Name], n.DisplayName, n.ItemIndex, 3, 0 ' +
+         ' FROM #NoDiscountItems n left join #ThemeDiscountItems t on t.[Unique Name] = n.[Unique Name]' +
+         ' where t.[Unique Name] is null';
+       ExecSQL;
+       // if a product is in the table it is either checked or NoGo (which has overwritten a previous check, if any).
+
+       // uncomment below for debugging
+       SQL.Text :=
+        ' IF OBJECT_ID(''DBG_NoDiscountItems'') IS NOT NULL DROP TABLE DBG_NoDiscountItems ' +
+        ' IF OBJECT_ID(''DBG_ThemeDiscountItems'') IS NOT NULL DROP TABLE DBG_ThemeDiscountItems ' +
+        ' select * into DBG_NoDiscountItems from #NoDiscountItems ' +
+        ' select * into DBG_ThemeDiscountItems from #ThemeDiscountItems ';
+       ExecSQL;
+    end;
+
+  finally;
+    Close;
+  end;
+end;
+
+procedure TEditDiscount.GetNoGoProducts;
+begin
+  with dmado.qRun do
+  try
+    if (dmADO.NoDiscAdmissions or dmADO.NoDiscDonations) then
+    begin                           
+       close;
+       SQL.Clear;
+       if dmADO.NoDiscAdmissions then
+         SQL.Add(' INSERT #NoDiscountItems (DiscountID, [Unique Name], DisplayName, ItemIndex, Include) ' +
+         ' SELECT 0, cast((p.EntityCode) as bigint), [Extended RTL Name], cast((p.EntityCode-10000000000.0) as int), 3 ' +
+         ' FROM (select EntityCode, [Extended RTL Name] from Products where EntityCode < 20000000000.0) p ' +
+         ' join ProductProperties pp on p.EntityCode = pp.Entitycode and pp.IsAdmission = 1');
+       if dmADO.NoDiscDonations then
+         SQL.Add(' INSERT #NoDiscountItems (DiscountID, [Unique Name], DisplayName, ItemIndex, Include) ' +
+         ' SELECT 0, cast((p.EntityCode) as bigint), [Extended RTL Name], cast((p.EntityCode-10000000000.0) as int), 3 ' +
+         ' FROM (select EntityCode, [Extended RTL Name] from Products where EntityCode < 20000000000.0) p ' +
+         ' join ProductProperties pp on p.EntityCode = pp.Entitycode and pp.IsDonation = 1');
+       ExecSQL;
+    end;
+  finally;
+    Close;
+  end;
+end;
+
+procedure TEditDiscount.LoadNoGoForDiscounts;
+begin
+  with dmado.qRun do
+  try
+    if (dmADO.NoDiscAdmissions or dmADO.NoDiscDonations) then
+    begin                               // #NoDiscountItems already filled in proc above, called by FormCreate.
+       close;
+       // Include = 3 means NoGo, i.e. product not allowed in Discounts;
+       SQL.Text := 'INSERT #ThemeDiscountItems (DiscountID, [Unique Name], DisplayName, ItemIndex, Include, isGroupQualifier) ' +
+         ' SELECT n.DiscountID, n.[Unique Name], n.DisplayName, n.ItemIndex, 3, 0 ' +
+         ' FROM #NoDiscountItems n left join #ThemeDiscountItems t on t.[Unique Name] = n.[Unique Name]' +
+         ' where t.[Unique Name] is null';
+       ExecSQL;
+    end;
+  finally;
+    Close;
+  end;
+end;
+
+procedure TEditDiscount.SaveDiscountItemsToDatabase;
+begin
+  //ARGHGHHGHGHGHGGHGH!!!!!!!!!1111!!!!111  A teardown and rebuild was being used
+  //when a SQL MERGE could prevent the transaction log bloat saving records that
+  //have not changed (this is done on closing the edit window of the discount irrespective
+  //of any changes having been made)!!!
+  //EB 26/10/16
+  with dmADO.qRun do
+  begin
+    SQL.Clear;
+    SQL.Add('SET NOCOUNT ON;');
+    SQL.Add('BEGIN TRY');
+    SQL.Add(' UPDATE #ThemeDiscountItems SET DiscountID = ' + IntToStr(CurrDiscountId));
+
+    SQL.Add(' MERGE ThemeDiscountItems AS target');
+    SQL.Add(' USING (SELECT DiscountId, [Unique Name], DisplayName, ItemIndex, [Include], isGroupQualifier');
+    SQL.Add('	  		 FROM #ThemeDiscountItems) AS source');
+    SQL.Add(' ON (target.DiscountId = source.DiscountId AND target.[Unique Name] = source. [Unique Name] AND target.isGroupQualifier = source.isGroupQualifier)');
+    SQL.Add(' WHEN MATCHED AND target.Displayname <> source.DisplayName AND target.ItemIndex <> source.ItemIndex AND target.[Include] <> source.[Include] THEN');
+    SQL.Add('	  UPDATE SET target.DisplayName = source.DisplayName, target.ItemIndex = source.ItemIndex, target.[Include] = source.[Include]');
+    SQL.Add(' WHEN NOT MATCHED BY target THEN');
+    SQL.Add('	  INSERT (DiscountId, [Unique Name], DisplayName, ItemIndex, [Include], isGroupQualifier)');
+    SQL.Add('	  VALUES (source.DiscountId, source.[Unique Name], source.DisplayName, source.ItemIndex, source.[Include], source.isGroupQualifier)');
+    SQL.Add(Format(' WHEN NOT MATCHED BY source AND target.Discountid = %d THEN',[CurrDiscountId]));
+    SQL.Add('	  DELETE;');
+    SQL.Add('END TRY');
+    SQL.Add('BEGIN CATCH');
+    SQL.Add(' EXEC ac_spRethrowError');
+    SQL.Add('END CATCH');
+    ExecSQL;
+  end;
+end;
+
+procedure TEditDiscount.cbMinSpendChange(Sender: TObject);
+begin
+  btnDefineMinSpendGroup.Enabled := cbMinSpend.ItemIndex = 2;
+end;
+
+procedure TEditDiscount.btnDefineMinSpendGroupClick(Sender: TObject);
+var
+  i: integer;
+
+  function getUniqueName(level, itemID : Integer) : String;
+  begin
+    if level = 0 then       result := 'DIV'+IntToStr(itemID)
+    else if level = 1 then  result := 'CAT'+IntToStr(itemID)
+    else if level = 2 then  result := 'SUB'+IntToStr(itemID)
+    else                    result := IntToStr(10000000000 + itemID); // Pad out ItemIndex to make product entity code.
+  end;
+
+begin
+  dmADO.logTime1 := Now;
+
+  // load #GQItems from MinSpendProdGroupList (saved GQs in THIS same session), if empty then load from DB
+  with dmADO.qRun do
+  begin
+    if MinSpendProdGroupList.Count > 0 then
+    begin
+      close;
+      sql.Text := 'truncate table #GQItems';
+      execSQL;
+
+      for i := 0 to MinSpendProdGroupList.Count - 1 do
+      begin
+        with TDiscountItem(MinSpendProdGroupList.Objects[i]) do
+        begin
+          uniqueName := getUniqueName(indexLeveL, itemIndex);
+          try
+            SQL.Clear;
+            SQL.Add('INSERT INTO #GQItems([Unique Name], DisplayName, ItemIndex, Include)');
+            SQL.Add('VALUES('''+stringreplace(uniqueName, '''', '', [rfReplaceAll, rfIgnoreCase])+
+                  ''', '''+stringreplace(displayName, '''', '', [rfReplaceAll, rfIgnoreCase])+''', '+
+                  IntToStr(itemIndex)+', '+ IntToStr(include)+')');
+            ExecSQL;
+          except
+            on E: Exception do
+            begin
+              Log('Error: ' + E.Message);
+              Log('Executing SQL: '+SQL.Text) ;
+              raise;
+            end;
+          end;
+        end; // with
+      end; // for
+    end
+    else
+    begin
+      close;
+      sql.Text := 'INSERT INTO #GQItems([Unique Name], DisplayName, ItemIndex, Include)  ' +
+        'SELECT [Unique Name], DisplayName, ItemIndex, Include FROM #ThemeDiscountItems WHERE isGroupQualifier = 1';
+      execSQL;
+    end;
+  end; // with adoqRun
+
+  inherited; // Eh? inherited from what?
+
+  with TEditDiscountProdGroup.Create(self) do
+  begin
+    dmADO.LogDuration('Opening Define Minimum Spend Group form for discount "' + dmADO.qDiscountsName.AsString + '"');
+    ProdGroupToLoadList.Assign(MinSpendProdGroupList); // Use Assign to copy contents
+    InitialiseTreeView(true);
+    TreeBuilderLoadDiscItems(dmADO.qDiscounts.FieldByName('DiscountID').AsInteger, True);
+    dmADO.LogDuration('Showing TEditDiscountProdGroup, Nodes are set.');
+    if ShowModal = mrOk then
+    begin
+      TreeBuilderSaveDiscItems(dmADO.qDiscounts.FieldByName('DiscountID').AsInteger, True);
+      MinSpendDiscountItemsCount := DiscountItemsCount;
+      MinSpendProdGroupList.Assign(ProdGroupToSaveList); // Use Assign to copy contents back
+      MinSpendProductGroupModified := TRUE;
+    end
+    else
+      Log('Define Minimum Spend Group form closed without saving changes');
+    Free;
+  end;
+end;
+
+
+procedure TEditDiscount.btnAssignBarcodesClick(Sender: TObject);
+var
+  tmpBarcodesModified: Boolean;
+begin
+  inherited;
+  if not BarcodesModified then
+  begin
+    //Note: Can't use parameters because the temp table created doesn't exist after execution
+    //      of the command when using parameters
+    cmdLoadDiscountBarcodes.CommandText :=
+      StringReplace(cmdLoadDiscountBarcodes.CommandText, ':DiscountID', IntToStr(CurrDiscountId), [rfIgnoreCase]);
+    cmdLoadDiscountBarcodes.Execute;
+  end;
+  tmpBarcodesModified := TEditDiscountBarcodes.AssignDiscountBarcodes(CurrDiscountId, edName.Text);
+  BarcodesModified := BarcodesModified or tmpBarcodesModified;
+end;
+
+procedure TEditDiscount.SaveBarcodes;
+begin
+  try
+    qrySaveDiscountBarcodes.SQL.Text :=
+      StringReplace(qrySaveDiscountBarcodes.SQL.Text, ':DiscountID', IntToStr(dmADO.qDiscounts.FieldByName('DiscountID').AsInteger), [rfIgnoreCase]);
+    qrySaveDiscountBarcodes.ExecSQL;
+    Log('Discount "' + edName.Text + '" barcode changes have been saved successfully');
+  finally
+    BarcodesModified := FALSE;
+  end;
+end;
+
+function TEditDiscount.GetProductGrouping(isGroupQualifier: Boolean): integer;
+begin
+  with dmADO.qRun do
+  try
+    try
+      SQL.Text :=
+        ' IF OBJECT_ID(''tempdb..#TempProductGrouping'') IS NOT NULL ' +
+        '   DROP TABLE #TempProductGrouping ' +
+        ' ' +
+        ' CREATE TABLE #TempProductGrouping ( ' +
+        '   GroupingType tinyint, ' +
+        '   GroupingTypeTargetId bigint ) ' +
+        ' ' +
+        ' INSERT INTO #TempProductGrouping(GroupingType, GroupingTypeTargetId) ' +
+        ' SELECT GroupingType, GroupingTypeTargetId ' +
+        ' FROM #AllProductGrouping ' +
+        ' WHERE isGroupQualifier = ' + IntToStr(integer(isGroupQualifier));
+      ExecSQL;
+
+      SQL.Text :=
+        ' DECLARE @ProductGroupID INT  ' +
+        '     exec spGetProductGrouping @ProductGroupID OUT ' +
+        ' SELECT @ProductGroupID ';
+      Open;
+      Result := Fields[0].asInteger;
+    finally
+      Close;
+      SQL.Clear;
+    end;
+  except
+    on e: exception do
+    begin
+      Log('Error :' + e.message);
+      Log('Executing SQL: '+SQL.Text) ;
+      raise;
+    end;
+  end;
+end;
+
+procedure TEditDiscount.NumericFieldKeyPress(Sender: TObject; var Key: Char);
+const OtherKeys = [VK_RETURN, VK_PRIOR, VK_NEXT, VK_END, VK_HOME, VK_LEFT, VK_UP, VK_RIGHT, VK_DOWN, VK_TAB, VK_BACK, VK_ESCAPE];
+var
+  DecimalPos: Integer;
+  SelPos: Integer;
+  SelLength: Integer;
+  CurrText: String;
+begin
+  inherited;
+
+  CurrText := (Sender as TCustomMaskEdit).EditText;
+  DecimalPos := Pos('.',CurrText);
+  SelPos := (Sender as TCustomMaskEdit).SelStart;
+  SelLength := (Sender as TCustomMaskEdit).SelLength;
+
+  if not ((Key in ['0'..'9','.']) or (Ord(Key) in OtherKeys)) then
+    Key := #0
+  else if (Key = '.') and (Pos('.', TDBEdit(Sender).Text) > 0) then
+    Key := #0 // only one full stop allowed
+  else if (Key in ['0'..'9']) and (DecimalPos <> 0)
+      and (DecimalPos = (Length(CurrText) - 2))
+      and (SelLength = 0)
+      and (DecimalPos < SelPos)  then //no more than 2 decimal places
+    Key := #0;
+end;
+
+procedure TEditDiscount.btnSelectReasonsClick(Sender: TObject);
+var
+  EditDiscountReasons: TEditDiscountReasons;
+begin
+  inherited;
+  EditDiscountReasons := TEditDiscountReasons.Create(Self, CurrDiscountId);
+  try
+    Log(Format('Discount "%s" (DiscountID = %d). Editing reasons.',[edName.Text, CurrDiscountID]));
+    EditDiscountReasons.ShowModal;
+    FReasonsModified := FReasonsModified or EditDiscountReasons.ReasonsModfied;
+  finally
+    EditDiscountReasons.Release;
+  end;
+end;
+
+procedure TEditDiscount.cbReasonRequiredClick(Sender: TObject);
+begin
+  inherited;
+  btnSelectReasons.Enabled := cbReasonRequired.Checked;
+end;
+
+procedure TEditDiscount.SaveReasons;
+begin
+  try
+  adoqSaveDiscountReasons.SQL.Text :=
+    StringReplace(adoqSaveDiscountReasons.SQL.Text, '~~DiscountID~~', IntToStr(CurrDiscountId), [rfIgnoreCase]);
+  adoqSaveDiscountReasons.ExecSQL;
+  Log(Format('Discount "%s" (DiscountID = %d).  Reason changes have been saved successfully.',[edName.Text, CurrDiscountID]));
+  finally
+    FReasonsModified := FALSE;
+  end;
+end;
+
+procedure TEditDiscount.cbReferenceRequiredClick(
+  Sender: TObject);
+begin
+  inherited;
+  lblSwipeCardRangesRequired.Enabled := not (Sender as TCheckBox).Checked;
+  clbGrantedCardRanges.Enabled := not (Sender as TCheckBox).Checked;
+end;
+
+procedure TEditDiscount.LoadReasons;
+begin
+  adoqLoadDiscountReasons.SQL.Text :=
+    StringReplace(adoqLoadDiscountReasons.SQL.Text, '~~DiscountID~~', IntToStr(CurrDiscountId), [rfIgnoreCase]);
+  adoqLoadDiscountReasons.ExecSQL;
+end;
+
+procedure TEditDiscount.cbAppliesToOrderLineFamilyClick(Sender: TObject);
+begin
+  inherited;
+  SingleItemDiscount := (Sender as TCheckBox).checked;
+  SetFieldAccessibility;
+end;
+
+procedure TEditDiscount.SetSingleItemDiscountAccessibility;
+begin
+  if EditingDiscount then
+  begin
+    if SingleItemDiscount then
+    begin
+      lblAppliesToOrderLineFamilyHint.Hint := 'A discount that applies to individual items cannot' + #13#10 +
+                                              'be changed to apply to the whole account.';
+      cbAppliesToOrderLineFamily.Font.Color := clGrayText;
+    end
+    else begin
+      lblAppliesToOrderLineFamilyHint.Hint := 'A discount that applies to the whole account cannot' + #13#10 +
+                                              'be changed to apply to individual items.';
+    end;
+    cbAppliesToOrderLineFamily.Enabled := False;
+  end
+  else begin
+    cbAppliesToOrderLineFamily.Font.Color := clWindowText;
+  end;
+end;
+
+procedure TEditDiscount.cbIgnoreExclusiveTaxClick(Sender: TObject);
+begin
+  inherited;
+  IgnoreExlusiveTax := (Sender as TCheckBox).checked;
+end;
+
+procedure TEditDiscount.dbeForfeitThresholdContextPopup(Sender: TObject;
+  MousePos: TPoint; var Handled: Boolean);
+begin
+  inherited;
+  Handled := true;
+end;
+    
+procedure TEditDiscount.cbConfirmForfeitClick(Sender: TObject);
+begin
+  inherited;
+    if (Sender as TDBCheckBox).Checked then
+    begin
+      dbeForfeitThreshold.Enabled := TRUE;
+      lblForfeitThreshold.Enabled := TRUE;
+    end
+    else begin
+      dbeForfeitThreshold.Enabled := FALSE;
+      lblForfeitThreshold.Enabled := FALSE;
+    end;
+end;
+
+procedure TEditDiscount.ValidateBoundaryValues(ValueName: String; Value, IntervalStart, IntervalEnd: currency; IntervalLeftBoundary: TIntervalLeftBound; IntervalRightBoundary: TIntervalRightBound);
+begin
+  if not BoundariesSatisfied(Value, IntervalStart, IntervalEnd, IntervalLeftBoundary, IntervalRightBoundary) then
+  begin
+    raise Exception.Create(Format('The %s must be %s %f and %s %f.  Please re-enter.',
+                                  [ValueName, BoundaryText(IntervalLeftBoundary), IntervalStart, BoundaryText(IntervalRightBoundary), IntervalEnd]));
+  end;
+end;
+
+function TEditDiscount.BoundariesSatisfied(  Value, IntervalStart, IntervalEnd: Variant;
+  IntervalLeftBoundary: TIntervalLeftBound; IntervalRightBoundary: TIntervalRightBound): Boolean;
+var
+  LeftSatisfied, RightSatisfied: Boolean;
+begin
+  case IntervalLeftBoundary of
+    ibLeftClosed : LeftSatisfied := (Value >= IntervalStart);
+    ibLeftOpen : LeftSatisfied := (Value > IntervalStart);
+  else
+    LeftSatisfied := FALSE;
+  end;
+
+  case IntervalRightBoundary of
+    ibRightClosed : RightSatisfied := (Value <= IntervalEnd);
+    ibRightOpen : RightSatisfied := (Value < IntervalEnd);
+  else
+    RightSatisfied := FALSE;
+  end;
+
+  Result := LeftSatisfied and RightSatisfied;
+end;
+
+procedure TEditDiscount.ValidateBoundaryValues(ValueName: String; Value, IntervalStart, IntervalEnd: Integer;
+  IntervalLeftBoundary: TIntervalLeftBound; IntervalRightBoundary: TIntervalRightBound);
+begin
+  if not BoundariesSatisfied(Value, IntervalStart, IntervalEnd, IntervalLeftBoundary, IntervalRightBoundary) then
+  begin
+    raise Exception.Create(Format('The %s must be %s %d and %s %d.  Please re-enter.',
+                                  [ValueName, BoundaryText(IntervalLeftBoundary), IntervalStart, BoundaryText(IntervalRightBoundary), IntervalEnd]));
+  end;
+end;
+
+function TEditDiscount.BoundaryText(IntervalBoundary: TIntervalBound): String;
+begin
+  Result := '';
+  case IntervalBoundary of
+    ibLeftClosed : Result := 'greater than or equal to';
+    ibLeftOpen : Result := 'greater than';
+    ibRightClosed : Result := 'less than or equal to';
+    ibRightOpen : Result := 'less than';
+  end;
+end;
+
+procedure TEditDiscount.DiscardContextPopup(Sender: TObject;
+  MousePos: TPoint; var Handled: Boolean);
+begin
+  inherited;
+  Handled := true;
+end;
+
+//// Uses the FSiteCode value to check a sites DBVersion.  If the version is less than
+//// 2.9.3.0 then the new discount functionality will not be available.  This will also
+//// filter out any discounts that have been created using 2.9.3.0 functionality.
+//function TEditDiscount.upgradeRequired(ReqDBVer : String) : Boolean;
+//var
+//  DBVer, DBRequiredVer : TDatabaseVersion;
+//begin
+//  //Create the TDatabaseVersion object
+//  Result := False;
+//  DBRequiredVer := TDatabaseVersion.Create(ReqDBVer);
+//
+//  with dmADO.qRun do
+//    begin
+//      Close;
+//      SQL.Clear;
+//      if (IsMaster) then  // If its a Head Office site then the Module Comms table will be queried.
+//        begin
+//          SQL.Add('select DBVersion from CommsVersions');
+//          Open;
+//
+//          First;
+//          while not EOF do
+//            begin
+//              DBVer := TDataBaseVersion.Create(FieldByName('DBVersion').AsString);
+//              // if the returned DBVersion is less than the required version then the result will
+//              // return false.
+//              if DBVer.IsLowerThan(DBRequiredVer) then
+//                 begin
+//                   Result := True;
+//                   exit;
+//                 end;
+//              next;
+//            end;
+//        end;
+//    end;
+//end;
+
+
+end.

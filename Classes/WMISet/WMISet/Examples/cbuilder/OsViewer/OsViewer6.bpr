@@ -1,0 +1,137 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<!-- C++Builder XML Project -->
+<PROJECT>
+  <MACROS>
+    <VERSION value="BCB.06.00"/>
+    <PROJECT value="OsViewer6.exe"/>
+    <OBJFILES value="OsViewer6.obj FrmOsViewerMainU.obj FrmNewHostU.obj FrmAboutU.obj"/>
+    <RESFILES value="OsViewer6.res"/>
+    <IDLFILES value=""/>
+    <IDLGENFILES value=""/>
+    <DEFFILE value=""/>
+    <RESDEPEN value="$(RESFILES) FrmOsViewerMainU.dfm FrmNewHostU.dfm FrmAboutU.dfm"/>
+    <LIBFILES value=""/>
+    <LIBRARIES value="dbrtl.lib VclCommonDcl60.lib wmirtl60.lib"/>
+    <SPARELIBS value="vcl.lib rtl.lib wmirtl60.lib VclCommonDcl60.lib dbrtl.lib"/>
+    <PACKAGES value="vcl.bpi rtl.bpi vclx.bpi bcbsmp.bpi dclocx.bpi"/>
+    <PATHCPP value=".;"/>
+    <PATHPAS value=".;"/>
+    <PATHRC value=".;"/>
+    <PATHASM value=".;"/>
+    <DEBUGLIBPATH value="$(BCB)\lib\debug"/>
+    <RELEASELIBPATH value="$(BCB)\lib\release"/>
+    <LINKER value="ilink32"/>
+    <USERDEFINES value="_DEBUG"/>
+    <SYSDEFINES value="_RTLDLL;NO_STRICT;USEPACKAGES"/>
+    <MAINSOURCE value="OsViewer6.cpp"/>
+    <INCLUDEPATH value="..\..\..;..\..\..\..\common;&quot;F:\Program Files\Borland\CBuilder6\Projects&quot;;I:\dev\vcl\wmiset\examples\cbuilder\OsViewer;$(BCB)\include;$(BCB)\include\vcl"/>
+    <LIBPATH value="..\..\..;..\..\..\..\common;&quot;F:\Program Files\Borland\CBuilder6\Projects&quot;;..\lib\release;I:\dev\vcl\wmiset\examples\cbuilder\OsViewer;$(BCB)\lib\obj;$(BCB)\lib"/>
+    <WARNINGS value="-w-par"/>
+    <OTHERFILES value=""/>
+  </MACROS>
+  <OPTIONS>
+    <IDLCFLAGS value="-I..\..\.. -I..\..\..\..\common 
+      -I&quot;F:\Program Files\Borland\CBuilder6\Projects&quot; 
+      -II:\dev\vcl\wmiset\examples\cbuilder\OsViewer -I$(BCB)\include 
+      -I$(BCB)\include\vcl -src_suffix cpp -D_DEBUG -boa"/>
+    <CFLAG1 value="-Od -H=$(BCB)\lib\vcl60.csm -Hc -Vx -Ve -X- -r- -a8 -b- -k -y -v -vi- -c 
+      -tW -tWM"/>
+    <PFLAGS value="-$YD -$W -$O- -$A8 -v -JPHNE -M"/>
+    <RFLAGS value=""/>
+    <AFLAGS value="/mx /w2 /zd"/>
+    <LFLAGS value="-D&quot;&quot; -aa -Tpe -x -Gn -v"/>
+    <OTHERFILES value=""/>
+  </OPTIONS>
+  <LINKER>
+    <ALLOBJ value="c0w32.obj $(PACKAGES) Memmgr.Lib sysinit.obj $(OBJFILES)"/>
+    <ALLRES value="$(RESFILES)"/>
+    <ALLLIB value="$(LIBFILES) $(LIBRARIES) import32.lib cp32mti.lib"/>
+    <OTHERFILES value=""/>
+  </LINKER>
+  <FILELIST>
+      <FILE FILENAME="OsViewer6.res" FORMNAME="" UNITNAME="OsViewer6.res" CONTAINERID="ResTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="OsViewer6.cpp" FORMNAME="" UNITNAME="OsViewer6" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="FrmOsViewerMainU.cpp" FORMNAME="FrmOsViewerMain" UNITNAME="FrmOsViewerMainU" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="FrmNewHostU.cpp" FORMNAME="FrmNewHost" UNITNAME="FrmNewHostU" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="FrmAboutU.cpp" FORMNAME="FrmAbout" UNITNAME="FrmAboutU" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+  </FILELIST>
+  <BUILDTOOLS>
+  </BUILDTOOLS>
+
+  <IDEOPTIONS>
+[Version Info]
+IncludeVerInfo=0
+AutoIncBuild=0
+MajorVer=1
+MinorVer=0
+Release=0
+Build=0
+Debug=0
+PreRelease=0
+Special=0
+Private=0
+DLL=0
+Locale=1033
+CodePage=1252
+
+[Version Info Keys]
+CompanyName=
+FileDescription=
+FileVersion=1.0.0.0
+InternalName=
+LegalCopyright=
+LegalTrademarks=
+OriginalFilename=
+ProductName=
+ProductVersion=1.0.0.0
+Comments=
+
+[HistoryLists\hlIncludePath]
+Count=2
+Item0=..\..\..;..\..\..\..\common;F:\Program Files\Borland\CBuilder6\Projects;I:\dev\vcl\wmiset\examples\cbuilder\OsViewer;$(BCB)\include;$(BCB)\include\vcl
+Item1=..\..\..;F:\Program Files\Borland\CBuilder6\Projects;I:\dev\vcl\wmiset\examples\cbuilder\OsViewer;$(BCB)\include;$(BCB)\include\vcl
+
+[HistoryLists\hlLibraryPath]
+Count=2
+Item0=..\..\..;..\..\..\..\common;F:\Program Files\Borland\CBuilder6\Projects;..\lib\release;I:\dev\vcl\wmiset\examples\cbuilder\OsViewer;$(BCB)\lib\obj;$(BCB)\lib
+Item1=..\..\..;F:\Program Files\Borland\CBuilder6\Projects;..\lib\release;I:\dev\vcl\wmiset\examples\cbuilder\OsViewer;$(BCB)\lib\obj;$(BCB)\lib
+
+[HistoryLists\hlDebugSourcePath]
+Count=1
+Item0=$(BCB)\source\vcl
+
+[HistoryLists\hlConditionals]
+Count=1
+Item0=_DEBUG
+
+[Debugging]
+DebugSourceDirs=$(BCB)\source\vcl
+
+[Parameters]
+RunParams=
+Launcher=
+UseLauncher=0
+DebugCWD=
+HostApplication=
+RemoteHost=
+RemotePath=
+RemoteLauncher=
+RemoteCWD=
+RemoteDebug=0
+
+[Compiler]
+ShowInfoMsgs=0
+LinkDebugVcl=0
+LinkCGLIB=0
+
+[CORBA]
+AddServerUnit=1
+AddClientUnit=1
+PrecompiledHeaders=1
+
+[Language]
+ActiveLang=
+ProjectLang=
+RootDir=
+  </IDEOPTIONS>
+</PROJECT>

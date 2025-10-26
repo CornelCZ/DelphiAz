@@ -1,0 +1,93 @@
+/* EPOS look and feel global settings */
+
+font {
+  font-size: 1em;
+}
+
+body {
+  font-family: Tahoma, sans-serif; 
+  overflow: auto; 
+  color: white;
+  background-color: black;
+}
+
+a {
+  text-decoration:none;
+  color: white;
+}
+
+/* button layout class */
+
+table.button {
+  border-collapse: collapse;
+  border: 0px solid black;
+}
+
+.button td {
+  border: 0px solid black;
+  padding: 0px;  
+}
+
+/*.button tr:first-child {height: 7px;}*/
+.button .c11 {height: 7px; width: 7px; background-repeat: no-repeat}
+.button .c12 {height: 7px; background-repeat: repeat-x}
+.button .c13 {height: 7px; width: 7px; background-repeat: no-repeat}
+
+.button .c21 {height: 3em; width: 7px; background-repeat: repeat-y}
+.button .c21 {height: 3em}
+.button .c23 {height: 3em; width: 7px; background-repeat: repeat-y}
+
+.button .c22 a {
+  width: 20em;
+  display: block; 
+  white-space: nowrap;
+  text-align: center;
+}
+
+.halfwidth .c22  a {
+  width: 9.55em;
+}
+
+.button .c22 p {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+
+/*.button tr:first-child+tr+tr {height: 7px;}*/
+.button .c31 {height: 7px; width: 7px; background-repeat: no-repeat}
+.button .c32 {height: 7px; background-repeat: repeat-x}
+.button .c33 {height: 7px; width: 7px; background-repeat: no-repeat}
+
+/* button colour classes */
+
+
+.blue .c11 {background: #aaf url("Images/AztecButtonBlue_1x1.png")}
+.blue .c12 {background: #77c url("Images/AztecButtonBlue_1x2.png")}
+.blue .c13 {background: #44a url("Images/AztecButtonBlue_1x3.png")}
+.blue .c21 {background: #77c url("Images/AztecButtonBlue_2x1.png")}
+.blue .c22 {background: #009}
+.blue .c23 {background: #007 url("Images/AztecButtonBlue_2x3.png")}
+.blue .c31 {background: #009 url("Images/AztecButtonBlue_3x1.png")}
+.blue .c32 {background: #007 url("Images/AztecButtonBlue_3x2.png")}
+.blue .c33 {background: #005 url("Images/AztecButtonBlue_3x3.png")}
+
+.blueup .c11 {background: #aaf url("Images/AztecButtonBlueUp_1x1.png")}
+.blueup .c12 {background: #77c url("Images/AztecButtonBlueUp_1x2.png")}
+.blueup .c13 {background: #44a url("Images/AztecButtonBlueUp_1x3.png")}
+.blueup .c21 {background: #77c url("Images/AztecButtonBlueUp_2x1.png")}
+.blueup .c22 {background: #797AFE}
+.blueup .c23 {background: #007 url("Images/AztecButtonBlueUp_2x3.png")}
+.blueup .c31 {background: #009 url("Images/AztecButtonBlueUp_3x1.png")}
+.blueup .c32 {background: #007 url("Images/AztecButtonBlueUp_3x2.png")}
+.blueup .c33 {background: #005 url("Images/AztecButtonBlueUp_3x3.png")}
+
+.green .c11 {background: #afa url("Images/AztecButtongreen_1x1.png")}
+.green .c12 {background: #7c7 url("Images/AztecButtongreen_1x2.png")}
+.green .c13 {background: #4a4 url("Images/AztecButtongreen_1x3.png")}
+.green .c21 {background: #7c7 url("Images/AztecButtongreen_2x1.png")}
+.green .c22 {background: #009000}
+.green .c23 {background: #070 url("Images/AztecButtongreen_2x3.png")}
+.green .c31 {background: #090 url("Images/AztecButtongreen_3x1.png")}
+.green .c32 {background: #070 url("Images/AztecButtongreen_3x2.png")}
+.green .c33 {background: #050 url("Images/AztecButtongreen_3x3.png")}

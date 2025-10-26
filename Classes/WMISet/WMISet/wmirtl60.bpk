@@ -1,0 +1,182 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<!-- C++Builder XML Project -->
+<PROJECT>
+  <MACROS>
+    <VERSION value="BCB.06.00"/>
+    <PROJECT value="wmirtl60.bpl"/>
+    <OBJFILES value="wmirtl60.obj WmiProcessControl.obj WmiStorageInfo.obj 
+      WmiDiskQuotaControl.obj WmiConnection.obj WmiDataSet.obj WmiRegistry.obj 
+      WmiOs.obj WmiSystemEvents.obj WmiMethod.obj"/>
+    <RESFILES value="wmirtl60.res WmiProcessControl.dcr WmiStorageInfo.dcr 
+      WmiDiskQuotaControl.dcr WmiConnection.dcr WmiDataSet.dcr WmiRegistry.dcr 
+      WmiOs.dcr WmiSystemEvents.dcr WmiMethod.dcr"/>
+    <IDLFILES value=""/>
+    <IDLGENFILES value=""/>
+    <DEFFILE value=""/>
+    <RESDEPEN value="$(RESFILES)"/>
+    <LIBFILES value=""/>
+    <LIBRARIES value="bcb2kaxserver.lib indy.lib dbxcds.lib soaprtl.lib bcbie.lib nmfast.lib 
+      dbexpress.lib inetdbxpress.lib inetdbbde.lib dsnapcon.lib dsnapcrba.lib 
+      visualdbclx.lib teeqr.lib dss.lib tee.lib teedb.lib teeui.lib qrpt.lib 
+      bdecds.lib cds.lib ibxpress.lib vcldbx.lib bdertl.lib adortl.lib vcldb.lib 
+      dclocx.lib bcbsmp.lib"/>
+    <SPARELIBS value="rtl.lib dbrtl.lib bcbsmp.lib dclocx.lib vcldb.lib adortl.lib bdertl.lib 
+      vcldbx.lib ibxpress.lib cds.lib bdecds.lib qrpt.lib teeui.lib teedb.lib 
+      tee.lib dss.lib teeqr.lib visualdbclx.lib dsnapcrba.lib dsnapcon.lib 
+      inetdbbde.lib inetdbxpress.lib dbexpress.lib nmfast.lib bcbie.lib 
+      soaprtl.lib dbxcds.lib indy.lib bcb2kaxserver.lib VclCommonDcl60.lib"/>
+    <PACKAGES value="rtl.bpi VclCommonDcl60.bpi vcl.bpi dbrtl.bpi designide.bpi"/>
+    <PATHCPP value=".;"/>
+    <PATHPAS value=".;"/>
+    <PATHRC value=".;"/>
+    <PATHASM value=".;"/>
+    <DEBUGLIBPATH value="$(BCB)\lib\debug"/>
+    <RELEASELIBPATH value="$(BCB)\lib\release"/>
+    <LINKER value="ilink32"/>
+    <USERDEFINES value=""/>
+    <SYSDEFINES value="_RTLDLL;NO_STRICT;USEPACKAGES"/>
+    <MAINSOURCE value="wmirtl60.cpp"/>
+    <INCLUDEPATH value="&quot;F:\Program Files\Borland\CBuilder6\Projects&quot;;$(BCB)\include;$(BCB)\include\vcl;..\common"/>
+    <LIBPATH value="$(BCB)\Projects\Lib;..\common;&quot;F:\Program Files\Borland\CBuilder6\Projects&quot;;$(BCB)\lib\obj;$(BCB)\lib"/>
+    <WARNINGS value="-w-par"/>
+    <OTHERFILES value=""/>
+  </MACROS>
+  <OPTIONS>
+    <IDLCFLAGS value="-I&quot;F:\Program Files\Borland\CBuilder6\Projects&quot; -I$(BCB)\include 
+      -I$(BCB)\include\vcl -I..\common -src_suffix cpp -boa"/>
+    <CFLAG1 value="-O2 -H=f:\PROGRA~1\borland\CBUILD~3\lib\vcl60.csm -Hc -w -Vx -Ve -Tkh30000 
+      -X- -a8 -b- -k- -vi -I$(BCB)\lib\obj;$(BCB)\include\vcl;$(BCB)\include 
+      -D$(SYSDEFINES);$(USERDEFINES) -c -w-par -w-inl -tWM -tWM -tWM"/>
+    <PFLAGS value="-N2. -N0. -$Y- -$L- -$D- -$A8 
+      -U$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib;$(RELEASELIBPATH) 
+      -I$(BCB)\lib\obj;$(BCB)\include\vcl;$(BCB)\include 
+      -D$(SYSDEFINES);$(USERDEFINES) -v -LUdclstd -M -JPHNE -JPHNE -JPHNE"/>
+    <RFLAGS value="-i$(BCB)\lib\obj;$(BCB)\include\vcl;$(BCB)\include 
+      -D$(SYSDEFINES);$(USERDEFINES)"/>
+    <AFLAGS value="/mx /w2 /zn /i$(BCB)\lib\obj /i$(BCB)\include\vcl /i$(BCB)\include 
+      /d$(SYSDEFINES) /d$(USERDEFINES)"/>
+    <LFLAGS value="-l. -I. -D&quot;Runtime package with WmiSet Components&quot; -aa -Tpp -Gpr -x -Gn 
+      -Gl -Gi -L$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib;$(RELEASELIBPATH)"/>
+    <OTHERFILES value=""/>
+  </OPTIONS>
+  <LINKER>
+    <ALLOBJ value="c0pkg32.obj $(PACKAGES) Memmgr.Lib sysinit.obj $(OBJFILES)"/>
+    <ALLRES value="$(RESFILES)"/>
+    <ALLLIB value="$(LIBFILES) $(LIBRARIES) import32.lib cp32mti.lib"/>
+    <OTHERFILES value=""/>
+  </LINKER>
+  <FILELIST>
+      <FILE FILENAME="wmirtl60.res" FORMNAME="" UNITNAME="wmirtl60.res" CONTAINERID="ResTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="wmirtl60.cpp" FORMNAME="" UNITNAME="wmirtl60" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\rtl.bpi" FORMNAME="" UNITNAME="rtl" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\VclCommonDcl60.bpi" FORMNAME="" UNITNAME="VclCommonDcl60" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="WmiProcessControl.pas" FORMNAME="" UNITNAME="WmiProcessControl" CONTAINERID="PascalCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="WmiProcessControl.dcr" FORMNAME="" UNITNAME="" CONTAINERID="DcrTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\vcl.bpi" FORMNAME="" UNITNAME="vcl" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="WmiStorageInfo.pas" FORMNAME="" UNITNAME="WmiStorageInfo" CONTAINERID="PascalCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="WmiStorageInfo.dcr" FORMNAME="" UNITNAME="" CONTAINERID="DcrTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="WmiDiskQuotaControl.pas" FORMNAME="" UNITNAME="WmiDiskQuotaControl" CONTAINERID="PascalCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="WmiDiskQuotaControl.dcr" FORMNAME="" UNITNAME="" CONTAINERID="DcrTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="WmiConnection.pas" FORMNAME="" UNITNAME="WmiConnection" CONTAINERID="PascalCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="WmiConnection.dcr" FORMNAME="" UNITNAME="" CONTAINERID="DcrTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="WmiDataSet.pas" FORMNAME="" UNITNAME="WmiDataSet" CONTAINERID="PascalCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="WmiDataSet.dcr" FORMNAME="" UNITNAME="" CONTAINERID="DcrTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="WmiRegistry.pas" FORMNAME="" UNITNAME="WmiRegistry" CONTAINERID="PascalCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="WmiRegistry.dcr" FORMNAME="" UNITNAME="" CONTAINERID="DcrTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="WmiOs.pas" FORMNAME="" UNITNAME="WmiOs" CONTAINERID="PascalCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="WmiOs.dcr" FORMNAME="" UNITNAME="" CONTAINERID="DcrTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\dbrtl.bpi" FORMNAME="" UNITNAME="dbrtl" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="WmiSystemEvents.pas" FORMNAME="" UNITNAME="WmiSystemEvents" CONTAINERID="PascalCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="WmiSystemEvents.dcr" FORMNAME="" UNITNAME="" CONTAINERID="DcrTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="designide.bpi" FORMNAME="" UNITNAME="designide" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="WmiMethod.pas" FORMNAME="" UNITNAME="WmiMethod" CONTAINERID="PascalCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="WmiMethod.dcr" FORMNAME="" UNITNAME="" CONTAINERID="DcrTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+  </FILELIST>
+  <BUILDTOOLS>
+  </BUILDTOOLS>
+
+  <IDEOPTIONS>
+[Version Info]
+IncludeVerInfo=1
+AutoIncBuild=0
+MajorVer=1
+MinorVer=0
+Release=0
+Build=0
+Debug=0
+PreRelease=0
+Special=0
+Private=0
+DLL=0
+Locale=1033
+CodePage=1252
+
+[Version Info Keys]
+CompanyName=
+FileDescription=
+FileVersion=1.0.0.0
+InternalName=
+LegalCopyright=
+LegalTrademarks=
+OriginalFilename=
+ProductName=
+ProductVersion=1.0.0.0
+Comments=
+
+[HistoryLists\hlIncludePath]
+Count=2
+Item0=F:\Program Files\Borland\CBuilder6\Projects;$(BCB)\include;$(BCB)\include\vcl;..\common
+Item1=F:\Program Files\Borland\CBuilder6\Projects;$(BCB)\include;$(BCB)\include\vcl
+
+[HistoryLists\hlLibraryPath]
+Count=2
+Item0=$(BCB)\Projects\Lib;..\common;F:\Program Files\Borland\CBuilder6\Projects;$(BCB)\lib\obj;$(BCB)\lib
+Item1=..\common;F:\Program Files\Borland\CBuilder6\Projects;$(BCB)\lib\obj;$(BCB)\lib
+
+[HistoryLists\hlDebugSourcePath]
+Count=1
+Item0=$(BCB)\source\vcl
+
+[HistoryLists\hlConditionals]
+Count=1
+Item0=_DEBUG
+
+[HistoryLists\hlIntOutputDir]
+Count=1
+Item0=.
+
+[HistoryLists\hIBPIOutputDir]
+Count=1
+Item0=.
+
+[Debugging]
+DebugSourceDirs=$(BCB)\source\vcl
+
+[Parameters]
+RunParams=
+Launcher=
+UseLauncher=0
+DebugCWD=
+HostApplication=
+RemoteHost=
+RemotePath=
+RemoteLauncher=
+RemoteCWD=
+RemoteDebug=0
+
+[Compiler]
+ShowInfoMsgs=0
+LinkDebugVcl=0
+LinkCGLIB=0
+
+[CORBA]
+AddServerUnit=1
+AddClientUnit=1
+PrecompiledHeaders=1
+
+[Linker]
+LibPrefix=
+LibSuffix=
+LibVersion=
+  </IDEOPTIONS>
+</PROJECT>

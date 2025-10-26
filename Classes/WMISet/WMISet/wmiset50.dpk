@@ -1,0 +1,63 @@
+package wmiset50;
+
+{$R *.RES}
+{$ALIGN ON}
+{$ASSERTIONS OFF}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS OFF}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO OFF}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST ON}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DESCRIPTION 'WmiSet Components'}
+{$IMPLICITBUILD OFF}
+
+requires
+  vcl50,
+  VclCommon50,
+  Vcldb50;
+
+contains
+  WmiAbstract in 'WmiAbstract.pas',
+  WmiProcessControl in 'WmiProcessControl.pas',
+  WmiStorageInfo in 'WmiStorageInfo.pas',
+  WmiReg in 'WmiReg.pas',
+  WbemScripting_TLB in 'WbemScripting_TLB.pas',
+  WmiErr in 'WmiErr.pas',
+  WmiUtil in 'WmiUtil.pas',
+  FrmStartProcessU in 'FrmStartProcessU.pas',
+  AdsBrowser in 'AdsBrowser.pas',
+  AdsUtil in 'AdsUtil.pas',
+  AdsErr in 'AdsErr.pas',
+  ActiveDS in 'ActiveDS.pas',
+  ActiveDSTLB in 'ActiveDSTLB.pas',
+  WmiRegEditors in 'WmiRegEditors.pas',
+  FrmAdsPathBuilderU in 'FrmAdsPathBuilderU.pas',
+  FrmEditVariantsU in 'FrmEditVariantsU.pas',
+  FrmSelectComputerU in 'FrmSelectComputerU.pas',
+  WmiDiskQuotaControl in 'WmiDiskQuotaControl.pas',
+  FrmAddDiskQuotaU in 'FrmAddDiskQuotaU.pas',
+  WmiDevice in 'WmiDevice.pas',
+  WmiDataSet in 'WmiDataSet.pas',
+  WmiConnection in 'WmiConnection.pas',
+  WmiComponent in 'WmiComponent.pas',
+  FrmRegBrowserU in 'FrmRegBrowserU.pas',
+  WmiRegistry in 'WmiRegistry.pas',
+  WmiOs in 'WmiOs.pas',
+  WmiSystemEvents in 'WmiSystemEvents.pas',
+  WmiMethod in 'WmiMethod.pas';
+
+end.

@@ -1,0 +1,57 @@
+package AztecCommsLib;
+
+{$R *.res}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO ON}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS ON}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DESCRIPTION 'Aztec Communications Library'}
+{$IMPLICITBUILD OFF}
+
+requires
+  rtl,
+  vcl,
+  dbrtl,
+  adortl,
+  AztecDatabaseLib,
+  AztecUtilityLib,
+  AztecLoggingLib;
+
+contains
+  uPerformAuditRead in 'uPerformAuditRead.pas',
+  uAztecWindowMessages in 'uAztecWindowMessages.pas',
+  uAztecComputerDetails in 'uAztecComputerDetails.pas',
+  uAztecFiles in 'uAztecFiles.pas',
+  uAztecLocalProcess in 'uAztecLocalProcess.pas',
+  uAztecPing in 'uAztecPing.pas',
+  uAztecProcess in 'uAztecProcess.pas',
+  uAztecRemoteSQL in 'uAztecRemoteSQL.pas',
+  uAztecServices in 'uAztecServices.pas',
+  uAztecSoftware in 'uAztecSoftware.pas',
+  uRemoteRegistry in 'uRemoteRegistry.pas',
+  uAztecAction in 'uAztecAction.pas',
+  uAztecComputer in 'uAztecComputer.pas',
+  uAztecScheduler in 'uAztecScheduler.pas',
+  uScheduledEventForm in 'uScheduledEventForm.pas' {ScheduledEventProgressForm},
+  ICMPAPI in 'ICMPAPI.pas',
+  uRobustCopy in 'uRobustCopy.pas';
+
+end.
+

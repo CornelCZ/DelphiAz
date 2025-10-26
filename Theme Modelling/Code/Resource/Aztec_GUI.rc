@@ -1,0 +1,13 @@
+AZTEC_BORDER	BITMAP	Aztec_Border.bmp
+AZTEC_BUTTON	BITMAP	Aztec_ButtonBevel.bmp
+AZTEC_SQUARE	BITMAP	Aztec_Square.bmp
+AZTEC_CIRCLE	BITMAP	Aztec_Circle.bmp
+AZTEC_HORIZRECT	BITMAP	Aztec_HorizRect.bmp
+AZTEC_VERTRECT	BITMAP	Aztec_VertRect.bmp
+AZTEC_SEAT	BITMAP	Aztec_Seat.bmp
+AZTEC_DIAMOND	BITMAP	Aztec_Diamond.bmp
+AZTEC_SECURITYICON	BITMAP	Aztec_SecurityIcon.bmp
+TM_MENU_SECURITY	ICON	TM_Menu_Security.ico
+TM_MENU_LARGEFONT	ICON	TM_Menu_LargeFont.ico
+TM_MENU_SMALLFONT	ICON	TM_Menu_SmallFont.ico
+TM_MENU_SORT	ICON	TM_Menu_Sort.ico

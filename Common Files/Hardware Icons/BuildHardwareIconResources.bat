@@ -1,0 +1,3 @@
+brcc32 AztecHardwareIcons16x16.rc
+brcc32 AztecHardwareIcons32x32.rc
+brcc32 AztecHardwareIcons32x32_ico.rc

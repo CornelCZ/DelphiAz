@@ -1,0 +1,3 @@
+LoadBillFooterData		TEXT	LoadBillFooterData.sql
+SaveBillFooterData		TEXT	SaveBillFooterData.sql
+DropBillFooterData		TEXT	DropBillFooterData.sql

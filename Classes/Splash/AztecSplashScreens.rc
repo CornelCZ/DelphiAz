@@ -1,0 +1,8 @@
+EPOS_MANAGER_SPLASH_IMAGE	BITMAP	"Splash Screen Graphics\EPOSManagerService.bmp"
+SERVICE_WATCHDOG_SPLASH_IMAGE	BITMAP	"Splash Screen Graphics\AztecServiceWatchdog.bmp"
+ESTATE_MANAGEMENT_SPLASH_IMAGE	BITMAP	"Splash Screen Graphics\EstateManagement.bmp"
+VSS_BUILD_TOOL_SPLASH_IMAGE	BITMAP  "Splash Screen Graphics\AztecBuildTool.bmp"
+AZTEC_RELEASENOTES_SPLASH_IMAGE BITMAP  "Splash Screen Graphics\AztecReleaseNotes.bmp"
+SHELF_EDGE_LABELS_SPLASH_IMAGE  BITMAP  "Splash Screen Graphics\ShelfEdgeLabels.bmp"
+XML_PRODUCT_IMPORT_SPLASH_IMAGE BITMAP  "Splash Screen Graphics\XMLProductImport.bmp"
+RELEASE_MANAGER_SPLASH_IMAGE    BITMAP  "Splash Screen Graphics\ReleaseManager.bmp"

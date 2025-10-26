@@ -1,0 +1,93 @@
+[FileVersion]
+Version=6.0
+[Compiler]
+A=8
+B=0
+C=0
+D=1
+E=0
+F=0
+G=1
+H=1
+I=1
+J=0
+K=0
+L=1
+M=0
+N=1
+O=0
+P=1
+Q=0
+R=0
+S=0
+T=0
+U=0
+V=1
+W=0
+X=1
+Y=2
+Z=1
+ShowHints=1
+ShowWarnings=1
+UnitAliases=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
+[Linker]
+MapFile=0
+OutputObjs=0
+ConsoleApp=1
+DebugInfo=1
+RemoteSymbols=0
+MinStackSize=16384
+MaxStackSize=4194304
+ImageBase=4194304
+ExeDescription=
+[Directories]
+OutputDir=..\..\Bin
+UnitOutputDir=..\..\dcu
+PackageDLLOutputDir=
+PackageDCPOutputDir=
+SearchPath=..\..\Common Files\WinRunner;Components;C:\Program Files\Woll2Woll\ip3000vcl6\source
+Packages=AztecBaseClassesLib;AztecCommsLib;AztecConfigurationLib;AztecDatabaseLib;AztecLoggingLib;AztecReportingLib;AztecSecurityLib;AztecSplashScreenLib;AztecUtilityLib;dclOffice2k;designide;adortl;bdertl;dbrtl;ip3000v6;rtl;vcl;vcldb;vcldbx;vclsmp;vclx;rbDB66;rbRCL66;rbBDE66;rbTDBC66;rbUSER66
+Conditionals=
+DebugSourceDirs=
+UsePackages=1
+[Parameters]
+RunParams=username=zonaldev;password=AOSOELO
+HostApplication=
+Launcher=
+UseLauncher=0
+DebugCWD=
+[Language]
+ActiveLang=
+ProjectLang=
+RootDir=
+[Version Info]
+IncludeVerInfo=0
+AutoIncBuild=0
+MajorVer=5
+MinorVer=1
+Release=2
+Build=0
+Debug=0
+PreRelease=1
+Special=0
+Private=1
+DLL=0
+Locale=1033
+CodePage=1252
+[Version Info Keys]
+CompanyName=Zonal Retail Data Systems
+FileDescription=Aztec Product Modelling System
+FileVersion=5.1.2.0
+InternalName=Product Modelling
+LegalCopyright=Copyright (c) Zonal Retail Data Systems 2002
+LegalTrademarks=
+OriginalFilename=
+ProductName=Product Modelling
+ProductVersion=5.1.2.A
+Comments=
+PrivateBuild=18-March-2003
+[Excluded Packages]
+c:\program files\borland\delphi6\Bin\dclsoap60.bpl=Borland SOAP Components
+[HistoryLists\hlUnitAliases]
+Count=1
+Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;

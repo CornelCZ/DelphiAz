@@ -1,0 +1,11 @@
+:Base WMISET.HLP
+:Title WMISet components
+1 TWmiConnection=TWmiConnection
+1 TWmiDiskQuotaControl=TWmiDiskQuotaControl
+1 TWmiProcessControl=TWmiProcessControl
+1 TWmiMethod=TWmiMethod
+1 TWmiQuery=TWmiQuery
+1 TWmiRegistry=TWmiRegistry
+1 TWmiOs=TWmiOs
+1 TWmiStorageInfo=TWmiStorageInfo
+1 TWmiSystemEvents=TWmiSystemEvents

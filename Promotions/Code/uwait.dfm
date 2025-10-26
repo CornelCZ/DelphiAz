@@ -1,0 +1,87 @@
+object fwait: Tfwait
+  Left = 418
+  Top = 364
+  BorderIcons = []
+  BorderStyle = bsNone
+  Caption = 'Dialog'
+  ClientHeight = 146
+  ClientWidth = 498
+  Color = clBtnFace
+  Font.Charset = ANSI_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -13
+  Font.Name = 'Arial'
+  Font.Style = []
+  OldCreateOrder = True
+  Position = poScreenCenter
+  Scaled = False
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  PixelsPerInch = 96
+  TextHeight = 16
+  object Shape1: TShape
+    Left = 0
+    Top = 0
+    Width = 498
+    Height = 146
+    Align = alClient
+    Brush.Style = bsClear
+    Pen.Color = clRed
+    Pen.Width = 5
+  end
+  object Label1: TLabel
+    Left = 8
+    Top = 13
+    Width = 481
+    Height = 35
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'Please Wait'
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -30
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentFont = False
+    ShowAccelChar = False
+  end
+  object Label2: TLabel
+    Left = 8
+    Top = 56
+    Width = 481
+    Height = 21
+    Alignment = taCenter
+    AutoSize = False
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -18
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentFont = False
+    ShowAccelChar = False
+  end
+  object Label3: TLabel
+    Left = 8
+    Top = 121
+    Width = 481
+    Height = 16
+    Alignment = taCenter
+    AutoSize = False
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentFont = False
+    ShowAccelChar = False
+  end
+  object Bar: TProgressBar
+    Left = 88
+    Top = 88
+    Width = 321
+    Height = 25
+    Min = 0
+    Max = 100
+    TabOrder = 0
+  end
+end

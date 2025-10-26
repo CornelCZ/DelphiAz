@@ -1,0 +1,50 @@
+package AztecBaseClassesLib;
+
+{$R *.res}
+{$R 'uAztecProgress.dcr'}
+{$R 'uAztecPathLabel.dcr'}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO ON}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DESCRIPTION 'Aztec Base Classes Library'}
+{$IMPLICITBUILD OFF}
+
+requires
+  vcl,
+  rtl,
+  dbrtl,
+  adortl,
+  AztecDatabaseLib,
+  bdertl,
+  VclCommon60,
+  wmiset60,
+  AztecUtilityLib;
+
+contains
+  uEposDevice in 'uEposDevice.pas',
+  uAztecService in 'uAztecService.pas' {AztecBaseService: TService},
+  uAztecDialog in 'uAztecDialog.pas',
+  uAztecButton in 'uAztecButton.pas',
+  uAztecPopupMenu in 'uAztecPopupMenu.pas',
+  uAztecProgress in 'uAztecProgress.pas',
+  uAztecPathLabel in 'uAztecPathLabel.pas';
+
+end.

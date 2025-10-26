@@ -1,0 +1,11 @@
+ProductsTreeviewPreload		TEXT	ProductsTreeviewPreload.sql
+ConfigTreeviewPreload		TEXT	ConfigTreeviewPreload.sql
+GetUniqueID			TEXT	GetUniqueID.sql
+LoadPromotionalFooterData		TEXT	LoadPromotionalFooterData.sql
+SavePromotionalFooterData		TEXT	SavePromotionalFooterData.sql
+SiteSavePromotionalFooterData	TEXT	SiteSavePromotionalFooterData.sql
+DropPromotionalFooterData		TEXT	DropPromotionalFooterData.sql
+SetUpCopyFooter			TEXT	SetUpCopyFooter.sql
+ProcessSaleGroupDetail		TEXT	ProcessSaleGroupDetail.sql
+LoadSalesAreaOverrideMapping    TEXT    LoadSalesAreaOverrideMapping.sql
+SaveSalesAreaOverrideMapping    TEXT    SaveSalesAreaOverrideMapping.sql

@@ -1,0 +1,6 @@
+SET NOCOUNT ON
+
+DROP TABLE #BillFooterOverride
+DROP TABLE #BillFooterTextOverride
+
+SET NOCOUNT OFF
